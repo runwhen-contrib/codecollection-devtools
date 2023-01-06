@@ -9,8 +9,17 @@
         "ms-python.python",
         "njpwerner.autodocstring"
     ],
-    "runArgs": ["--env-file",".env","-p","3000:3000"],
-    "forwardPorts": [3000],
+    "runArgs": [
+        "--env-file",
+        ".env",
+        "-p",
+        "3000:3000",
+        "--name",
+        "devtools"
+    ],
+    "forwardPorts": [
+        3000
+    ],
     "workspaceMount": "source=${localWorkspaceFolder}/,target=/app/,type=bind",
     "workspaceFolder": "/app/",
     // Configure tool-specific properties.
