@@ -1,0 +1,13 @@
+version: '3.9'
+# LOCAL DEV
+services:
+  devtools:
+    container_name: devtools
+    user: 1000:1000
+    image: ghcr.io/runwhen-contrib/codecollection-devtools:latest
+    env_file: .env
+    volumes:
+      # Mount local codebase to reflect changes for local dev
+      - .:/app
+    ports:
+      - 3000:3000
