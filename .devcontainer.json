@@ -1,10 +1,7 @@
 {
     "name": "devtools",
-    "dockerComposeFile": [
-        "docker-compose.yaml"
-    ],
-    "service": "devtools",
     "shutdownAction": "none",
+    "image": "us-docker.pkg.dev/runwhen-nonprod-shared/public-images/codecollection-devtools:main-04edc25e",
     "extensions": [
         "robocorp.robotframework-lsp",
         "ms-python.pylint",
@@ -12,6 +9,9 @@
         "ms-python.python",
         "njpwerner.autodocstring"
     ],
+    "runArgs": ["--env-file",".env","-p","3000:3000"],
+    "forwardPorts": [3000],
+    "workspaceMount": "source=${localWorkspaceFolder}/,target=/app/,type=bind",
     "workspaceFolder": "/app/",
     // Configure tool-specific properties.
     "customizations": {
