@@ -1,0 +1,53 @@
+{
+    "name": "devtools",
+    // this devcontainer config is for running from source
+    "dockerComposeFile": [
+        "docker-compose.yaml"
+    ],
+    "service": "devtools",
+    "shutdownAction": "none",
+    "extensions": [
+        "robocorp.robotframework-lsp",
+        "ms-python.pylint",
+        "ms-python.black-formatter",
+        "ms-python.python",
+        "njpwerner.autodocstring"
+    ],
+    "workspaceFolder": "/app/",
+    // Configure tool-specific properties.
+    "customizations": {
+        // Configure properties specific to VS Code.
+        // configuration following google standard
+        "vscode": {
+            "settings": {
+                "python.languageServer": "Jedi",
+                "python.linting.enabled": true,
+                "python.linting.pylintEnabled": true,
+                "python.linting.pylintArgs": [
+                    "--max-line-length=120",
+                    "--enable=W0614" // track unused imports
+                ],
+                "[python]": {
+                    "editor.insertSpaces": true,
+                    "editor.tabSize": 4
+                },
+                "editor.formatOnSave": true,
+                "editor.lineNumbers": "on",
+                "python.formatting.provider": "black",
+                "python.formatting.blackArgs": [
+                    "--line-length",
+                    "120"
+                ],
+                "robot.language-server.python": "/usr/local/bin/python",
+                "robot.pythonpath": [
+                    "/app",
+                    "/app/rw-public-codecollection/libraries",
+                    "/app/rw-public-codecollection/libraries/RW",
+                    "/app/codecollection/libraries",
+                    "/app/codecollection/libraries/RW",
+                    "/app/dev_facade"
+                ]
+            }
+        }
+    }
+}
