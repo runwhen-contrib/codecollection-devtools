@@ -1,0 +1,5 @@
+auth
+rw-public-codecollection
+*codecollection*
+.env
+__pycache__
