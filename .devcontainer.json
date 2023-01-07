@@ -1,7 +1,7 @@
 {
     "name": "devtools",
     "shutdownAction": "none",
-    "image": "us-docker.pkg.dev/runwhen-nonprod-shared/public-images/codecollection-devtools:main-1b019cde",
+    "image": "us-docker.pkg.dev/runwhen-nonprod-shared/public-images/codecollection-devtools:main-9f10a326",
     "extensions": [
         "robocorp.robotframework-lsp",
         "ms-python.pylint",
@@ -14,13 +14,17 @@
         ".env",
         "-p",
         "3000:3000",
+        "-v",
+        "${localWorkspaceFolder}/codecollection/:/app/codecollection/:z",
+        "-v",
+        "${localWorkspaceFolder}/auth/:/app/auth/:z",
         "--name",
         "devtools"
     ],
+    "postCreateCommand":"pip install --user --no-cache-dir -r /app/codecollection/requirements.txt",
     "forwardPorts": [
         3000
     ],
-    "workspaceMount": "source=${localWorkspaceFolder}/,target=/app/,type=bind",
     "workspaceFolder": "/app/",
     // Configure tool-specific properties.
     "customizations": {
