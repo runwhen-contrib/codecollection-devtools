@@ -7,6 +7,7 @@ USER root
 RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 RUN curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
 RUN echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
+RUN rm kubectl.sha256
 RUN chmod +x kubectl
 RUN mv kubectl /usr/local/bin/
 
@@ -24,9 +25,11 @@ ENV PYTHONPATH "$PYTHONPATH:.:/app/rw-public-codecollection/libraries:/app/rw-pu
 RUN mkdir -p /robot_logs
 RUN chown -R 1000:0 /robot_logs
 RUN chown 1000:0 /app/ro
-ENV PATH "$PATH:/app/"
+ENV PATH "$PATH:/home/python/.local/bin/:/app/"
 
 RUN mv .pylintrc.google ~/.pylintrc
+
+RUN chown 1000:0 -R /app
 
 USER $USERNAME
 RUN pip install --user pylint
