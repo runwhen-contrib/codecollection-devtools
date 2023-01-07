@@ -1,7 +1,7 @@
 {
     "name": "devtools",
     "shutdownAction": "none",
-    "image": "us-docker.pkg.dev/runwhen-nonprod-shared/public-images/codecollection-devtools:main-9f10a326",
+    "image": "us-docker.pkg.dev/runwhen-nonprod-shared/public-images/codecollection-devtools:main-5c0d4bc7",
     "extensions": [
         "robocorp.robotframework-lsp",
         "ms-python.pylint",
