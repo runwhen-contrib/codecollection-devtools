@@ -27,6 +27,6 @@ github:
     addComment: false
 
 tasks:
-  - name: Post create commands
+  - init: Install deps
     command: |
       pip install --user --no-cache-dir -r /workspace/codecollection-devtools/codecollection/requirements.txt

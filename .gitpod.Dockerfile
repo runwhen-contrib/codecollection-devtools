@@ -28,7 +28,7 @@ ENV PYTHONPATH "$PYTHONPATH:.:$workdir/rw-public-codecollection/libraries:$workd
 RUN mkdir -p /robot_logs
 RUN chown -R 1000:0 /robot_logs
 RUN chown 1000:0 $workdir/ro
-ENV PATH "$PATH:/home/python/.local/bin/:$workdir/"
+ENV PATH "$PATH:/home/python/.local/bin/:$workdir/:/home/gitpod/.local/bin"
 
 RUN mv .pylintrc.google ~/.pylintrc
 
@@ -37,6 +37,7 @@ RUN chown 1000:0 -R $workdir
 USER $USERNAME
 RUN pip install --user pylint
 RUN pip install --user black
+RUN pip install --user https://raw.githubusercontent.com/runwhen-contrib/codecollection-template/main/requirements.txt
 
 # Install gcloud sdk 
 # RUN curl -sSL https://sdk.cloud.google.com | bash
