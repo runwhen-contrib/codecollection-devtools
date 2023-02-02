@@ -30,3 +30,7 @@ tasks:
   - init: Install deps
     command: |
       pip install --user --no-cache-dir -r /workspace/codecollection-devtools/codecollection/requirements.txt
+  - name: Run log server
+    command: |
+      mkdir -p /workspace/robot_logs/ 
+      python -m http.server --bind 0.0.0.0 --directory /workspace/robot_logs/", "3000"
