@@ -2,6 +2,8 @@ FROM gitpod/workspace-full
 
 ENV workdir /workspace/codecollection-devtools
 ENV python_version 3.9
+ENV robot_log_dir /workspace/robot_logs
+
 RUN mkdir -p $workdir
 WORKDIR $workdir
 
@@ -40,4 +42,3 @@ RUN pip install --user --no-cache-dir -r https://raw.githubusercontent.com/runwh
 # RUN gcloud components install gke-gcloud-auth-plugin --quiet
 
 EXPOSE 3000
-# CMD ["python", "-m", "http.server", "--bind", "0.0.0.0", "--directory", "$workdir/robot_logs/", "3000"]

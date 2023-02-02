@@ -1,5 +1,6 @@
 FROM python:3.9.1 as runtime
 ENV workdir /app
+ENV robot_log_dir /robot_logs
 RUN mkdir -p $workdir
 WORKDIR $workdir
 
@@ -23,8 +24,8 @@ RUN useradd -rm -d /home/$USERNAME -s /bin/bash -g root -G sudo -u $USER_UID $US
 # Robotframework setup
 ENV PYTHONPATH "$PYTHONPATH:.:$workdir/rw-public-codecollection/libraries:$workdir/rw-public-codecollection/codebundles:$workdir/codecollection/libraries:$workdir/codecollection/codebundles:$workdir/dev_facade"
 # viewable logs
-RUN mkdir -p /robot_logs
-RUN chown -R 1000:0 /robot_logs
+RUN mkdir -p $robot_log_dir
+RUN chown -R 1000:0 $robot_log_dir
 RUN chown 1000:0 $workdir/ro
 ENV PATH "$PATH:/home/python/.local/bin/:$workdir/"
 
@@ -42,4 +43,4 @@ ENV PATH "$PATH:/home/python/google-cloud-sdk/bin/"
 RUN gcloud components install gke-gcloud-auth-plugin --quiet
 
 EXPOSE 3000
-CMD ["python", "-m", "http.server", "--bind", "0.0.0.0", "--directory", "/robot_logs/", "3000"]
+CMD ["python", "-m", "http.server", "--bind", "0.0.0.0", "--directory", "$robot_log_dir/", "3000"]
