@@ -25,7 +25,7 @@ github:
     addCheck: false
     # add a "Review in Gitpod" button as a comment to pull requests (defaults to false)
     addComment: false
-    
+
 workspaceLocation: "/app/"
 
 tasks:
@@ -34,4 +34,4 @@ tasks:
       docker-compose up
   - name: Post create commands
     command: |
-      pip install --user --no-cache-dir -r /app/codecollection/requirements.txt
+      pip install --user --no-cache-dir -r /workspace/codecollection-devtools/codecollection/requirements.txt
