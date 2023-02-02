@@ -15,7 +15,7 @@ WORKDIR $workdir
 # # RUN mv kubectl /usr/local/bin/
 
 COPY . .
-RUN cp -f .gitpod.settings.json .vscode/settings.json
+RUN cp -f $workdir/.gitpod.settings.json $workdir/.vscode/settings.json
 # Setup user to represent developer permissions in container
 # ARG USERNAME=python
 # ARG USER_UID=1000
