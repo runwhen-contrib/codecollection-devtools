@@ -17,7 +17,7 @@
         "--line-length",
         "120"
     ],
-    "robot.language-server.python": "/usr/local/bin/python",
+    "robot.language-server.python": "/home/gitpod/.pyenv/shims/python",
     "robot.pythonpath": [
         "/workspace/codecollection-devtools",
         "/workspace/codecollection-devtools/rw-public-codecollection/libraries",
