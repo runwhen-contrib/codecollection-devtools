@@ -24,6 +24,7 @@ COPY . .
 
 # Robotframework setup
 RUN pyenv install $python_version
+RUN pyenv shell 3.9
 ENV PYTHONPATH "$PYTHONPATH:.:$workdir/rw-public-codecollection/libraries:$workdir/rw-public-codecollection/codebundles:$workdir/codecollection/libraries:$workdir/codecollection/codebundles:$workdir/dev_facade"
 # viewable logs
 RUN mkdir -p $workdir/robot_logs
