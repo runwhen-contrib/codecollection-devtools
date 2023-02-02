@@ -1,4 +1,5 @@
 FROM gitpod/workspace-full
+FROM us-docker.pkg.dev/runwhen-nonprod-shared/public-images/codecollection-devtools:main-5c0d4bc7
 FROM python:3.9.1 as runtime
 RUN mkdir -p /app
 WORKDIR /app
