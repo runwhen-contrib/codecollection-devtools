@@ -29,6 +29,7 @@ github:
 tasks:
   - init: Install deps
     command: |
+      cp .gitpod.settings.json .vscode/settings.json
       pip install --user --no-cache-dir -r /workspace/codecollection-devtools/codecollection/requirements.txt
   - name: Run log server
     command: |

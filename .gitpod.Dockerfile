@@ -18,9 +18,6 @@ WORKDIR $workdir
 
 COPY . .
 
-# Copy vscode workspace settings with gitpod paths
-COPY .gitpod.settings.json .vscode/settings.json
-
 # Robotframework setup
 RUN pyenv install $python_version
 RUN pyenv global 3.9
