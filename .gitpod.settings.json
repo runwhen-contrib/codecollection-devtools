@@ -1,0 +1,27 @@
+{
+    "python.languageServer": "Jedi",
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true,
+    "python.linting.pylintArgs": [
+        "--max-line-length=120",
+        "--enable=W0614"
+    ],
+    "[python]": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 4
+    },
+    "editor.formatOnSave": true,
+    "editor.lineNumbers": "on",
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": [
+        "--line-length",
+        "120"
+    ],
+    "robot.language-server.python": "/usr/local/bin/python",
+    "robot.pythonpath": [
+        "/workspace/codecollection-devtools",
+        "/workspace/codecollection-devtools/rw-public-codecollection/libraries",
+        "/workspace/codecollection-devtools/rw-public-codecollection/libraries/RW",
+        "/workspace/codecollection-devtools/dev_facade"
+    ]
+}

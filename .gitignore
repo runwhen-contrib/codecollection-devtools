@@ -5,3 +5,4 @@ rw-public-codecollection
 __pycache__
 *robot_logs*
 .python-version
+.vscode/settings.json
