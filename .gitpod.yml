@@ -4,7 +4,6 @@ image: us-docker.pkg.dev/runwhen-nonprod-shared/public-images/codecollection-dev
 vscode:
   extensions:
     - robocorp.robotframework-lsp
-    - ms-python.pylint
     - ms-python.black-formatter
     - ms-python.python
     - njpwerner.autodocstring
