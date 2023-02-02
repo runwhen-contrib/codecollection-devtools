@@ -27,9 +27,9 @@ github:
     addComment: false
 
 tasks:
-  - init: Install deps
+  - before: Install deps
     command: |
-      cp .gitpod.settings.json .vscode/settings.json
+      cp .gitpod.settings.json /workspace/.vscode-remote/data/Machine/settings.json
       pip install --user --no-cache-dir -r /workspace/codecollection-devtools/codecollection/requirements.txt
   - name: Run log server
     command: |
