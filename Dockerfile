@@ -1,6 +1,7 @@
 FROM python:3.9.1 as runtime
-RUN mkdir -p /app
-WORKDIR /app
+ENV workdir /app
+RUN mkdir -p $workdir
+WORKDIR $workdir
 
 USER root
 # Install and validate kubectl
@@ -20,16 +21,16 @@ ARG USER_GID=1000
 RUN useradd -rm -d /home/$USERNAME -s /bin/bash -g root -G sudo -u $USER_UID $USERNAME
 
 # Robotframework setup
-ENV PYTHONPATH "$PYTHONPATH:.:/app/rw-public-codecollection/libraries:/app/rw-public-codecollection/codebundles:/app/codecollection/libraries:/app/codecollection/codebundles:/app/dev_facade"
+ENV PYTHONPATH "$PYTHONPATH:.:$workdir/rw-public-codecollection/libraries:$workdir/rw-public-codecollection/codebundles:$workdir/codecollection/libraries:$workdir/codecollection/codebundles:$workdir/dev_facade"
 # viewable logs
 RUN mkdir -p /robot_logs
 RUN chown -R 1000:0 /robot_logs
-RUN chown 1000:0 /app/ro
-ENV PATH "$PATH:/home/python/.local/bin/:/app/"
+RUN chown 1000:0 $workdir/ro
+ENV PATH "$PATH:/home/python/.local/bin/:$workdir/"
 
 RUN mv .pylintrc.google ~/.pylintrc
 
-RUN chown 1000:0 -R /app
+RUN chown 1000:0 -R $workdir
 
 USER $USERNAME
 RUN pip install --user pylint
