@@ -3,3 +3,4 @@ rw-public-codecollection
 *codecollection*
 .env
 __pycache__
+*robot_logs*

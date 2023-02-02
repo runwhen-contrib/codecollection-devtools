@@ -24,16 +24,16 @@ COPY . .
 # Robotframework setup
 ENV PYTHONPATH "$PYTHONPATH:.:$workdir/rw-public-codecollection/libraries:$workdir/rw-public-codecollection/codebundles:$workdir/codecollection/libraries:$workdir/codecollection/codebundles:$workdir/dev_facade"
 # viewable logs
-RUN mkdir -p /robot_logs
-RUN chown -R 1000:0 /robot_logs
-RUN chown 1000:0 $workdir/ro
+RUN mkdir -p $workdir/robot_logs
+# RUN chown -R 1000:0 /robot_logs
+# RUN chown 1000:0 $workdir/ro
 ENV PATH "$PATH:/home/python/.local/bin/:$workdir/:/home/gitpod/.local/bin"
 
 RUN mv .pylintrc.google ~/.pylintrc
 
-RUN chown 1000:0 -R $workdir
+# RUN chown 1000:0 -R $workdir
 
-USER $USERNAME
+# USER $USERNAME
 RUN pip install --user pylint
 RUN pip install --user black
 RUN pip install --user https://raw.githubusercontent.com/runwhen-contrib/codecollection-template/main/requirements.txt
@@ -44,4 +44,4 @@ RUN pip install --user https://raw.githubusercontent.com/runwhen-contrib/codecol
 # # RUN gcloud components install gke-gcloud-auth-plugin --quiet
 
 EXPOSE 3000
-CMD ["python", "-m", "http.server", "--bind", "0.0.0.0", "--directory", "/robot_logs/", "3000"]
+CMD ["python", "-m", "http.server", "--bind", "0.0.0.0", "--directory", "$workdir/robot_logs/", "3000"]
