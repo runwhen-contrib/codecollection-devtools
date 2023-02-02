@@ -26,7 +26,6 @@ github:
     # add a "Review in Gitpod" button as a comment to pull requests (defaults to false)
     addComment: false
 
-workspaceLocation: "/app/"
 
 tasks:
   - name: Post create commands
