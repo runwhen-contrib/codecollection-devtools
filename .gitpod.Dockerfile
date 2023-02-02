@@ -1,11 +1,11 @@
 FROM gitpod/workspace-full
 
-ENV workdir /workspace/codecollection-devtools
+ENV WORKDIR /workspace/codecollection-devtools
 ENV python_version 3.9
-ENV robot_log_dir /workspace/robot_logs
+ENV ROBOT_LOG_DIR /workspace/robot_logs
 
-RUN mkdir -p $workdir
-WORKDIR $workdir
+RUN mkdir -p $WORKDIR
+WORKDIR $WORKDIR
 
 ## Commented out if not needed in the dev container
 # USER root
@@ -23,9 +23,9 @@ COPY . .
 # Robotframework setup
 RUN pyenv install $python_version
 RUN pyenv global 3.9
-ENV PYTHONPATH "$PYTHONPATH:.:$workdir/rw-public-codecollection/libraries:$workdir/rw-public-codecollection/codebundles:$workdir/codecollection/libraries:$workdir/codecollection/codebundles:$workdir/dev_facade"
+ENV PYTHONPATH "$PYTHONPATH:.:$WORKDIR/rw-public-codecollection/libraries:$WORKDIR/rw-public-codecollection/codebundles:$WORKDIR/codecollection/libraries:$WORKDIR/codecollection/codebundles:$WORKDIR/dev_facade"
 
-ENV PATH "$PATH:/home/python/.local/bin/:$workdir/:/home/gitpod/.local/bin"
+ENV PATH "$PATH:/home/python/.local/bin/:$WORKDIR/:/home/gitpod/.local/bin"
 RUN mv .pylintrc.google ~/.pylintrc
 
 # USER $USERNAME

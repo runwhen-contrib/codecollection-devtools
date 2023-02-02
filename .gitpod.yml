@@ -33,5 +33,5 @@ tasks:
       pip install --user --no-cache-dir -r /workspace/codecollection-devtools/codecollection/requirements.txt
   - name: Run log server
     command: |
-      mkdir -p /workspace/robot_logs/ 
-      python -m http.server --bind 0.0.0.0 --directory /workspace/robot_logs/ 3000
+      mkdir -p $ROBOT_LOG_DIR 
+      python -m http.server --bind 0.0.0.0 --directory $ROBOT_LOG_DIR 3000
