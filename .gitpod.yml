@@ -1,5 +1,6 @@
 
-image: us-docker.pkg.dev/runwhen-nonprod-shared/public-images/codecollection-devtools:main-5c0d4bc7
+image: 
+  file: .gitpod.Dockerfile
 
 vscode:
   extensions:
@@ -28,9 +29,6 @@ github:
 workspaceLocation: "/app/"
 
 tasks:
-  - name: Pull up image
-    command: |
-      docker-compose up
   - name: Post create commands
     command: |
       pip install --user --no-cache-dir -r /workspace/codecollection-devtools/codecollection/requirements.txt
