@@ -1,6 +1,7 @@
 FROM gitpod/workspace-full
 
 ENV workdir /workspace/codecollection-devtools
+ENV python_version 3.9
 RUN mkdir -p $workdir
 WORKDIR $workdir
 
@@ -22,6 +23,7 @@ COPY . .
 # RUN useradd -rm -d /home/$USERNAME -s /bin/bash -g root -G sudo -u $USER_UID $USERNAME
 
 # Robotframework setup
+RUN pyenv install $python_version
 ENV PYTHONPATH "$PYTHONPATH:.:$workdir/rw-public-codecollection/libraries:$workdir/rw-public-codecollection/codebundles:$workdir/codecollection/libraries:$workdir/codecollection/codebundles:$workdir/dev_facade"
 # viewable logs
 RUN mkdir -p $workdir/robot_logs
@@ -36,7 +38,7 @@ RUN mv .pylintrc.google ~/.pylintrc
 # USER $USERNAME
 RUN pip install --user pylint
 RUN pip install --user black
-RUN pip install --user https://raw.githubusercontent.com/runwhen-contrib/codecollection-template/main/requirements.txt
+RUN pip install --user --no-cache-dir -r https://raw.githubusercontent.com/runwhen-contrib/codecollection-template/main/requirements.txt
 
 # # Install gcloud sdk 
 # # RUN curl -sSL https://sdk.cloud.google.com | bash
