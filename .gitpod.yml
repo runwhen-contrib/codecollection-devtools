@@ -29,5 +29,4 @@ github:
 tasks:
   - init: Install deps
     command: |
-      pyenv shell 3.9
       pip install --user --no-cache-dir -r /workspace/codecollection-devtools/codecollection/requirements.txt
