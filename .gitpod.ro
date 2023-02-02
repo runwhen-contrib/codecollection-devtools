@@ -1,0 +1,9 @@
+#!/bin/bash
+# ======================================================================================
+# Synopsis: Shorthand for robot run command that outputs logs to a standard location for viewing at localhost:3000
+# ======================================================================================
+function ro (){
+    TYPE=$(echo ${@} | cut -d '.' -f-1)
+    robot --loglevel trace --outputdir /workspace/robot_logs/${PWD##*/} --log $TYPE-log.html --output $TYPE-output.xml --report $TYPE-report.html "${@:1}"
+}
+ro "$@"

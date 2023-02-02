@@ -30,6 +30,7 @@ tasks:
   - name: Install deps
     before: |
       cp .gitpod.settings.json /workspace/.vscode-remote/data/Machine/settings.json
+      cp .gitpod.ro ro
       pip install --user --no-cache-dir -r /workspace/codecollection-devtools/codecollection/requirements.txt
   - name: Run log server
     command: |
