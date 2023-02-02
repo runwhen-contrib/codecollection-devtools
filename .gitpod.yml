@@ -1,0 +1,37 @@
+
+image: us-docker.pkg.dev/runwhen-nonprod-shared/public-images/codecollection-devtools:main-5c0d4bc7
+
+vscode:
+  extensions:
+    - robocorp.robotframework-lsp
+    - ms-python.pylint
+    - ms-python.black-formatter
+    - ms-python.python
+    - njpwerner.autodocstring
+  
+ports:
+  - name: runserver
+    port: 3000
+
+github:
+  prebuilds:
+    # enable for the master/default branch (defaults to true)
+    main: true
+    # enable for all branches in this repo (defaults to false)
+    branches: true
+    # enable for pull requests coming from this repo (defaults to true)
+    pullRequests: false
+    # add a check to pull requests (defaults to true)
+    addCheck: false
+    # add a "Review in Gitpod" button as a comment to pull requests (defaults to false)
+    addComment: false
+    
+workspaceLocation: "/app/"
+
+tasks:
+  - name: Pull up image
+    command: |
+      docker-compose up
+  - name: Post create commands
+    command: |
+      pip install --user --no-cache-dir -r /app/codecollection/requirements.txt
