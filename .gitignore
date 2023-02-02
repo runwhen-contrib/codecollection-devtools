@@ -4,3 +4,4 @@ rw-public-codecollection
 .env
 __pycache__
 *robot_logs*
+.python-version
