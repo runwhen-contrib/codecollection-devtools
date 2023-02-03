@@ -1,6 +1,8 @@
 FROM python:3.9.1 as runtime
-RUN mkdir -p /app
-WORKDIR /app
+ENV WORKDIR /app
+ENV ROBOT_LOG_DIR /robot_logs
+RUN mkdir -p $WORKDIR
+WORKDIR $WORKDIR
 
 USER root
 # Install and validate kubectl
@@ -20,16 +22,16 @@ ARG USER_GID=1000
 RUN useradd -rm -d /home/$USERNAME -s /bin/bash -g root -G sudo -u $USER_UID $USERNAME
 
 # Robotframework setup
-ENV PYTHONPATH "$PYTHONPATH:.:/app/rw-public-codecollection/libraries:/app/rw-public-codecollection/codebundles:/app/codecollection/libraries:/app/codecollection/codebundles:/app/dev_facade"
+ENV PYTHONPATH "$PYTHONPATH:.:$WORKDIR/rw-public-codecollection/libraries:$WORKDIR/rw-public-codecollection/codebundles:$WORKDIR/codecollection/libraries:$WORKDIR/codecollection/codebundles:$WORKDIR/dev_facade"
 # viewable logs
-RUN mkdir -p /robot_logs
-RUN chown -R 1000:0 /robot_logs
-RUN chown 1000:0 /app/ro
-ENV PATH "$PATH:/home/python/.local/bin/:/app/"
+RUN mkdir -p $ROBOT_LOG_DIR
+RUN chown -R 1000:0 $ROBOT_LOG_DIR
+RUN chown 1000:0 $WORKDIR/ro
+ENV PATH "$PATH:/home/python/.local/bin/:$WORKDIR/"
 
 RUN mv .pylintrc.google ~/.pylintrc
 
-RUN chown 1000:0 -R /app
+RUN chown 1000:0 -R $WORKDIR
 
 USER $USERNAME
 RUN pip install --user pylint
@@ -41,4 +43,4 @@ ENV PATH "$PATH:/home/python/google-cloud-sdk/bin/"
 RUN gcloud components install gke-gcloud-auth-plugin --quiet
 
 EXPOSE 3000
-CMD ["python", "-m", "http.server", "--bind", "0.0.0.0", "--directory", "/robot_logs/", "3000"]
+CMD ["python", "-m", "http.server", "--bind", "0.0.0.0", "--directory", "$ROBOT_LOG_DIR/", "3000"]

@@ -4,6 +4,6 @@
 # ======================================================================================
 function ro (){
     TYPE=$(echo ${@} | cut -d '.' -f-1)
-    robot --loglevel trace --outputdir $ROBOT_LOG_DIR/${PWD##*/} --log $TYPE-log.html --output $TYPE-output.xml --report $TYPE-report.html "${@:1}"
+    robot --loglevel trace --outputdir /workspace/robot_logs/${PWD##*/} --log $TYPE-log.html --output $TYPE-output.xml --report $TYPE-report.html "${@:1}"
 }
 ro "$@"

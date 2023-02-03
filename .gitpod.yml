@@ -1,0 +1,37 @@
+
+image: 
+  file: .gitpod.Dockerfile
+
+vscode:
+  extensions:
+    - robocorp.robotframework-lsp
+    - ms-python.black-formatter
+    - ms-python.python
+    - njpwerner.autodocstring
+  
+ports:
+  - name: runserver
+    port: 3000
+
+github:
+  prebuilds:
+    # enable for the master/default branch (defaults to true)
+    main: true
+    # enable for all branches in this repo (defaults to false)
+    branches: true
+    # enable for pull requests coming from this repo (defaults to true)
+    pullRequests: false
+    # add a check to pull requests (defaults to true)
+    addCheck: false
+    # add a "Review in Gitpod" button as a comment to pull requests (defaults to false)
+    addComment: false
+
+tasks:
+  - name: Install deps
+    before: |
+      cp .gitpod.settings.json /workspace/.vscode-remote/data/Machine/settings.json
+      pip install --user --no-cache-dir -r /workspace/codecollection-devtools/codecollection/requirements.txt
+  - name: Run log server
+    command: |
+      mkdir -p $ROBOT_LOG_DIR 
+      python -m http.server --bind 0.0.0.0 --directory $ROBOT_LOG_DIR 3000

@@ -3,3 +3,6 @@ rw-public-codecollection
 *codecollection*
 .env
 __pycache__
+*robot_logs*
+.python-version
+.vscode/settings.json
