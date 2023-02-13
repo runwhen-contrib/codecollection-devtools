@@ -10,10 +10,14 @@ import requests
 from typing import Union, List
 from robot.libraries.BuiltIn import BuiltIn
 from RW import platform
+import logging
 
 import json
 import textwrap
 from collections import OrderedDict
+
+logger = logging.getLogger(__name__)
+
 
 class Core:
     """Core keyword library defines keywords used to access key platform features from robot code."""
@@ -43,9 +47,7 @@ class Core:
         self.builtin.set_suite_variable("${" + varname + "}", ret)
         return ret
 
-    def import_service(
-        self, varname: str, description: str = None, example: str = None, default: str = None, **kwargs
-    ):
+    def import_service(self, varname: str, description: str = None, example: str = None, default: str = None, **kwargs):
         """Creates an instance of rwplatform.Service for use by other keywords.
 
         Note that the description, example, default args are parsed in RunWhen static
@@ -167,8 +169,10 @@ class Core:
         odd (an error?) to have any metric/sub-metric called in more than one place per Suite,
         this doesn't seem like a constraint in practice.
         """
-        #Note that during local dev this simply logs to the console.
-        self.builtin.log_to_console(f"\nPush metric: value:{value} sub_name:{sub_name} metric_type:{metric_type} labels:{kwargs}\n")
+        # Note that during local dev this simply logs to the console.
+        self.builtin.log_to_console(
+            f"\nPush metric: value:{value} sub_name:{sub_name} metric_type:{metric_type} labels:{kwargs}\n"
+        )
 
     def task_failure(self, msg: str) -> None:
         """
@@ -387,6 +391,18 @@ class Core:
 
     def _datagrid_to_string(self, about, rows, columns) -> str:
         return self._json_to_string(rows)
+
+    def import_platform_variable(self, varname: str, *args, **kwargs) -> str:
+        """
+        Imports a variable set by the platform, making it available in the robot runtime
+        as a suite variable.
+        Raises ValueError if this isn't a valid platform variable name, or ImportError if not available.
+        :param str: Name to be used both to lookup the config val and for the
+            variable name in robot
+        :return: The value found
+        """
+        # in local dev, simply import from local environment
+        return self.import_user_variable(varname, *args, **kwargs)
 
     def shell(
         self,
