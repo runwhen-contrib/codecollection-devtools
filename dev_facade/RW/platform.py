@@ -157,6 +157,7 @@ class TaskError(Error):
     or unexpected result.
     """
 
+
 def error_log(*msg, console: Union[bool, str] = False, if_true: Optional[str] = None) -> None:
     """
     Note: Error logs are automatically written to console.
@@ -229,6 +230,35 @@ def console_log(*msg) -> None:
 
 def console_log_if_true(condition: str, *msg) -> None:
     info_log(msg, console=True, if_true=condition)
+
+
+def form_access_token():
+    access_token = os.getenv("RW_ACCESS_TOKEN")
+    if not access_token:
+        doc_url = "https://docs.runwhen.com/public/platform-rest-api/getting-started-with-the-platform-rest-api"
+        raise Exception(
+            f"When doing local dev please refer to {doc_url} to set RW_ACCESS_TOKEN in your local environment variables"
+        )
+    return access_token
+
+
+def get_authenticated_session():
+    """Returns a request.session object authenticated to the RW public API using the
+    RW_ACCESS_TOKEN that should be available (either a user or service acct)
+    """
+    global session
+    if session:
+        return session
+    session = requests.Session()
+    access_token = form_access_token()
+    session.headers.update(
+        {
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        }
+    )
+    return session
 
 
 def execute_shell_command(
