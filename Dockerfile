@@ -13,13 +13,13 @@ RUN rm kubectl.sha256
 RUN chmod +x kubectl
 RUN mv kubectl /usr/local/bin/
 
-COPY . .
-
 # Setup user to represent developer permissions in container
 ARG USERNAME=python
 ARG USER_UID=1000
 ARG USER_GID=1000
 RUN useradd -rm -d /home/$USERNAME -s /bin/bash -g root -G sudo -u $USER_UID $USERNAME
+
+COPY . .
 
 # Robotframework setup
 ENV PYTHONPATH "$PYTHONPATH:.:$WORKDIR/rw-public-codecollection/libraries:$WORKDIR/rw-public-codecollection/codebundles:$WORKDIR/codecollection/libraries:$WORKDIR/codecollection/codebundles:$WORKDIR/dev_facade"
@@ -43,4 +43,4 @@ ENV PATH "$PATH:/home/python/google-cloud-sdk/bin/"
 RUN gcloud components install gke-gcloud-auth-plugin --quiet
 
 EXPOSE 3000
-CMD ["python", "-m", "http.server", "--bind", "0.0.0.0", "--directory", "$ROBOT_LOG_DIR/", "3000"]
+CMD python -m http.server --bind 0.0.0.0 --directory=$ROBOT_LOG_DIR 3000
