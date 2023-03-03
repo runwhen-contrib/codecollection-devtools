@@ -19,6 +19,8 @@ ARG USER_UID=1000
 ARG USER_GID=1000
 RUN useradd -rm -d /home/$USERNAME -s /bin/bash -g root -G sudo -u $USER_UID $USERNAME
 
+COPY . .
+
 # Robotframework setup
 ENV PYTHONPATH "$PYTHONPATH:.:$WORKDIR/rw-public-codecollection/libraries:$WORKDIR/rw-public-codecollection/codebundles:$WORKDIR/codecollection/libraries:$WORKDIR/codecollection/codebundles:$WORKDIR/dev_facade"
 # viewable logs
@@ -29,7 +31,6 @@ ENV PATH "$PATH:/home/python/.local/bin/:$WORKDIR/"
 
 RUN chown 1000:0 -R $WORKDIR
 
-COPY . .
 
 RUN mv .pylintrc.google ~/.pylintrc
 
