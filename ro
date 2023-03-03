@@ -3,7 +3,11 @@
 # Synopsis: Shorthand for robot run command that outputs logs to a standard location for viewing at localhost:3000
 # ======================================================================================
 function ro (){
-    TYPE=$(echo ${@} | cut -d '.' -f-1)
-    robot --loglevel trace --outputdir $ROBOT_LOG_DIR/${PWD##*/} --log $TYPE-log.html --output $TYPE-output.xml --report $TYPE-report.html "${@:1}"
+    ROBOT_FILE_EXECUTING=${!#}
+    ROBOT_DIR_NAME=$(dirname $ROBOT_FILE_EXECUTING)
+    CODEBUNDLE_NAME=$(basename $ROBOT_DIR_NAME)
+    OUTPUT_DIR=$ROBOT_LOG_DIR/$CODEBUNDLE_NAME
+    TYPE=$(basename $ROBOT_FILE_EXECUTING .robot)
+    robot --loglevel trace --outputdir $OUTPUT_DIR --log $TYPE-log.html --output $TYPE-output.xml --report $TYPE-report.html "${@:1}"
 }
 ro "$@"
