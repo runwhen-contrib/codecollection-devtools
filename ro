@@ -3,7 +3,30 @@
 # Synopsis: Shorthand for robot run command that outputs logs to a standard location for viewing at localhost:3000
 # ======================================================================================
 function ro (){
-    TYPE=$(echo ${@} | cut -d '.' -f-1)
-    robot --loglevel trace --outputdir $ROBOT_LOG_DIR/${PWD##*/} --log $TYPE-log.html --output $TYPE-output.xml --report $TYPE-report.html "${@:1}"
+    ROBOT_FILE_EXECUTING=${!#}
+    if [ "$ROBOT_FILE_EXECUTING" = ".." ]; then
+        echo "Parent directory execution not supported"
+        exit 1
+    fi
+    # if user runs on pwd, could be either sli, runbook, or multiple, so we default to "codebundle"
+    if [ "$ROBOT_FILE_EXECUTING" = "." ]; then
+        ROBOTFILE_DIR_NAME=$PWD
+        CODEBUNDLE_NAME=$(basename $ROBOTFILE_DIR_NAME)
+        OUTPUT_DIR=$ROBOT_LOG_DIR/$CODEBUNDLE_NAME
+        TYPE="codebundle"
+    # if the user runs ro against a directory and not a specific robot file
+    elif [ -d "$ROBOT_FILE_EXECUTING" ] && ! echo "$ROBOT_FILE_EXECUTING" | grep -q ".robot"; then
+        ROBOTFILE_DIR_NAME=$ROBOT_FILE_EXECUTING
+        CODEBUNDLE_NAME=$(basename $ROBOTFILE_DIR_NAME)
+        OUTPUT_DIR=$ROBOT_LOG_DIR/$CODEBUNDLE_NAME
+        TYPE="codebundle"
+    # assume absolute path
+    else
+        ROBOTFILE_DIR_NAME=$(dirname $ROBOT_FILE_EXECUTING)
+        CODEBUNDLE_NAME=$(basename $ROBOTFILE_DIR_NAME)
+        OUTPUT_DIR=$ROBOT_LOG_DIR/$CODEBUNDLE_NAME
+        TYPE=$(basename $ROBOT_FILE_EXECUTING .robot)
+    fi
+    robot --loglevel trace --outputdir $OUTPUT_DIR --log $TYPE-log.html --output $TYPE-output.xml --report $TYPE-report.html "${@:1}"
 }
 ro "$@"
