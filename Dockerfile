@@ -19,8 +19,6 @@ ARG USER_UID=1000
 ARG USER_GID=1000
 RUN useradd -rm -d /home/$USERNAME -s /bin/bash -g root -G sudo -u $USER_UID $USERNAME
 
-COPY . .
-
 # Robotframework setup
 ENV PYTHONPATH "$PYTHONPATH:.:$WORKDIR/rw-public-codecollection/libraries:$WORKDIR/rw-public-codecollection/codebundles:$WORKDIR/codecollection/libraries:$WORKDIR/codecollection/codebundles:$WORKDIR/dev_facade"
 # viewable logs
@@ -29,18 +27,21 @@ RUN chown -R 1000:0 $ROBOT_LOG_DIR
 RUN chown 1000:0 $WORKDIR/ro
 ENV PATH "$PATH:/home/python/.local/bin/:$WORKDIR/"
 
-RUN mv .pylintrc.google ~/.pylintrc
-
 RUN chown 1000:0 -R $WORKDIR
+
+COPY . .
+
+RUN mv .pylintrc.google ~/.pylintrc
 
 USER $USERNAME
 RUN pip install --user pylint
 RUN pip install --user black
 
 # Install gcloud sdk 
+# TODO: fix userspace install and move up in build so it doesnt break cache
 RUN curl -sSL https://sdk.cloud.google.com | bash
 ENV PATH "$PATH:/home/python/google-cloud-sdk/bin/"
 RUN gcloud components install gke-gcloud-auth-plugin --quiet
 
 EXPOSE 3000
-CMD python -m http.server --bind 0.0.0.0 --directory=$ROBOT_LOG_DIR 3000
+CMD python -m http.server --bind 0.0.0.0 --directory $ROBOT_LOG_DIR 3000
