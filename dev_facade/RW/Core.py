@@ -431,3 +431,18 @@ class Core:
         return platform.execute_shell_command(
             cmd=cmd, service=service, request_secrets=request_secrets_p, env=env, files=files
         )
+
+    def add_issue(
+        self,
+        severity: int,
+        title: str,
+        expected: str = "",
+        actual: str = "",
+        reproduce_hint: str = "",
+        details: str = "",
+        next_steps: str = "",
+        **kwargs,
+    ) -> None:
+        issue_str: str = f"\nRaising Issue: Severity: {severity}\n title: {title}\n expected: {expected}\n actual: {actual}\n reproduce hints: {reproduce_hint}\n details: {details}\n next_steps: {next_steps}\n kwargs: {kwargs}\n"
+        logger.info(issue_str)
+        self.builtin.log_to_console(issue_str)

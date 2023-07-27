@@ -8,10 +8,17 @@ USER root
 # Install and validate kubectl
 RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 RUN curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
-RUN echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
+RUN echo "$(cat kubectl.sha256) kubectl" | sha256sum --check
 RUN rm kubectl.sha256
 RUN chmod +x kubectl
 RUN mv kubectl /usr/local/bin/
+
+# Install packages
+RUN apt-get update && \
+    apt install -y jq && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /var/cache/apt
 
 # Setup user to represent developer permissions in container
 ARG USERNAME=python
