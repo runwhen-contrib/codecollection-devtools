@@ -56,12 +56,12 @@ jobs:
       - name: Build
         run: |-
           docker build \
-            -t "ghcr.io/runwhen-contrib/$IMAGE:latest" \
-            -t "ghcr.io/runwhen-contrib/$IMAGE:main" \
+            -t "ghcr.io/${{ github.repository }}:latest" \
+            -t "ghcr.io/${{ github.repository }}:main" \
             --build-arg GITHUB_SHA="$GITHUB_SHA" \
             --build-arg GITHUB_REF="$GITHUB_REF" \
             -f Dockerfile . 
       - name: Push
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login --username ${{ github.actor }} --password-stdin ghcr.io
-          docker push ghcr.io/runwhen-contrib/$IMAGE --all-tags
+          docker push ghcr.io/${{ github.repository }} --all-tags
