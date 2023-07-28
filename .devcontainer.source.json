@@ -6,19 +6,19 @@
     ],
     "service": "devtools",
     "shutdownAction": "none",
-    "extensions": [
-        "robocorp.robotframework-lsp",
-        "ms-python.pylint",
-        "ms-python.black-formatter",
-        "ms-python.python",
-        "njpwerner.autodocstring"
-    ],
     "workspaceFolder": "/app/",
     // Configure tool-specific properties.
     "customizations": {
         // Configure properties specific to VS Code.
         // configuration following google standard
         "vscode": {
+            "extensions": [
+                "robocorp.robotframework-lsp",
+                "ms-python.pylint",
+                "ms-python.black-formatter",
+                "ms-python.python",
+                "njpwerner.autodocstring"
+            ],
             "settings": {
                 "python.languageServer": "Jedi",
                 "python.linting.enabled": true,

@@ -6,7 +6,6 @@ Scope: Global
 
 import re
 import os
-import requests
 from typing import Union, List
 from robot.libraries.BuiltIn import BuiltIn
 from RW import platform
