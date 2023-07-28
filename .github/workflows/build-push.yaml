@@ -57,7 +57,7 @@ jobs:
         run: |-
           docker build \
             -t "ghcr.io/runwhen-contrib/$IMAGE:latest" \
-            -t "ghcr.io/runwhen-contrib/$IMAGE:$GITHUB_REF" \
+            -t "ghcr.io/runwhen-contrib/$IMAGE:main" \
             --build-arg GITHUB_SHA="$GITHUB_SHA" \
             --build-arg GITHUB_REF="$GITHUB_REF" \
             -f Dockerfile . 
