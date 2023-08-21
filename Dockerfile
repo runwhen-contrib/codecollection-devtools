@@ -35,6 +35,8 @@ RUN mkdir -p $ROBOT_LOG_DIR
 RUN chown -R 1000:0 $ROBOT_LOG_DIR
 RUN chown 1000:0 $WORKDIR/ro
 ENV PATH "$PATH:/home/python/.local/bin/:$WORKDIR/"
+# runwhen dev env
+ENV RW_SVC_URLS '{"kubectl":"https://kubectl.sandbox.runwhen.com","curl":"https://curl.sandbox.runwhen.com","grpcurl":"https://grpcurl.sandbox.runwhen.com","gcloud":"https://gcloud.sandbox.runwhen.com","aws":"https://aws.sandbox.runwhen.com"}'
 
 RUN chown 1000:0 -R $WORKDIR
 
