@@ -43,7 +43,7 @@ RUN pip install --user --no-cache-dir -r https://raw.githubusercontent.com/runwh
 # Commented out if not needed in the dev container
 # Install gcloud sdk 
 RUN curl -sSL https://sdk.cloud.google.com | bash
-ENV PATH "$PATH:/home/python/google-cloud-sdk/bin/"
+ENV PATH "$PATH:/home/gitpod/google-cloud-sdk/bin/"
 RUN gcloud components install gke-gcloud-auth-plugin --quiet
 
 EXPOSE 3000
