@@ -3,7 +3,6 @@ FROM gitpod/workspace-full
 ENV WORKDIR /workspace/codecollection-devtools
 ENV python_version 3.9.1
 ENV ROBOT_LOG_DIR /workspace/robot_logs
-ENV RW_SVC_URLS '{"kubectl":"https://kubectl.sandbox.runwhen.com","curl":"https://curl.sandbox.runwhen.com","grpcurl":"https://grpcurl.sandbox.runwhen.com","gcloud":"https://gcloud.sandbox.runwhen.com","aws":"https://aws.sandbox.runwhen.com"}'
 
 
 RUN mkdir -p $WORKDIR
@@ -31,12 +30,11 @@ COPY . .
 RUN pyenv install $python_version
 RUN pyenv global 3.9
 ENV PYTHONPATH "$PYTHONPATH:.:$WORKDIR/rw-public-codecollection/libraries:$WORKDIR/rw-public-codecollection/codebundles:$WORKDIR/codecollection/libraries:$WORKDIR/codecollection/codebundles:$WORKDIR/dev_facade"
+ENV RW_SVC_URLS '{"kubectl":"https://kubectl.sandbox.runwhen.com","curl":"https://curl.sandbox.runwhen.com","grpcurl":"https://grpcurl.sandbox.runwhen.com","gcloud":"https://gcloud.sandbox.runwhen.com","aws":"https://aws.sandbox.runwhen.com"}'
 
 ENV PATH "$PATH:/home/python/.local/bin/:$WORKDIR/:/home/gitpod/.local/bin"
 RUN mv .pylintrc.google ~/.pylintrc
 
-
-RUN mv .pylintrc.google ~/.pylintrc
 RUN pip install --user pylint
 RUN pip install --user black
 
