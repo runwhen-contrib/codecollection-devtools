@@ -33,7 +33,6 @@ ENV PYTHONPATH "$PYTHONPATH:.:$WORKDIR/rw-public-codecollection/libraries:$WORKD
 ENV RW_SVC_URLS '{"kubectl":"https://kubectl.sandbox.runwhen.com","curl":"https://curl.sandbox.runwhen.com","grpcurl":"https://grpcurl.sandbox.runwhen.com","gcloud":"https://gcloud.sandbox.runwhen.com","aws":"https://aws.sandbox.runwhen.com"}'
 
 ENV PATH "$PATH:/home/python/.local/bin/:$WORKDIR/:/home/gitpod/.local/bin"
-RUN mv .pylintrc.google ~/.pylintrc
 
 RUN pip install --user pylint
 RUN pip install --user black
