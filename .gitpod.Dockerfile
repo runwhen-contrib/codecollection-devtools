@@ -46,5 +46,13 @@ RUN curl -sSL https://sdk.cloud.google.com | bash
 ENV PATH "$PATH:/home/gitpod/google-cloud-sdk/bin/"
 RUN gcloud components install gke-gcloud-auth-plugin --quiet
 
+# Install lnav (https://github.com/tstack/lnav)
+ENV LNAV_VERSION 0.11.2
+RUN wget https://github.com/tstack/lnav/releases/download/v${LNAV_VERSION}/lnav-${LNAV_VERSION}-x86_64-linux-musl.zip && \
+    unzip lnav-${LNAV_VERSION}-x86_64-linux-musl.zip && \
+    cd lnav-${LNAV_VERSION} && \
+    mv lnav /home/gitpod/.local/bin/
+
+
 EXPOSE 3000
 CMD python -m http.server --bind 0.0.0.0 --directory $ROBOT_LOG_DIR 3000
