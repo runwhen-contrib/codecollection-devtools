@@ -51,7 +51,7 @@ ENV LNAV_VERSION 0.11.2
 RUN wget https://github.com/tstack/lnav/releases/download/v${LNAV_VERSION}/lnav-${LNAV_VERSION}-x86_64-linux-musl.zip && \
     unzip lnav-${LNAV_VERSION}-x86_64-linux-musl.zip && \
     cd lnav-${LNAV_VERSION} && \
-    mkdir -p $HOME/.lnav/formats/installed \ 
+    mkdir -p $HOME/.lnav/formats/installed && \ 
     mv lnav /home/gitpod/.local/bin/
 
 
