@@ -47,6 +47,7 @@ RUN wget https://github.com/tstack/lnav/releases/download/v${LNAV_VERSION}/lnav-
     unzip lnav-${LNAV_VERSION}-x86_64-linux-musl.zip && \
     cd lnav-${LNAV_VERSION} && \ 
     mkdir -p /home/python/.lnav/formats/installed && \
+    chown -R 1000:0 /home/python/.lnav && \
     mv lnav /usr/local/bin/ && \
     chmod 777 /usr/local/bin/lnav
 
