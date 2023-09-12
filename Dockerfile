@@ -20,6 +20,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     rm -rf /var/cache/apt
 
+
 # Setup user to represent developer permissions in container
 ARG USERNAME=python
 ARG USER_UID=1000
@@ -40,6 +41,15 @@ ENV RW_SVC_URLS '{"kubectl":"https://kubectl.sandbox.runwhen.com","curl":"https:
 
 RUN chown 1000:0 -R $WORKDIR
 
+# Install lnav (https://github.com/tstack/lnav)
+ENV LNAV_VERSION 0.11.2
+RUN wget https://github.com/tstack/lnav/releases/download/v${LNAV_VERSION}/lnav-${LNAV_VERSION}-x86_64-linux-musl.zip && \
+    unzip lnav-${LNAV_VERSION}-x86_64-linux-musl.zip && \
+    cd lnav-${LNAV_VERSION} && \ 
+    mkdir -p /home/python/.lnav/formats/installed && \
+    chown -R 1000:0 /home/python/.lnav && \
+    mv lnav /usr/local/bin/ && \
+    chmod 777 /usr/local/bin/lnav
 
 RUN mv .pylintrc.google ~/.pylintrc
 
