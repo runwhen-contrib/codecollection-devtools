@@ -4,9 +4,11 @@ import json
 import robot
 from flask import Flask, request, render_template_string, send_file
 import os
+import subprocess
 
 app = Flask(__name__)
-
+host = os.getenv("HOST", "0.0.0.0")
+port = os.getenv("PORT", 8001)
 log_directory = os.getenv("ROBOT_LOG_DIR")
 
 template = """
@@ -39,31 +41,38 @@ def index():
         json_request = json.loads(request.data)
         f.write(json_request["data"])
         f.close()
-        if robot.run("./temporary_testfile.robot") != 0:
-            return {"status": "error"}
-    return {"status": "ok"}
+        log_html_url = f"http://{host}:{port}/codebundle-generator-last-run/codebundle-generator-log.html"
+        report_html_url = f"http://{host}:{port}/codebundle-generator-last-run/codebundle-generator-report.html"
+        result = subprocess.run(
+            [
+                "robot",
+                "--loglevel",
+                "trace",
+                "--outputdir",
+                f"{log_directory}/codebundle-generator-last-run",
+                "--log",
+                "codebundle-generator-log.html",
+                "--output",
+                "codebundle-generator-output.xml",
+                "--report",
+                "codebundle-generator-report.html",
+                "./temporary_testfile.robot",
+            ],
+            stderr=subprocess.STDOUT,
+        )
+        print(result.stdout)
+        if result.returncode != 0:
+            # if robot.run_cli(["--loglevel", "trace", "--outputdir",f"{log_directory}/codebundle-generator-last-run", "--log", "codebundle-generator-log.html", "--output", "codebundle-generator-output.xml", "--report", "codebundle-generator-report.html", "./temporary_testfile.robot"], exit=False) != 0:
+            return {
+                "status": "error",
+                "log_html_url": log_html_url,
+                "report_html_url": report_html_url,
+            }
+        return {
+            "status": "ok",
+            "log_html_url": log_html_url,
+            "report_html_url": report_html_url,
+        }
 
 
-@app.route("/report")
-def get_report():
-    try:
-        f = open("./report.html", "r")
-        report = f.read()
-        f.close()
-    except FileNotFoundError:
-        return "not found", 404
-    return report
-
-
-@app.route("/log")
-def get_log():
-    try:
-        f = open("./log.html", "r")
-        log = f.read()
-        f.close()
-    except FileNotFoundError:
-        return "not found", 404
-    return log
-
-
-app.run(debug=True, port=8001, host="0.0.0.0")
+app.run(debug=True, port=port, host=host)
