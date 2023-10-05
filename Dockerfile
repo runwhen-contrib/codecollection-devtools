@@ -6,20 +6,19 @@ WORKDIR $WORKDIR
 
 USER root
 # Install and validate kubectl
-RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-RUN curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
-RUN echo "$(cat kubectl.sha256) kubectl" | sha256sum --check
-RUN rm kubectl.sha256
-RUN chmod +x kubectl
-RUN mv kubectl /usr/local/bin/
+RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" \
+    && curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256" \
+    && echo "$(cat kubectl.sha256) kubectl" | sha256sum --check \
+    && rm kubectl.sha256 \
+    && chmod +x kubectl \
+    && mv kubectl /usr/local/bin/ 
 
 # Install packages
 RUN apt-get update && \
-    apt install -y jq && \
+    apt-get install -y jq && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     rm -rf /var/cache/apt
-
 
 # Setup user to represent developer permissions in container
 ARG USERNAME=python
@@ -49,13 +48,13 @@ RUN wget https://github.com/tstack/lnav/releases/download/v${LNAV_VERSION}/lnav-
     mkdir -p /home/python/.lnav/formats/installed && \
     chown -R 1000:0 /home/python/.lnav && \
     mv lnav /usr/local/bin/ && \
-    chmod 777 /usr/local/bin/lnav
+    chmod 755 /usr/local/bin/lnav
 
 RUN mv .pylintrc.google ~/.pylintrc
 
 USER $USERNAME
-RUN pip install --user pylint
-RUN pip install --user black
+RUN pip install --no-cache-dir --user pylint black \
+    && pip install --no-cache-dir --user -r requirements.txt
 
 # Install gcloud sdk 
 # TODO: fix userspace install and move up in build so it doesnt break cache
@@ -64,4 +63,4 @@ ENV PATH "$PATH:/home/python/google-cloud-sdk/bin/"
 RUN gcloud components install gke-gcloud-auth-plugin --quiet
 
 EXPOSE 3000
-CMD python -m http.server --bind 0.0.0.0 --directory $ROBOT_LOG_DIR 3000
+CMD ["python", "api.py"]
