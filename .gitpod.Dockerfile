@@ -17,6 +17,10 @@ RUN rm kubectl.sha256
 RUN chmod +x kubectl
 RUN mv kubectl /usr/local/bin/
 
+# Download and install the latest version of yq
+RUN curl -Lo /usr/bin/yq "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64" \
+    && chmod +x /usr/bin/yq
+
 # Install packages
 RUN apt-get update && \
     apt install -y jq && \
