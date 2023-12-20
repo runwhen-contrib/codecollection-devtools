@@ -21,6 +21,10 @@ RUN mv kubectl /usr/local/bin/
 RUN curl -Lo /usr/bin/yq "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64" \
     && chmod +x /usr/bin/yq
 
+# Install Azure CLI
+RUN curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+
 # Install packages
 RUN apt-get update && \
     apt install -y jq && \
