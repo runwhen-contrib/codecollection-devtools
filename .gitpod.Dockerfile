@@ -53,6 +53,7 @@ RUN pip install --user --no-cache-dir -r https://raw.githubusercontent.com/runwh
 RUN curl -sSL https://sdk.cloud.google.com | bash
 ENV PATH "$PATH:/home/gitpod/google-cloud-sdk/bin/"
 RUN gcloud components install gke-gcloud-auth-plugin --quiet
+RUN chown -R gitpod:gitpod /home/gitpod/.config/gcloud
 
 # Install lnav (https://github.com/tstack/lnav)
 ENV LNAV_VERSION 0.11.2
