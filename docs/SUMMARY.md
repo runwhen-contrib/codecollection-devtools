@@ -4,11 +4,10 @@
 
 ## Codecollection Development
 
-* [Prerequisites](prerequisites.md)
-* [Getting Started](getting-started/)
-* Developer Resources
-  * [Start Samples](starter-samples/)
-  * [Sandbox / Lab Resources](sandbox-resources/README.md)
+* [Prerequisites](codecollection-development/developer-resources/prerequisites.md)
+* [Getting Started](codecollection-development/developer-resources/getting-started.md)
+* [Developer Resources](codecollection-development/developer-resources/README.md)
+
 
 ## Codecollection Author Program Details
 
