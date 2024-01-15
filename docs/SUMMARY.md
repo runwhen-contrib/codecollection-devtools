@@ -1,7 +1,9 @@
 # Table of contents
 
+* [Introduction](README.md)
 
 ## Codecollection Development
+
 * [Prerequisites](prerequisites.md)
 * [Getting Started](getting-started/)
 * Developer Resources
@@ -10,6 +12,7 @@
 
 
 ## Codecollection Author Program Details
+
 * [Author Rewards](author-rewards.md)
 * [Code of Conduct](code-of-conduct.md)
 * [Contributing](contributing.md)
