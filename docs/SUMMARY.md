@@ -6,7 +6,7 @@
 
 * [Prerequisites](codecollection-development/developer-resources/prerequisites.md)
 * [Getting Started](codecollection-development/developer-resources/getting-started.md)
-* [Developer Resources](codecollection-development/developer-resources/README.md)
+
 
 
 ## Codecollection Author Program Details
