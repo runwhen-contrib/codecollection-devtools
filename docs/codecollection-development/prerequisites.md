@@ -4,7 +4,7 @@
 
 This list is currently being updated. Refer to it regularly to ensure you're up-to-date with our prerequisites.
 
-* Have a look at our [contributing doc](contributing.md) if you have not already
+* Have a look at our [contributing doc](../cc-dev/contributing.md) if you have not already
 * COMING SOON: Sign our CLA
 * Review our Code Of Conduct
 * Review the Google [python style guide](https://google.github.io/styleguide/pyguide.html); we generally try to follow it but do stray when needed for certain designs.

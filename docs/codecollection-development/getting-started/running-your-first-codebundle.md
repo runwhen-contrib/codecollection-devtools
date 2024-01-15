@@ -2,23 +2,23 @@
 description: This page will walk you through running your first codebundle via Codespaces
 ---
 
-# Running Your First Codebundle
+# Running Your First Code Bundle
 
-### Setup Your Repository :book:
+Setup Your Repository :book:
 
 To run your first codebundle we'll first create a codecollection for it to live in. Head over to our [template ](https://github.com/runwhen-contrib/codecollection-template)on github and select the `Create a new repository` option from the `Use this template` dropdown. You can name your template whatever you like.
 
-<figure><img src="../../.gitbook/assets/image (11).png" alt=""><figcaption><p>Template Setup</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/1.png" alt=""><figcaption><p>Template Setup</p></figcaption></figure>
 
 ### Launch it :rocket:
 
 With your template created you'll be able to run it in codespaces. (or locally using the devcontainer VSCode plugin) On the readme of your new repository you'll see a badge titled `Open in GitHub Codespaces` - clicking that will start up a codespace for you.
 
-<figure><img src="../../.gitbook/assets/image (12).png" alt=""><figcaption><p>Readme</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/2.png" alt=""><figcaption><p>Readme</p></figcaption></figure>
 
-You'll be greated with a VSCode editor in your browser like this
+You'll be greeted with a VSCode editor in your browser like this:
 
-<figure><img src="../../.gitbook/assets/image (13).png" alt=""><figcaption><p>VSCode</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/3.png" alt=""><figcaption><p>vscode</p></figcaption></figure>
 
 ### Run it! :man\_running:
 
@@ -29,17 +29,17 @@ cd codecollection/codebundles/hello_world
 ro sli.robot
 ```
 
-<figure><img src="../../.gitbook/assets/image (17).png" alt=""><figcaption><p>Hello World Codebundle</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/4.png" alt=""><figcaption><p>Hello World Code Bundle</p></figcaption></figure>
 
-Success! Seeing a pass means the robot file completed without raising uncaught exceptions. You'll notice there's some log output as well. We can view them in a neat UI thanks to an HTTP server running in the devcontainer.&#x20;
+Success! Seeing a pass means the robot file completed without raising uncaught exceptions. You'll notice there's some log output as well. We can view them in a neat UI thanks to an HTTP server running in the devcontainer.
 
-<figure><img src="../../.gitbook/assets/devtools.png" alt=""><figcaption><p>VSCode Open HTTP Server</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/5.png" alt=""><figcaption><p>Accessing the HTTP Server for Code Bundle Trace Logs</p></figcaption></figure>
 
 Going to the authenticated URL, we can then view the robot logs which are nicely formated for us to browse:
 
-<figure><img src="../../.gitbook/assets/image (20).png" alt=""><figcaption><p>Robot Logs</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/6.png" alt=""><figcaption><p>Viewing the Robot Trace Logs</p></figcaption></figure>
 
-Congrats on running your first codebundle!
+Congrats on running your first Code Bundle!
 
 {% hint style="info" %}
 If you don't want to use VSCode or Codespaces, your new repo has a built image that you can develop in!
@@ -48,4 +48,3 @@ If you don't want to use VSCode or Codespaces, your new repo has a built image t
 ```
 docker run -d -p 3000:3000 --name mycodecollection ghcr.io/<your_name>/<repo>:latest
 ```
-

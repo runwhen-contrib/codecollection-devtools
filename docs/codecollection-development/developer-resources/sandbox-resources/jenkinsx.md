@@ -13,9 +13,7 @@ Currently two repositories exist that support JenkinsX:
 * [Cluster Repository](https://github.com/runwhen-contrib/sandbox-jenkinsx-cluster) - The main GitOps repo that configures JenkinsX
 * [Demo App](https://github.com/runwhen-contrib/sandbox-jenkinsx-demo-app) - A sample application that is mangaged by JenkinsX
 
-All codebundle authors must be added as a collaborator on the "Demo App" repository in order to effectively test JenkinsX pipeline functionality.  Reach out via [Slack](https://runwhen.slack.com/join/shared\_invite/zt-1l7t3tdzl-IzB8gXDsWtHkT8C5nufm2A#/shared-invite/email) or [Discord](https://discord.com/invite/Ut7Ws4rm8Q) to connect with us to be added as a collaborator or to request additional application resources.&#x20;
-
-
+All codebundle authors must be added as a collaborator on the "Demo App" repository in order to effectively test JenkinsX pipeline functionality. Reach out via [Slack](https://runwhen.slack.com/join/shared\_invite/zt-1l7t3tdzl-IzB8gXDsWtHkT8C5nufm2A#/shared-invite/email) or [Discord](https://discord.com/invite/Ut7Ws4rm8Q) to connect with us to be added as a collaborator or to request additional application resources.
 
 ### JX CLI Access
 
@@ -23,7 +21,7 @@ All codebundle authors must be added as a collaborator on the "Demo App" reposit
 When working with multiple Kubeconfigs, you can set the KUBECONFIG environment variable in the jx command, such as `KUBECONFIG=author-kubeconfig jx pipeline ls -n jx`
 {% endhint %}
 
-The `jx` cli should be available and accessible with the provided kubeconfig. This utility should have the necessary permissions to list or view jx and pipeline related activities, for example:&#x20;
+The `jx` cli should be available and accessible with the provided kubeconfig. This utility should have the necessary permissions to list or view jx and pipeline related activities, for example:
 
 * Listing pipeline jobs
 
@@ -50,22 +48,22 @@ $ jx admin log -n jx
   #8 started 49m0s Succeeded
 ```
 
-
-
 ### WebUI Access
 
 {% hint style="info" %}
-The following interfaces may require user/password. This can be provided upon request via Slack or Discord.&#x20;
+The following interfaces may require user/password. This can be provided upon request via Slack or Discord.
 {% endhint %}
 
-JenkinsX provides a few different interfaces that can be used instead of the jx cli. These are available via the `kubectl port-foward` command:&#x20;
+JenkinsX provides a few different interfaces that can be used instead of the jx cli. These are available via the `kubectl port-foward` command:
 
 * Lighthouse WebUI (port-forwarded to localhost:8082): `kubectl port-forward svc/lighthouse-webui-plugin -n jx 8082:80`
 
-<figure><img src="../../.gitbook/assets/image (1) (1) (1) (1) (1) (1).png" alt=""><figcaption><p>Lighhouse WebUI</p></figcaption></figure>
+<figure><img src="../../../.gitbook/assets/image (5).png" alt=""><figcaption><p>Lighthouse Web UI</p></figcaption></figure>
 
 * Pipeline Visualizer (port-forwarded to localhost:8081): `kubectl port-forward svc/jx-pipelines-visualizer -n jx 8081:80`
 
-<figure><img src="../../.gitbook/assets/image (3) (1) (1) (1).png" alt=""><figcaption><p>JenkinsX Pipelines Visualizer</p></figcaption></figure>
+<figure><img src="../../../.gitbook/assets/image (6).png" alt=""><figcaption><p>JenkinsX Pipeline Visualizer</p></figcaption></figure>
+
+<figure><img src="../../../cc-dev/.gitbook/assets/image%20(3)%20(1)%20(1)%20(1).png" alt=""><figcaption></figcaption></figure>
 
 ###

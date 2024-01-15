@@ -24,7 +24,7 @@ At the root of many codebundles, are troubleshooting commands wrapped by metadat
 
 ### Contributing
 
-We'd love to collaborate and have you be a part of our community. To get started head over to our [contributing](contributing.md) doc which also has info for author rewards.
+We'd love to collaborate and have you be a part of our community. To get started head over to our [contributing](authors-program-details/contributing.md) doc which also has info for author rewards.
 
 ### Communication
 

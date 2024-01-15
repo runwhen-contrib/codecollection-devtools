@@ -12,7 +12,7 @@ RunWhen operates a sandbox GKE cluster that is used for testing and demonstratio
 
 ## Application/Infrastructure Stacks
 
-The Sandbox cluster provides many different application stacks, and also continually hosts a demo version of [broken-reference](broken-reference/ "mention") - which provides some insight as to what is running in the cluster (see [here](https://runwhen-local.sandbox.runwhen.com/)).
+The Sandbox cluster provides many different application stacks, and also hosts a demo version of  [RunWhen Local](https://docs.runwhen.com/public/v/runwhen-local), which provides some insight as to what is running in the cluster (see [here](https://runwhen-local.sandbox.runwhen.com/)) and what troubleshooting commands are available through the [RunWhen Local Troubleshooting Cheat Sheet](https://docs.runwhen.com/public/v/runwhen-local/user-guide/features/user\_guide-feature\_overview).
 
 Some of the resources include:
 
@@ -25,7 +25,7 @@ Some of the resources include:
 * Ingress - Kong
 * Ingress - Nginx
 * Jenkins (Traditional)
-* [Broken link](broken-reference "mention")
+* [jenkinsx.md](jenkinsx.md "mention")
 * MongoDB (Operator and test database)
 * Online Boutique
 * Otel-Demo

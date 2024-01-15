@@ -1,24 +1,28 @@
 ---
-description: This page goes over configuration for codebundles.
+description: This page goes over configuration for Code Bundles.
 ---
 
-# Running Codebundles With Configuration
+# Running Code Bundles With Configuration
 
-This doc assumes you've already [created a codecollection and walked through running your first codebundle](running-your-first-codebundle.md). Visually we should see this output:
+This doc assumes you've already [created a CodeCollection and walked through running your first codebundle](running-your-first-codebundle.md). Visually we should see this output:
 
-<figure><img src="../../.gitbook/assets/helloworld.png" alt=""><figcaption><p>The hello world codebundle pushing a metric value of 1</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/Screenshot from 2024-01-15 10-09-19.png" alt=""><figcaption><p>Sample Hello World Code Bundle Pushing an SLI Metric of 1</p></figcaption></figure>
 
-When running SLI codebundles the red-highlighted section is the key part to look for as it indicates the SLI completed. The remainder of the output is typical robotframework test suite output.
+When running SLI Code Bundles, the red-highlighted section is the key part to look for as it indicates the SLI completed. The remainder of the output is typical robotframework test suite output.
 
 In terms of drilling down into what's running, recall that the devtools has an always-on http server for us to browse log files at [http://localhost:3000/log.html](http://localhost:3000/log.html) (this url will differ for codespaces)
 
-<figure><img src="../../.gitbook/assets/robotlogs.png" alt=""><figcaption><p>Detailed Robotframework Logs</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/Screenshot from 2024-01-15 10-12-00.png" alt=""><figcaption></figcaption></figure>
 
-Woo! Congrats on running your first codebundle!
+Woo! Congrats on running your first Code Bundle!
 
-### Running A Taskset With Variables
+### Running A TaskSet With Variables
 
-Similar to the SLI, we'll run the taskset like so:
+{% hint style="info" %}
+A TaskSet is a collection of tasks that can be run, collected together in a file named `runbook.robot`
+{% endhint %}
+
+Similar to the SLI, we'll run the TaskSest like so:
 
 ```bash
 cd /app/codecollection/codebundles/hello_world_taskset && \
@@ -26,9 +30,7 @@ which robot && \
 ro .
 ```
 
-<figure><img src="../../.gitbook/assets/taskset.png" alt=""><figcaption><p>A hello world taskset</p></figcaption></figure>
-
-> Future deprecation: the runbook.robot naming convention is required by the platform but will be replaced by taskset.robot soon
+<figure><img src="../../.gitbook/assets/Screenshot from 2024-01-15 10-14-04.png" alt=""><figcaption><p>A Hello World TaskSet</p></figcaption></figure>
 
 Notice that when running a taskset the output is different than an SLI. This is a clear distinction between the outputs of the two codebundle types:
 
@@ -37,7 +39,7 @@ Notice that when running a taskset the output is different than an SLI. This is 
 
 So how do we run codebundles with input? Well we already have technically, if you look at the [file contents](https://github.com/runwhen-contrib/codecollection-template/blob/main/codebundles/hello\_world\_taskset/runbook.robot#L10) of the taskset you'll see in the stanza on [line 15](https://github.com/runwhen-contrib/codecollection-template/blob/main/codebundles/hello\_world\_taskset/runbook.robot#L15) that the default value for this input is the string:
 
-&#x20;`default input value`
+`default input value`
 
 This matches what we saw in the report output. If we'd like to override this with our own input we can set an environment variable matching the input name and the devtools will use that value when importing the variable into the robot test suite:
 
@@ -49,7 +51,7 @@ MY_INPUT='HELLO WORLD!' ro .
 
 Here we adhoc set the MY\_INPUT environment variable (you can also export it to maintain it for the shell session) for the run of the robot code, and we can see in our output:
 
-<figure><img src="../../.gitbook/assets/image (4) (2) (2).png" alt=""><figcaption><p>A taskset with input explicitly set</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/8.png" alt=""><figcaption><p>A taskset with input explicitly set</p></figcaption></figure>
 
 ### Devtools Configuration
 
@@ -57,7 +59,7 @@ The devtools container has various behaviours that can be adjusted using environ
 
 #### RW\_SVC\_URLS
 
-Some keywords like `K8s` use location services to reduce binary/subprocess dependencies. In order to use a location service you'll want to set the following environment variable:&#x20;
+Some keywords like `K8s` use location services to reduce binary/subprocess dependencies. In order to use a location service you'll want to set the following environment variable:
 
 `RW_SVC_URLS='{"kubectl":"https://kubectl.sandbox.runwhen.com","oc":"https://oc.sandbox.runwhen.com","curl":"https://curl.sandbox.runwhen.com"}'`
 
