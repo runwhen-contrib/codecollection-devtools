@@ -5,7 +5,7 @@
 ## Codecollection Development
 
 * [Prerequisites](prerequisites.md)
-* [Getting Started](getting-started/)
+* [Getting Started](getting-started/README.md)
 * Developer Resources
     * [Start Samples](starter-samples/README.md)
     * [Sandbox / Lab Resources](sandbox-resources/README.md)
