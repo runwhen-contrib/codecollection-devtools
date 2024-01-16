@@ -69,7 +69,7 @@ Which can be added to your `.env` file.
 
 For some secrets you may wish to store them in files rather than wrestle with environment variables. The devtools container contains an `/app/auth/` directory appropriately gitignored for storing secret files in during development. In order to tell the devtools to use our secret files we need to provide a filename mapping:
 
-`RW_FROM_FILE='{"MY_KUBECONFIG":"/app/auth/kubeconfig"}`
+`RW_FROM_FILE='{"MY_KUBECONFIG":"/app/auth/kubeconfig"}'`
 
 This will tell the devtools to use the filecontents wherever it sees that environment variable name when importing them.
 
@@ -77,7 +77,7 @@ This will tell the devtools to use the filecontents wherever it sees that enviro
 
 If you're working with multiple similar secrets and wish to avoid constantly re-exporting them you can simply remap them by setting this environment variable:
 
-`RW_SECRET_REMAP='{"kubeconfig":"MY_KUBECONFIG"`
+`RW_SECRET_REMAP='{"kubeconfig":"MY_KUBECONFIG"}'`
 
 This will cause all instances of `kubeconfig` to use `MY_KUBECONFIG` when the codebundle imports a secret called `kubeconfig`
 
