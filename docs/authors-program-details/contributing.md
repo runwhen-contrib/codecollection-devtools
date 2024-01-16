@@ -25,7 +25,7 @@ The documentation and tools here assume the following flow:
 
 ## Directory Structure
 
-A CodeCollection are laid out in an opinionated directory structure to ensure consistency across the community, a service to your users who may not write CodeBundles but will likely read and audit the source code from many different authors over time. The docs that follow start with replicating a template repo that we provide.
+A CodeCollection is laid out in an opinionated directory structure to ensure consistency across the community, providing a more approachable experience for your users who may not write CodeBundles but will likely read and audit the source code from many different authors over time. The docs that follow start with replicating a template repo that we provide.
 
 <figure><img src="../../.gitbook/assets/Screen%20Shot%202023-01-06%20at%202.31.33%20PM.png" alt=""><figcaption></figcaption></figure>
 
