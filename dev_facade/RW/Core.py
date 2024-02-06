@@ -297,7 +297,7 @@ class Core:
             json.dumps(obj)
         return self.add_to_report(obj=obj, fmt="json")
 
-    def add_table_to_report(self, about: str, body: [], head: []) -> None:
+    def add_table_to_report(self, about: str, body: list, head: list) -> None:
         """Adds a table of data to the report.  The 'about' string should be
         rendered to the left, right or below the table.  The body is expected to
         be a 2d array of strings.  head is a 1d array of strings.  The gist
@@ -310,10 +310,10 @@ class Core:
     def add_datagrid_to_report(
         self,
         about: str,
-        rows: [],
-        columns: [],
+        rows: list,
+        columns: list,
         page_size: int,
-        rows_per_page_options: [int],
+        rows_per_page_options: list[int],
     ) -> None:
         """Adds an object that will map closely to a MUI datagrid.  For args,
         see https://mui.com/x/react-data-grid/
