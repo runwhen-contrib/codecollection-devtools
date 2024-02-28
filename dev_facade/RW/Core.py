@@ -22,11 +22,13 @@ class Core:
     """Core keyword library defines keywords used to access key platform features from robot code."""
 
     ROBOT_LIBRARY_SCOPE = "GLOBAL"
+    MASKED_LIST = "RW__MASKED"
 
     def __init__(self) -> None:
         self.builtin = BuiltIn()  # TODO - use get library instance
-
+    
     def import_secret(self, varname: str, description: str = None, example: str = None, pattern: str = None, **kwargs):
+        __masked =  BuiltIn().get_variable_value("${" + Core.MASKED_LIST + "}", default=[])
         skeys_json_str = os.getenv("RW_SECRET_REMAP", "{}")
         fkeys_json_str = os.getenv("RW_FROM_FILE", "{}")
         secret_remaps = json.loads(skeys_json_str)
@@ -35,7 +37,6 @@ class Core:
             key = secret_remaps.get(varname)
         else:
             key = varname
-
         if key in secrets_from_files.keys():
             secret_filepath = secrets_from_files[key]
             with open(secret_filepath) as fh:
@@ -43,6 +44,9 @@ class Core:
         else:
             val = os.getenv(key, "")
         ret = platform.Secret(varname, val)
+        __masked.append(val)
+        __masked.append(repr(val)) # we enter 2 representations, with and without newlines rendered for file contents
+        self.builtin.set_suite_variable("${" + Core.MASKED_LIST + "}", __masked)
         self.builtin.set_suite_variable("${" + varname + "}", ret)
         return ret
 
