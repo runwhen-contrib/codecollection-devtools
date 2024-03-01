@@ -44,8 +44,9 @@ class Core:
         else:
             val = os.getenv(key, "")
         ret = platform.Secret(varname, val)
-        __masked.append(val)
-        __masked.append(repr(val)) # we enter 2 representations, with and without newlines rendered for file contents
+        if val:
+            __masked.append(val)
+            __masked.append(repr(val)) # we enter 2 representations, with and without newlines rendered for file contents
         self.builtin.set_suite_variable("${" + Core.MASKED_LIST + "}", __masked)
         self.builtin.set_suite_variable("${" + varname + "}", ret)
         return ret
