@@ -1,6 +1,6 @@
 auth
 rw-public-codecollection
-*codecollection*
+# *codecollection*
 .env
 __pycache__
 *robot_logs*
