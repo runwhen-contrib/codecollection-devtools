@@ -27,6 +27,6 @@ function ro (){
         OUTPUT_DIR=$ROBOT_LOG_DIR/$CODEBUNDLE_NAME
         TYPE=$(basename $ROBOT_FILE_EXECUTING .robot)
     fi
-    robot --loglevel trace --outputdir $OUTPUT_DIR --log $TYPE-log.html --output $TYPE-output.xml --report $TYPE-report.html "${@:1}"
+    robot --listener /app/dev_facade/RW/masker.py --loglevel trace --outputdir $OUTPUT_DIR --log $TYPE-log.html --output $TYPE-output.xml --report $TYPE-report.html "${@:1}"
 }
 ro "$@"
