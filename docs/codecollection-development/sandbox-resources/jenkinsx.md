@@ -58,12 +58,12 @@ JenkinsX provides a few different interfaces that can be used instead of the jx 
 
 * Lighthouse WebUI (port-forwarded to localhost:8082): `kubectl port-forward svc/lighthouse-webui-plugin -n jx 8082:80`
 
-<figure><img src="../../../.gitbook/assets/image (5).png" alt=""><figcaption><p>Lighthouse Web UI</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/image (5).png" alt=""><figcaption><p>Lighthouse Web UI</p></figcaption></figure>
 
 * Pipeline Visualizer (port-forwarded to localhost:8081): `kubectl port-forward svc/jx-pipelines-visualizer -n jx 8081:80`
 
-<figure><img src="../../../.gitbook/assets/image (6).png" alt=""><figcaption><p>JenkinsX Pipeline Visualizer</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/image (6).png" alt=""><figcaption><p>JenkinsX Pipeline Visualizer</p></figcaption></figure>
 
-<figure><img src="../../../cc-dev/.gitbook/assets/image%20(3)%20(1)%20(1)%20(1).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../cc-dev/.gitbook/assets/image%20(3)%20(1)%20(1)%20(1).png" alt=""><figcaption></figcaption></figure>
 
 ###

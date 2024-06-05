@@ -6,13 +6,13 @@ description: This page goes over configuration for Code Bundles.
 
 This doc assumes you've already [created a CodeCollection and walked through running your first codebundle](running-your-first-codebundle.md). Visually we should see this output:
 
-<figure><img src="../../.gitbook/assets/Screenshot from 2024-01-15 10-09-19.png" alt=""><figcaption><p>Sample Hello World Code Bundle Pushing an SLI Metric of 1</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/Screenshot from 2024-01-15 10-09-19.png" alt=""><figcaption><p>Sample Hello World Code Bundle Pushing an SLI Metric of 1</p></figcaption></figure>
 
 When running SLI Code Bundles, the red-highlighted section is the key part to look for as it indicates the SLI completed. The remainder of the output is typical robotframework test suite output.
 
 In terms of drilling down into what's running, recall that the devtools has an always-on http server for us to browse log files at [http://localhost:3000/log.html](http://localhost:3000/log.html) (this url will differ for codespaces)
 
-<figure><img src="../../.gitbook/assets/Screenshot from 2024-01-15 10-12-00.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/Screenshot from 2024-01-15 10-12-00.png" alt=""><figcaption></figcaption></figure>
 
 Woo! Congrats on running your first Code Bundle!
 
@@ -30,7 +30,7 @@ which robot && \
 ro .
 ```
 
-<figure><img src="../../.gitbook/assets/Screenshot from 2024-01-15 10-14-04.png" alt=""><figcaption><p>A Hello World TaskSet</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/Screenshot from 2024-01-15 10-14-04.png" alt=""><figcaption><p>A Hello World TaskSet</p></figcaption></figure>
 
 Notice that when running a taskset the output is different than an SLI. This is a clear distinction between the outputs of the two codebundle types:
 
@@ -51,7 +51,7 @@ MY_INPUT='HELLO WORLD!' ro .
 
 Here we adhoc set the MY\_INPUT environment variable (you can also export it to maintain it for the shell session) for the run of the robot code, and we can see in our output:
 
-<figure><img src="../../.gitbook/assets/8.png" alt=""><figcaption><p>A taskset with input explicitly set</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/8.png" alt=""><figcaption><p>A taskset with input explicitly set</p></figcaption></figure>
 
 ### Devtools Configuration
 
