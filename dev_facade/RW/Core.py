@@ -403,6 +403,33 @@ class Core:
         # in local dev, simply import from local environment
         return self.import_user_variable(varname, *args, **kwargs)
 
+    def import_memo_variable(self, key: str, *args, **kwargs):
+        """
+        Imports a value from the "memo" dict created when the request to run
+        was first submitted.  (Note - this is specific to runbooks.  If an SLI,
+        this simply returns None.). If the memo was not found or this key was not
+        found, simply return None.
+        Like Import Platform Variable, this will both set a suite level variable
+        to key with the value found and will return the value.
+        """
+        # in local dev mode, we will import this from a file location specified by an env var
+        # val = platform.import_memo_variable(key)
+        # self.builtin.set_suite_variable("${" + key + "}", val)
+        # return val
+
+        fkeys_json_str = os.getenv("RW_MEMO_FILE", "{}")
+        memos_from_files = json.loads(fkeys_json_str)
+        if key in memos_from_files.keys():
+            memo_filepath = memos_from_files[key]
+            with open(memo_filepath) as fh:
+                val = fh.read()
+            self.builtin.set_suite_variable("${" + key + "}", val)
+            return val
+        else:
+            raise ValueError(
+                f"Memo key {key} could not be found or read. Please check value of env RW_MEMO_FILE"
+            )
+
     def shell(
         self,
         cmd: str,

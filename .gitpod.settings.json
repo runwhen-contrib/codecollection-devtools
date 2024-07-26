@@ -22,6 +22,8 @@
         "/workspace/codecollection-devtools",
         "/workspace/codecollection-devtools/rw-public-codecollection/libraries",
         "/workspace/codecollection-devtools/rw-public-codecollection/libraries/RW",
+        "/workspace/codecollection-devtools/rw-workspace-utils/libraries",
+        "/workspace/codecollection-devtools/rw-workspace-utils/libraries/RW",
         "/workspace/codecollection-devtools/dev_facade"
     ]
 }
