@@ -1,5 +1,6 @@
 auth
 rw-public-codecollection
+*rw-workspace-utils*
 *codecollection*
 .env
 __pycache__
