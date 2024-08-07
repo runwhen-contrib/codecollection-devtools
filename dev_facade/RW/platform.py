@@ -13,6 +13,10 @@ robot_builtin = BuiltIn()
 
 session = None
 
+from . import proxy
+
+REQUEST_VERIFY=proxy.get_request_verify()
+
 
 class TemporaryException(Exception):
     pass
