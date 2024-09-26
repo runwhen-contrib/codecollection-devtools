@@ -31,6 +31,7 @@ tasks:
     before: |
       cp .gitpod.settings.json /workspace/.vscode-remote/data/Machine/settings.json
       pip install --user --no-cache-dir -r /workspace/codecollection-devtools/codecollection/requirements.txt
+      curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
   - name: Run log server
     command: |
       mkdir -p $ROBOT_LOG_DIR 
