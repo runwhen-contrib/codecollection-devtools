@@ -28,9 +28,13 @@ github:
 
 tasks:
   - name: Install deps
-    before: |
+    init: |
       cp .gitpod.settings.json /workspace/.vscode-remote/data/Machine/settings.json
       pip install --user --no-cache-dir -r /workspace/codecollection-devtools/codecollection/requirements.txt
+      pip install prowler
+      brew install go-task/tap/go-task
+      brew install hashicorp/tap/terraform
+      brew install hashicorp/tap/vault
       curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
   - name: Run log server
     command: |
