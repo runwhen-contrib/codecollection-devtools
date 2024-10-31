@@ -63,5 +63,22 @@ RUN curl -sSL https://sdk.cloud.google.com | bash
 ENV PATH "$PATH:/home/python/google-cloud-sdk/bin/"
 RUN gcloud components install gke-gcloud-auth-plugin --quiet
 
+# Install additional tools
+# Define versions as environment variables for flexibility
+ENV VAULT_VERSION=$(wget -qO- https://releases.hashicorp.com/vault/ | grep -Eo 'vault/[0-9.]+/' | head -1 | cut -d'/' -f2)
+ENV TERRAFORM_VERSION=$(wget -qO- https://releases.hashicorp.com/terraform/ | grep -Eo 'terraform/[0-9.]+/' | head -1 | cut -d'/' -f2)
+
+# Download and install Vault
+RUN wget https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_amd64.zip && \
+    unzip vault_${VAULT_VERSION}_linux_amd64.zip && \
+    mv vault /usr/local/bin/ && \
+    rm vault_${VAULT_VERSION}_linux_amd64.zip
+
+# Download and install Terraform
+RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
+    unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
+    mv terraform /usr/local/bin/ && \
+    rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+
 EXPOSE 3000
 CMD python -m http.server --bind 0.0.0.0 --directory $ROBOT_LOG_DIR 3000
