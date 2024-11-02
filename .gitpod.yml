@@ -53,6 +53,29 @@ tasks:
       npm install ajv
       sudo az aks install-cli
     command: |
+      # Convert the comma-separated list to an array
+      IFS=',' read -r -a collections_array <<< "$CODECOLLECTIONS"
+
+      # Loop through each code collection
+      for collection in "${collections_array[@]}"; do
+        COLLECTION_PATH="/workspace/codecollection-devtools/$collection"
+        
+        # Check if the directory exists
+        if [ -d "$COLLECTION_PATH" ]; then
+          # Add the collection to the PYTHONPATH
+          export PYTHONPATH="$PYTHONPATH:$COLLECTION_PATH"
+          
+          # Install requirements if requirements.txt exists
+          REQUIREMENTS_FILE="$COLLECTION_PATH/requirements.txt"
+          if [ -f "$REQUIREMENTS_FILE" ]; then
+            pip install --user --no-cache-dir -r "$REQUIREMENTS_FILE"
+          fi
+          # Add to .gitignore if not already present
+          if ! grep -Fxq "$COLLECTION_PATH" /workspace/codecollection-devtools/.gitignore; then
+            echo -e "\n$COLLECTION_PATH" >> /workspace/codecollection-devtools/.gitignore
+          fi
+        fi
+      done
       pip install --user --no-cache-dir -r /workspace/codecollection-devtools/codecollection/requirements.txt
 
 

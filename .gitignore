@@ -1,7 +1,6 @@
+# local auth directory for sensitive files that should not be stored in git
 auth
-rw-public-codecollection
-*rw-cli-codecollection-utils*
-*rw-workspace-utils*
+# generic codecollection repo/development path
 *codecollection*
 .env
 __pycache__
@@ -11,3 +10,5 @@ __pycache__
 node_modules/
 package-lock.json
 package.json
+/workspace/codecollection-devtools/rw-cli-codecollection
+/workspace/codecollection-devtools/rw-generic-codecollection
