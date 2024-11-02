@@ -38,6 +38,8 @@ tasks:
       curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
       brew install yq
       npm install ajv
+      sudo az aks install-cli
+
   - name: Run log server
     command: |
       mkdir -p $ROBOT_LOG_DIR 
