@@ -1,5 +1,6 @@
 auth
 rw-public-codecollection
+*rw-cli-codecollection-utils*
 *rw-workspace-utils*
 *codecollection*
 .env
@@ -7,3 +8,6 @@ __pycache__
 *robot_logs*
 .python-version
 .vscode/settings.json
+node_modules/
+package-lock.json
+package.json
