@@ -33,8 +33,6 @@ tasks:
       pip install --user --no-cache-dir -r /workspace/codecollection-devtools/codecollection/requirements.txt
       pip install prowler==4.4.1 cryptography==43.0.1
       brew install go-task/tap/go-task
-      brew install hashicorp/tap/terraform
-      brew install hashicorp/tap/vault
       curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
       brew install yq
       npm install ajv
