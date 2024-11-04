@@ -4,8 +4,8 @@
 
 ## CodeCollection Development
 
-* [Prerequisites](codecollection-development/prerequisites.md)
-* [Running Your First Code Bundle](codecollection-development/running-your-first-codebundle.md)
+* [Requirements](codecollection-development/prerequisites.md)
+* [Getting Started](codecollection-development/running-your-first-codebundle.md)
 * [Running Code Bundles With Configuration](codecollection-development/running-your-first-codebundle-locally.md)
 * [Health Check a URL](codecollection-development/health-check-a-url.md)
 * [Scan For Crashing Pods](codecollection-development/scan-for-crashing-pods.md)
@@ -13,6 +13,7 @@
 * [Sandbox / Lab Resources](codecollection-development/sandbox-resources/README.md)
   * [JenkinsX](codecollection-development/sandbox-resources/jenkinsx.md)
   * [Postgres (Operator and test database)](codecollection-development/sandbox-resources/postgres-operator-and-test-database.md)
+* [CodeBundle Testing](codecollection-development/codebundle-testing.md)
 
 ## Authors Program Details
 

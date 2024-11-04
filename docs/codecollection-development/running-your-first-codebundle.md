@@ -2,11 +2,11 @@
 description: This page will walk you through running your first codebundle via Codespaces
 ---
 
-# Running Your First Code Bundle
+# Getting Started
 
-Setup Your Repository :book:
+## Repository Initialization
 
-To run your first codebundle we'll first create a codecollection for it to live in. Head over to our [template ](https://github.com/runwhen-contrib/codecollection-template)on github and select the `Create a new repository` option from the `Use this template` dropdown. You can name your template whatever you like.
+To get started, first create a CodeCollection for your first CodeBundle it reside in. Using the repository [template ](https://github.com/runwhen-contrib/codecollection-template)on GitHub, select the `Create a new repository` option from the `Use this template` dropdown.
 
 <figure><img src="../.gitbook/assets/1.png" alt=""><figcaption><p>Template Setup</p></figcaption></figure>
 
