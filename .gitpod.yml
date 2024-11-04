@@ -63,7 +63,7 @@ tasks:
         # Check if the directory exists
         if [ -d "$COLLECTION_PATH" ]; then
           # Add the collection to the PYTHONPATH
-          export PYTHONPATH="$PYTHONPATH:$COLLECTION_PATH"
+          export PYTHONPATH="$PYTHONPATH:$COLLECTION_PATH:$COLLECTION_PATH/libraries"
           
           # Install requirements if requirements.txt exists
           REQUIREMENTS_FILE="$COLLECTION_PATH/requirements.txt"
