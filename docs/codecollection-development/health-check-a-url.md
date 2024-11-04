@@ -18,7 +18,7 @@ This approach to checking if a URL is available and timley is demonstrated using
 
 * And the Robot file itself:
 
-<figure><img src="../.gitbook/assets/image.png" alt=""><figcaption><p>HTTP Code Bundle</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (3).png" alt=""><figcaption><p>HTTP Code Bundle</p></figcaption></figure>
 
 We can test this using the `ro` utility tool in the devtools container by running:
 
@@ -26,7 +26,7 @@ We can test this using the `ro` utility tool in the devtools container by runnin
 
 Output:
 
-<figure><img src="../.gitbook/assets/image (1).png" alt=""><figcaption><p>HTTP Check Output</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (1) (1).png" alt=""><figcaption><p>HTTP Check Output</p></figcaption></figure>
 
 And we're done! From here you could look at examining the URL response more closely, provide more detailed output with differing report sections and formats for the platform and users.
 

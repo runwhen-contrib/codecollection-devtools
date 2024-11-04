@@ -1,6 +1,6 @@
 # CodeBundle Testing
 
-### Environment Testing Flow
+## Environment Testing Flow
 
 The common testing flow is to test locally (from your own developer environment, interacting with your test infrastructure). Once complete, if your CodeBundle contains [generation-rules.md](generation-rules.md "mention"), those should be tested against your test infrastructure. If that successfully generates the necsesary RunWhen Platform configurations, they can be uploaded to a RunWhen Platform Workspace for testing from the SaaS service.&#x20;
 
@@ -16,16 +16,16 @@ Note: The screenshots and code used in this example has been provided from an Az
 
 
 
-### Testing Tools
+## Testing Tools
 
-#### RO (Robot CLI)
+### RO (Robot CLI)
 
 The `ro` cli utility is a very simple wrapper for the running robot files with a standardized output folder, which ensures that output files are:&#x20;
 
 * not committed to source code
 * easily accessible from your development environment and the local server on port 3000
 
-**Running sli/runbook code with `ro`**
+#### **Running sli/runbook code with `ro`**
 
 The `ro` cli can be involked from within the CodeBundle folder:&#x20;
 
@@ -45,13 +45,13 @@ Log:     /workspace/robot_logs/sli-log.html
 Report:  /workspace/robot_logs/sli-report.html
 ```
 
-**Accessing detailed trace logs**
+#### **Accessing detailed trace logs**
 
 When running sli.robot and runbook.robot files, the detailed trace log output is a crucial tool in the development workflow, assisible through http://0.0.0.0:3000 (or whichever port CodeSpaces or equivalent development environment exposes).&#x20;
 
 <figure><img src="../.gitbook/assets/image (7).png" alt=""><figcaption><p>Reviewing Robot Trace Logs</p></figcaption></figure>
 
-#### Task (taskfile.dev)
+### Task (taskfile.dev)
 
 The RunWhen Team has started to leverage Taskfiles for managing testing tasks. CodeBundles should be self-contained in their own folders, and ideally with a `.test` subfolder that contains helpful Taskfiles. These should help speed up testing within your own infrastructure, while also assisting others in reproducing the test scenario (if trying to validate or improve the codebundles). Each Taskfile may change from one another depending on the infrastructure components that the CodeBundle supports and is tested against.&#x20;
 
@@ -80,11 +80,11 @@ As you can see, there are a number of helpful tasks here, some of which might be
 
 For this reason, existing Taskfiles should be reviewed and a README.MD should be updated so that other users can leverage them effectively.&#x20;
 
-### Local Testing
+## Local Testing
 
 ###
 
-### Generation Rule Testing
+## Generation Rule Testing
 
 RunWhen Local can be easily used to test your CodeBundle Generation Rules if it contains the following:
 
@@ -142,7 +142,7 @@ Review generated config files under output/workspaces/
 
 ```
 
-### RunWhen Platform Workspace Testing
+## RunWhen Platform Workspace Testing
 
 Once the configuration data has been reviewed, they can be uploaded to a RunWhen Platform workspace if the `upload-slxs` and `delete-slxs` tasks exist in your Taskfile, and the following environment variables have been set:&#x20;
 
@@ -164,10 +164,24 @@ Within a few minutes, the new SLX(s) will be available in the RunWhen Workspace 
 
 <figure><img src="../.gitbook/assets/image (8).png" alt=""><figcaption><p>Viewing a newly uploaded SLX</p></figcaption></figure>
 
-{% hint style="info" %}
-While the SLI will start attempting to run immediately, you may need to select the "Edit" option on the SLX to update the Secrets configuration. In many cases, you may have Secrets loaded into your Workspace for testing which can be adjusted.&#x20;
-{% endhint %}
+### Updating Secrets
+
+While the SLI will start attempting to run immediately, you may need to select the "Edit" option on the SLX to update the Secrets configuration. In many cases, you may have Secrets configured in your Workspace for testing which won't immediately line up with the SLX configuration.
 
 <figure><img src="../.gitbook/assets/image (9).png" alt=""><figcaption><p>Editing the SLX Configuration</p></figcaption></figure>
 
 <figure><img src="../.gitbook/assets/image (10).png" alt=""><figcaption><p>Editing the SLI secretsProvided</p></figcaption></figure>
+
+The above screenshot outlines the secretsProvided configuration to point at a RunWhen Managed secret, which can be added/updated through **Configuration -> Secrets**
+
+
+
+### Validating Health and Tasks
+
+When the secrets are updated, the Health and Tasks should be tested:&#x20;
+
+<figure><img src="../.gitbook/assets/image.png" alt=""><figcaption><p>Viewing SLI / Health</p></figcaption></figure>
+
+<figure><img src="../.gitbook/assets/image (1).png" alt=""><figcaption><p>Creating a RunSession with all Tasks</p></figcaption></figure>
+
+<figure><img src="../.gitbook/assets/image (2).png" alt=""><figcaption><p>Reviewing RunSession Report</p></figcaption></figure>
