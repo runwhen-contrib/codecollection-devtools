@@ -1,82 +1,26 @@
-FROM python:3.9.1 as runtime
-ENV WORKDIR /app
-ENV ROBOT_LOG_DIR /robot_logs
-RUN mkdir -p $WORKDIR
-WORKDIR $WORKDIR
+ARG BASE_IMAGE=us-docker.pkg.dev/runwhen-nonprod-shared/public-images/robot-runtime-base-image:latest
+FROM ${BASE_IMAGE}
 
 USER root
-# Install and validate kubectl
-RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-RUN curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
-RUN echo "$(cat kubectl.sha256) kubectl" | sha256sum --check
-RUN rm kubectl.sha256
-RUN chmod +x kubectl
-RUN mv kubectl /usr/local/bin/
+# Set up specific RunWhen Home Dir and Permissions
+ENV RUNWHEN_HOME=/home/runwhen
+WORKDIR $RUNWHEN_HOME
 
-# Install packages
-RUN apt-get update && \
-    apt install -y jq && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* && \
-    rm -rf /var/cache/apt
-
-
-# Setup user to represent developer permissions in container
-ARG USERNAME=python
-ARG USER_UID=1000
-ARG USER_GID=1000
-RUN useradd -rm -d /home/$USERNAME -s /bin/bash -g root -G sudo -u $USER_UID $USERNAME
-
-COPY . .
-
-# Robotframework setup
+# Set the pythonpath
 ENV PYTHONPATH "$PYTHONPATH:.:$WORKDIR/rw-public-codecollection/libraries:$WORKDIR/rw-public-codecollection/codebundles:$WORKDIR/codecollection/libraries:$WORKDIR/codecollection/codebundles:$WORKDIR/dev_facade"
-# viewable logs
-RUN mkdir -p $ROBOT_LOG_DIR
-RUN chown -R 1000:0 $ROBOT_LOG_DIR
-RUN chown 1000:0 $WORKDIR/ro
-ENV PATH "$PATH:/home/python/.local/bin/:$WORKDIR/"
-# runwhen dev env
-ENV RW_SVC_URLS '{"kubectl":"https://kubectl.sandbox.runwhen.com","curl":"https://curl.sandbox.runwhen.com","grpcurl":"https://grpcurl.sandbox.runwhen.com","gcloud":"https://gcloud.sandbox.runwhen.com","aws":"https://aws.sandbox.runwhen.com"}'
 
-RUN chown 1000:0 -R $WORKDIR
+COPY --chown=runwhen:0 . .
 
-# Install lnav (https://github.com/tstack/lnav)
-ENV LNAV_VERSION 0.11.2
-RUN wget https://github.com/tstack/lnav/releases/download/v${LNAV_VERSION}/lnav-${LNAV_VERSION}-x86_64-linux-musl.zip && \
-    unzip lnav-${LNAV_VERSION}-x86_64-linux-musl.zip && \
-    cd lnav-${LNAV_VERSION} && \ 
-    mkdir -p /home/python/.lnav/formats/installed && \
-    chown -R 1000:0 /home/python/.lnav && \
-    mv lnav /usr/local/bin/ && \
-    chmod 777 /usr/local/bin/lnav
+# Switch to `runwhen` user
+USER runwhen
 
-RUN mv .pylintrc.google ~/.pylintrc
+# Set the PATH to include binaries the `runwhen` user will need
+ENV PATH "$PATH:/usr/local/bin:/home/runwhen/.local/bin"
 
-USER $USERNAME
-RUN pip install --user pylint
-RUN pip install --user black
-
-# Install gcloud sdk 
-# TODO: fix userspace install and move up in build so it doesnt break cache
-RUN curl -sSL https://sdk.cloud.google.com | bash
-ENV PATH "$PATH:/home/python/google-cloud-sdk/bin/"
-RUN gcloud components install gke-gcloud-auth-plugin --quiet
-
-# Install additional tools
-# Define versions as environment variables for flexibility
-ENV VAULT_VERSION=$(wget -qO- https://releases.hashicorp.com/vault/ | grep -Eo 'vault/[0-9.]+/' | head -1 | cut -d'/' -f2)
-ENV TERRAFORM_VERSION=$(wget -qO- https://releases.hashicorp.com/terraform/ | grep -Eo 'terraform/[0-9.]+/' | head -1 | cut -d'/' -f2)
-
-# Download and install Vault
-RUN wget https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_amd64.zip && \
-    unzip vault_${VAULT_VERSION}_linux_amd64.zip vault -d /usr/local/bin/ && \
-    rm vault_${VAULT_VERSION}_linux_amd64.zip
-
-# Download and install Terraform
-RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
-    unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip terraform -d usr/local/bin/ && \
-    rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+#Requirements for runrobot.py and the core and User RW libs:
+RUN pip install --user --no-cache-dir -r https://raw.githubusercontent.com/runwhen-contrib/codecollection-template/main/requirements.txt
+RUN chmod -R g+w ${RUNWHEN_HOME} && \
+    chmod -R 0775 $RUNWHEN_HOME
 
 EXPOSE 3000
 CMD python -m http.server --bind 0.0.0.0 --directory $ROBOT_LOG_DIR 3000

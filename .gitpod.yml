@@ -42,10 +42,8 @@ tasks:
       done) && \
       echo "Latest available Terraform version: $LATEST_TERRAFORM_VERSION" && \
       wget https://releases.hashicorp.com/terraform/${LATEST_TERRAFORM_VERSION}/terraform_${LATEST_TERRAFORM_VERSION}_linux_amd64.zip && \
-      unzip terraform_${LATEST_TERRAFORM_VERSION}_linux_amd64.zip && \
-      sudo mv terraform /usr/local/bin/ && \
+      sudo unzip terraform_${LATEST_TERRAFORM_VERSION}_linux_amd64.zip terraform -d /usr/local/bin/ && \
       rm terraform_${LATEST_TERRAFORM_VERSION}_linux_amd64.zip
-      rm LICENSE.txt
 
       brew install go-task/tap/go-task
       curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
