@@ -2,6 +2,7 @@
 auth
 # generic codecollection repo/development path
 *codecollection*
+scratch
 .env
 __pycache__
 *robot_logs*
