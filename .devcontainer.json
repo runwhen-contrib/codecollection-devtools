@@ -11,8 +11,6 @@
         "njpwerner.autodocstring"
     ],
     "runArgs": [
-        "--env-file",
-        ".env",
         "-p",
         "3000:3000",
         "-v",
@@ -20,7 +18,9 @@
         "-v",
         "${localWorkspaceFolder}/auth/:/home/runwhen/auth/:z",
         "--name",
-        "devtools"
+        "devtools",
+        "--dns", 
+        "8.8.8.8"
     ],
     "postCreateCommand":"pip install --user --no-cache-dir -r /home/runwhen/codecollection/requirements.txt",
     "forwardPorts": [
