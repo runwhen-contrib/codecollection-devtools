@@ -6,6 +6,20 @@ USER root
 ENV RUNWHEN_HOME=/home/runwhen
 WORKDIR $RUNWHEN_HOME
 
+# Install Terraform
+ENV TERRAFORM_VERSION=1.9.8
+RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
+    unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip terraform -d /usr/local/bin/ && \
+    rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+
+#Install go-task
+RUN sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+# RUN wget https://github.com/go-task/task/releases/download/v3.39.2/task_linux_386.tar.gz && \
+#     mkdir task_linux_386 && \
+#     tar -xvzf task_linux_386.tar.gz -C task_linux_386 && \
+#     mv task_linux_386/task /usr/local/bin/task && \
+#     rm task_linux_386.tar.gz && \
+#     rm -rf task_linux_386
 # Set the pythonpath
 ENV PYTHONPATH "$PYTHONPATH:.:$WORKDIR/rw-public-codecollection/libraries:$WORKDIR/rw-public-codecollection/codebundles:$WORKDIR/codecollection/libraries:$WORKDIR/codecollection/codebundles:$WORKDIR/dev_facade"
 

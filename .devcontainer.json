@@ -1,7 +1,8 @@
 {
     "name": "devtools",
     "shutdownAction": "none",
-    "image": "us-docker.pkg.dev/runwhen-nonprod-shared/public-images/codecollection-devtools:refactor-test",
+    // "image": "us-docker.pkg.dev/runwhen-nonprod-shared/public-images/codecollection-devtools:refactor-test",
+    "image": "codecollectiondevtools:latest",
     "overrideCommand": false,
     "extensions": [
         "robocorp.robotframework-lsp",
