@@ -1,28 +1,42 @@
 ---
-description: This page will walk you through running your first codebundle via Codespaces
+description: >-
+  This guide quickly gets you up and running using the repository template, the
+  devtools container image, and a few basic CodeBundle tests.
 ---
 
 # Getting Started
 
-## Repository Initialization
+## CodeCollection Development Environment Setup
 
-To get started, first create a CodeCollection for your first CodeBundle it reside in. Using the repository [template ](https://github.com/runwhen-contrib/codecollection-template)on GitHub, select the `Create a new repository` option from the `Use this template` dropdown.
+### Repository Initialization
 
-<figure><img src="../.gitbook/assets/1.png" alt=""><figcaption><p>Template Setup</p></figcaption></figure>
+To get started, first create a CodeCollection using the repository [template ](https://github.com/runwhen-contrib/codecollection-template)on GitHub. Select the `Create a new repository` option from the `Use this template` dropdown.
 
-### Launch it :rocket:
+<figure><img src="../.gitbook/assets/image (11).png" alt=""><figcaption><p>Creating a CodeCollection Repository from Template</p></figcaption></figure>
+
+<figure><img src="../.gitbook/assets/image (13).png" alt=""><figcaption><p>Example CodeCollection Repository</p></figcaption></figure>
+
+### Start Your Development In CodeSpaces
 
 With your template created you'll be able to run it in codespaces. (or locally using the devcontainer VSCode plugin) On the readme of your new repository you'll see a badge titled `Open in GitHub Codespaces` - clicking that will start up a codespace for you.
 
-<figure><img src="../.gitbook/assets/2.png" alt=""><figcaption><p>Readme</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (14).png" alt=""><figcaption></figcaption></figure>
 
-You'll be greeted with a VSCode editor in your browser like this:
+You'll be greeted with a VS Code editor in your browser like this:
 
-<figure><img src="../.gitbook/assets/3.png" alt=""><figcaption><p>vscode</p></figcaption></figure>
 
-### Run it! :man\_running:
 
-Running a codebundle is easy! There's a script`ro` in the devtools container that handles the complicated stuff for you, so we can run any robot file with`ro <robot filename>`
+#### Open Your Development Environment in VS Code
+
+If running in Visual Studio Code, clone the repository and upon opening the repo, select "Reopen folder to develop in a Container"
+
+<figure><img src="../.gitbook/assets/image (15).png" alt=""><figcaption></figcaption></figure>
+
+
+
+### Test a Basic CodeBundle
+
+To ensure that the environment is functioning, run the hello world CodeBundle. Use the `ro` cli utility, which is just a simple wrapper for running robot, to run the sli.robot file.&#x20;
 
 ```
 cd codecollection/codebundles/hello_world
