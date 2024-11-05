@@ -70,14 +70,12 @@ ENV TERRAFORM_VERSION=$(wget -qO- https://releases.hashicorp.com/terraform/ | gr
 
 # Download and install Vault
 RUN wget https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_amd64.zip && \
-    unzip vault_${VAULT_VERSION}_linux_amd64.zip && \
-    mv vault /usr/local/bin/ && \
+    unzip vault_${VAULT_VERSION}_linux_amd64.zip vault -d /usr/local/bin/ && \
     rm vault_${VAULT_VERSION}_linux_amd64.zip
 
 # Download and install Terraform
 RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
-    unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
-    mv terraform /usr/local/bin/ && \
+    unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip terraform -d usr/local/bin/ && \
     rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 
 EXPOSE 3000
