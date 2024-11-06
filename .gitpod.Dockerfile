@@ -1,7 +1,7 @@
 FROM gitpod/workspace-full
 
 ENV WORKDIR /workspace/codecollection-devtools
-ENV python_version 3.9.1
+ENV python_version 3.12.6
 ENV ROBOT_LOG_DIR /workspace/robot_logs
 
 
@@ -10,8 +10,8 @@ WORKDIR $WORKDIR
 
 USER root
 # Install and validate kubectl
-RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-RUN curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && \
+    curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
 RUN echo "$(cat kubectl.sha256) kubectl" | sha256sum --check
 RUN rm kubectl.sha256
 RUN chmod +x kubectl
@@ -44,9 +44,8 @@ COPY . .
 
 # Robotframework setup
 RUN pyenv install $python_version
-RUN pyenv global 3.9
+RUN pyenv global 3.12
 ENV PYTHONPATH "$PYTHONPATH:.:$WORKDIR/rw-public-codecollection/libraries:$WORKDIR/rw-public-codecollection/codebundles:$WORKDIR/codecollection/libraries:$WORKDIR/codecollection/codebundles:$WORKDIR/dev_facade"
-ENV RW_SVC_URLS '{"kubectl":"https://kubectl.sandbox.runwhen.com","curl":"https://curl.sandbox.runwhen.com","grpcurl":"https://grpcurl.sandbox.runwhen.com","gcloud":"https://gcloud.sandbox.runwhen.com","aws":"https://aws.sandbox.runwhen.com"}'
 
 ENV PATH "$PATH:/home/python/.local/bin/:$WORKDIR/:/home/gitpod/.local/bin"
 

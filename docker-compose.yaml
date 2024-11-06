@@ -3,13 +3,12 @@ version: '3.9'
 services:
   devtools:
     container_name: devtools
-    user: 1000:1000
+    user: runwhen
     build:
       context: ./
       dockerfile: ./Dockerfile
-    env_file: .env
     volumes:
       # Mount local codebase to reflect changes for local dev
-      - .:/app
+      - .:/home/runwhen
     ports:
       - 3000:3000

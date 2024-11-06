@@ -1,7 +1,8 @@
 {
     "name": "devtools",
     "shutdownAction": "none",
-    "image": "us-docker.pkg.dev/runwhen-nonprod-shared/public-images/codecollection-devtools:main-2bdce5a3",
+    "image": "us-docker.pkg.dev/runwhen-nonprod-shared/public-images/codecollection-devtools:latest",
+    // "image": "codecollectiondevtools:latest",
     "overrideCommand": false,
     "extensions": [
         "robocorp.robotframework-lsp",
@@ -11,22 +12,22 @@
         "njpwerner.autodocstring"
     ],
     "runArgs": [
-        "--env-file",
-        ".env",
         "-p",
         "3000:3000",
         "-v",
-        "${localWorkspaceFolder}/codecollection/:/app/codecollection/:z",
+        "${localWorkspaceFolder}/codecollection/:/home/runwhen/codecollection/:z",
         "-v",
-        "${localWorkspaceFolder}/auth/:/app/auth/:z",
+        "${localWorkspaceFolder}/auth/:/home/runwhen/auth/:z",
         "--name",
-        "devtools"
+        "devtools",
+        "--dns", 
+        "8.8.8.8"
     ],
-    "postCreateCommand":"pip install --user --no-cache-dir -r /app/codecollection/requirements.txt",
+    "postStartCommand":"pip install --user --no-cache-dir -r /home/runwhen/codecollection/requirements.txt",
     "forwardPorts": [
         3000
     ],
-    "workspaceFolder": "/app/",
+    "workspaceFolder": "/home/runwhen/",
     // Configure tool-specific properties.
     "customizations": {
         // Configure properties specific to VS Code.
@@ -53,12 +54,12 @@
                 ],
                 "robot.language-server.python": "/usr/local/bin/python",
                 "robot.pythonpath": [
-                    "/app",
-                    "/app/rw-public-codecollection/libraries",
-                    "/app/rw-public-codecollection/libraries/RW",
-                    "/app/codecollection/libraries",
-                    "/app/codecollection/libraries/RW",
-                    "/app/dev_facade"
+                    "/home/runwhen",
+                    "/home/runwhen/rw-public-codecollection/libraries",
+                    "/home/runwhen/rw-public-codecollection/libraries/RW",
+                    "/home/runwhen/codecollection/libraries",
+                    "/home/runwhen/codecollection/libraries/RW",
+                    "/home/runwhen/dev_facade"
                 ]
             }
         }
