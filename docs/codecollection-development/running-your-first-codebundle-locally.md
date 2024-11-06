@@ -13,7 +13,7 @@ There are two primary CodeBundles:&#x20;
 
 Each of these CodeBundles is represented in a single `.robot` file, which constists of `Tasks` to perform, along with user-provided `Variables` and dependent `Libraries` that are used to support the execution of each `Task`.&#x20;
 
-<figure><img src="../.gitbook/assets/codecollection-development.drawio.svg" alt=""><figcaption><p>CodeBundle  Types</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/codecollection-development.drawio (1).svg" alt=""><figcaption><p>CodeBundle Types</p></figcaption></figure>
 
 ### Service Level Indicator CodeBundles
 
