@@ -24,17 +24,14 @@ RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform
 #Install go-task
 RUN sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
 
-# Set the pythonpath
-ENV PYTHONPATH "$PYTHONPATH:.:$WORKDIR/rw-public-codecollection/libraries:$WORKDIR/rw-public-codecollection/codebundles:$WORKDIR/codecollection/libraries:$WORKDIR/codecollection/codebundles:$WORKDIR/dev_facade"
-
 # Set Log Output Dir
 RUN mkdir -p $ROBOT_LOG_DIR
 RUN chown -R runwhen:0 $ROBOT_LOG_DIR
 
 # Set up dev scaffolding
-COPY --chown=runwhen:0 dev_facade .
-COPY --chown=runwhen:0 auth .
-COPY --chown=runwhen:0 pylintrc.google LICENCE ro  .
+COPY --chown=runwhen:0 dev_facade dev_facade
+COPY --chown=runwhen:0 auth auth
+COPY --chown=runwhen:0 .pylintrc.google LICENSE ro .
 
 
 # Add runwhen user to sudoers with no password prompt
@@ -50,6 +47,10 @@ ENV PATH "$PATH:/usr/local/bin:/home/runwhen/.local/bin:$RUNWHEN_HOME"
 RUN pip install --user --no-cache-dir -r https://raw.githubusercontent.com/runwhen-contrib/codecollection-template/main/requirements.txt
 RUN chmod -R g+w ${RUNWHEN_HOME} && \
     chmod -R 0775 $RUNWHEN_HOME
+
+# Set the pythonpath
+ENV PYTHONPATH "$PYTHONPATH:.:$RUNWHEN_HOME/rw-public-codecollection/libraries:$RUNWHEN_HOME/rw-public-codecollection/codebundles:$RUNWHEN_HOME/codecollection/libraries:$RUNWHEN_HOME/codecollection/codebundles:$RUNWHEN_HOME/dev_facade"
+
 
 EXPOSE 3000
 CMD python -m http.server --bind 0.0.0.0 --directory $ROBOT_LOG_DIR 3000
