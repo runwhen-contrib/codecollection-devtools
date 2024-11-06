@@ -29,9 +29,9 @@ RUN mkdir -p $ROBOT_LOG_DIR
 RUN chown -R runwhen:0 $ROBOT_LOG_DIR
 
 # Set up dev scaffolding
-COPY --chown=runwhen:0 dev_facade dev_facade
+# COPY --chown=runwhen:0 dev_facade dev_facade
 COPY --chown=runwhen:0 auth auth
-COPY --chown=runwhen:0 .pylintrc.google LICENSE ro .
+COPY --chown=runwhen:0 .pylintrc.google LICENSE ro requirements.txt .
 
 
 # Add runwhen user to sudoers with no password prompt
@@ -44,7 +44,7 @@ USER runwhen
 ENV PATH "$PATH:/usr/local/bin:/home/runwhen/.local/bin:$RUNWHEN_HOME"
 
 #Requirements for runrobot.py and the core and User RW libs:
-RUN pip install --user --no-cache-dir -r https://raw.githubusercontent.com/runwhen-contrib/codecollection-template/main/requirements.txt
+RUN pip install --user --no-cache-dir -r requirements.txt
 RUN chmod -R g+w ${RUNWHEN_HOME} && \
     chmod -R 0775 $RUNWHEN_HOME
 
