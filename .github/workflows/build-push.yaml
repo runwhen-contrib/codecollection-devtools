@@ -14,6 +14,7 @@ permissions:
   id-token: "write"
   security-events: "write"
   actions: "read"
+  packages: "write"	
 
 
 env:
@@ -21,7 +22,7 @@ env:
   DEFAULT_BRANCH: "origin/${{ github.event.repository.default_branch }}"
   SHARED_ARTIFACT_REPOSITORY_PATH: "us-docker.pkg.dev/runwhen-nonprod-shared/public-images"
   GHCR_ORG: "runwhen-contrib"
-  
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
