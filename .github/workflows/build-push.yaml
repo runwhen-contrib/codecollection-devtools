@@ -6,7 +6,7 @@ on:
     branches:
       - main
     paths:
-      - "src/VERSION"
+      - "VERSION"
       - ".github/workflows/build-push.yaml"
 
 permissions:
@@ -34,8 +34,16 @@ jobs:
           service_account: ${{ secrets.RUNWHEN_NONPROD_SHARED_WI_SA }}
       - name: Set tag and version
         run: |-
+          if [[ -s VERSION ]]; then
+            VERSION=$(cat VERSION | jq -r .version)
+            echo "VERSION=$VERSION" >> $GITHUB_ENV
+            echo "VERSION extracted: $VERSION"
+          else
+            echo "VERSION file is missing or empty" >&2
+            exit 1
+          fi
           echo "TAG=$(echo $GITHUB_REF_NAME | sed 's/[^a-zA-Z0-9]/-/g')-${GITHUB_SHA::8}" >> $GITHUB_ENV
-          echo "VERSION=$(cat VERSION | jq -r .version)" >> $GITHUB_ENV
+          # echo "VERSION=$(cat VERSION | jq -r .version)" >> $GITHUB_ENV
 
       - name: Configure docker for GCP
         run: gcloud --quiet auth configure-docker us-docker.pkg.dev
