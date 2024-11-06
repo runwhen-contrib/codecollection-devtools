@@ -26,3 +26,14 @@ Authoring and testing CodeBundles requires:&#x20;
 ## CodeCollection Repository Setup
 
 To get started, first create a CodeCollection for your first CodeBundle it reside in. Using the repository [template ](https://github.com/runwhen-contrib/codecollection-template)on GitHub, select the `Create a new repository` option from the `Use this template` dropdown.
+
+
+
+## CodeCollection Development Image
+
+The CodeColleciton development image is pulled in through the devcontainer.json spec and is built from the local Dockerfile inside of the CodeColellection template image. Developers can customize this Dockerfile as needed, though it can't guartee that tools installed in this image will function properly within the SaaS platform and a conversation with our team on Slack may be required.&#x20;
+
+<figure><img src="../.gitbook/assets/codecollection-development-image-layersdrawio.svg" alt=""><figcaption><p>CodeCollection Development Image Layers</p></figcaption></figure>
+
+
+
