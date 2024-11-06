@@ -6,9 +6,10 @@
 
 * [Requirements](codecollection-development/prerequisites.md)
 * [Getting Started](codecollection-development/running-your-first-codebundle.md)
-* [Running Code Bundles With Configuration](codecollection-development/running-your-first-codebundle-locally.md)
-* [Health Check a URL](codecollection-development/health-check-a-url.md)
-* [Scan For Crashing Pods](codecollection-development/scan-for-crashing-pods.md)
+* [CodeBundle Basics](codecollection-development/running-your-first-codebundle-locally.md)
+* [CodeBundle Examples](codecollection-development/codebundle-examples/README.md)
+  * [Health Check a URL](codecollection-development/codebundle-examples/health-check-a-url.md)
+  * [Scan For Crashing Pods](codecollection-development/codebundle-examples/scan-for-crashing-pods.md)
 * [Generation Rules](codecollection-development/generation-rules.md)
 * [Sandbox / Lab Resources](codecollection-development/sandbox-resources/README.md)
   * [JenkinsX](codecollection-development/sandbox-resources/jenkinsx.md)

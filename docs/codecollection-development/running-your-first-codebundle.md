@@ -24,41 +24,53 @@ With your template created you'll be able to run it in codespaces. (or locally u
 
 You'll be greeted with a VS Code editor in your browser like this:
 
-
+<figure><img src="../.gitbook/assets/image (16).png" alt=""><figcaption></figcaption></figure>
 
 #### Open Your Development Environment in VS Code
 
-If running in Visual Studio Code, clone the repository and upon opening the repo, select "Reopen folder to develop in a Container"
+If running in Visual Studio Code, clone the repository and upon opening the repo, access the Command Pallet (Ctrl + Shift +P) and select "Dev Containers: Reopen folder to develop in a Container"
 
-<figure><img src="../.gitbook/assets/image (15).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (17).png" alt=""><figcaption><p>Opening the the devcontainer locally in vscode</p></figcaption></figure>
 
 
 
-### Test a Basic CodeBundle
+
+
+### Validate CodeBundle Functionality
 
 To ensure that the environment is functioning, run the hello world CodeBundle. Use the `ro` cli utility, which is just a simple wrapper for running robot, to run the sli.robot file.&#x20;
 
 ```
-cd codecollection/codebundles/hello_world
-ro sli.robot
+runwhen@codespaces-29ff86:~/codecollection/$ cd codebundles/hello_world
+runwhen@codespaces-29ff86:~/codecollection/codebundles/hello_world$ ro sli.robot 
+==============================================================================
+Sli :: This is a hello world codebundle!                                      
+==============================================================================
+Hello World                                                           ..
+Push metric: value:1 sub_name:None metric_type:untyped labels:{}
+
+Hello World                                                           | PASS |
+------------------------------------------------------------------------------
+Sli :: This is a hello world codebundle!                              | PASS |
+1 task, 1 passed, 0 failed
+==============================================================================
+Output:  /robot_logs/sli-output.xml
+Log:     /robot_logs/sli-log.html
+Report:  /robot_logs/sli-report.html
+runwhen@codespaces-29ff86:~/codecollection/codebundles/hello_world$ 
 ```
 
-<figure><img src="../.gitbook/assets/4.png" alt=""><figcaption><p>Hello World Code Bundle</p></figcaption></figure>
+To view the detailed log output, you can select the Ports tab and open port 3000 in the browser:&#x20;
 
-Success! Seeing a pass means the robot file completed without raising uncaught exceptions. You'll notice there's some log output as well. We can view them in a neat UI thanks to an HTTP server running in the devcontainer.
+<figure><img src="../.gitbook/assets/image (19).png" alt=""><figcaption><p>Accessing the HTTP Log Server</p></figcaption></figure>
 
-<figure><img src="../.gitbook/assets/5.png" alt=""><figcaption><p>Accessing the HTTP Server for Code Bundle Trace Logs</p></figcaption></figure>
+<div align="left" data-full-width="false">
 
-Going to the authenticated URL, we can then view the robot logs which are nicely formated for us to browse:
+<figure><img src="../.gitbook/assets/image (20).png" alt=""><figcaption><p>Viewing the HTTP Log Server Directories</p></figcaption></figure>
 
-<figure><img src="../.gitbook/assets/6.png" alt=""><figcaption><p>Viewing the Robot Trace Logs</p></figcaption></figure>
+</div>
 
-Congrats on running your first Code Bundle!
+<figure><img src="../.gitbook/assets/image (22).png" alt=""><figcaption><p>Viewing Robot Logs</p></figcaption></figure>
 
-{% hint style="info" %}
-If you don't want to use VSCode or Codespaces, your new repo has a built image that you can develop in!
-{% endhint %}
 
-```
-docker run -d -p 3000:3000 --name mycodecollection ghcr.io/<your_name>/<repo>:latest
-```
+

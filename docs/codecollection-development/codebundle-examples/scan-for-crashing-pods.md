@@ -10,17 +10,17 @@ In this example we'll look at taking a more "ops" approach and implement a pod h
 
 * First We'll write the bash that fetches the pods from a given namespace, and tells us if any are crashlooping:
 
-<figure><img src="../.gitbook/assets/image (2) (1).png" alt=""><figcaption><p>Pod debug script</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/image (2) (1).png" alt=""><figcaption><p>Pod debug script</p></figcaption></figure>
 
 Then we simply call this bash script from Robot using ther `Run Process` Keyword:
 
-<figure><img src="../.gitbook/assets/image (3) (1).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/image (3) (1).png" alt=""><figcaption></figcaption></figure>
 
 
 
 And the output we get when running it using `ro` : &#x20;
 
-<figure><img src="../.gitbook/assets/image (4).png" alt=""><figcaption><p>Pod Health Check Output</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/image (4).png" alt=""><figcaption><p>Pod Health Check Output</p></figcaption></figure>
 
 Now you know how to take all your bash files you've had hidden away and run them in Robot for use in the codecollection - sharing is caring!
 
