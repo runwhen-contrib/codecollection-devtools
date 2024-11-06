@@ -1,7 +1,7 @@
 {
     "name": "devtools",
     "shutdownAction": "none",
-    "image": "us-docker.pkg.dev/runwhen-nonprod-shared/public-images/codecollection-devtools:refactor-test",
+    "image": "us-docker.pkg.dev/runwhen-nonprod-shared/public-images/codecollection-devtools:latest",
     // "image": "codecollectiondevtools:latest",
     "overrideCommand": false,
     "extensions": [
