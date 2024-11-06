@@ -16,7 +16,7 @@ To get started, first create a CodeCollection using the repository [template ](h
 
 <figure><img src="../.gitbook/assets/image (13).png" alt=""><figcaption><p>Example CodeCollection Repository</p></figcaption></figure>
 
-### Start Your Development In CodeSpaces
+### Start Your Development Container In CodeSpaces
 
 With your template created you'll be able to run it in codespaces. (or locally using the devcontainer VSCode plugin) On the readme of your new repository you'll see a badge titled `Open in GitHub Codespaces` - clicking that will start up a codespace for you.
 
