@@ -23,7 +23,7 @@
         "--dns", 
         "8.8.8.8"
     ],
-    "postCreateCommand":"pip install --user --no-cache-dir -r /home/runwhen/codecollection/requirements.txt",
+    "postStartCommand":"pip install --user --no-cache-dir -r /home/runwhen/codecollection/requirements.txt",
     "forwardPorts": [
         3000
     ],
