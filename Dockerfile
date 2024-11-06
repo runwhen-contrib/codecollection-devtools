@@ -9,6 +9,12 @@ USER root
 # Set up specific RunWhen Home Dir and Permissions
 WORKDIR $RUNWHEN_HOME
 
+# Install additional packages
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends sudo && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /var/cache/apt
+
 # Install Terraform
 ENV TERRAFORM_VERSION=1.9.8
 RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
@@ -25,8 +31,14 @@ ENV PYTHONPATH "$PYTHONPATH:.:$WORKDIR/rw-public-codecollection/libraries:$WORKD
 RUN mkdir -p $ROBOT_LOG_DIR
 RUN chown -R runwhen:0 $ROBOT_LOG_DIR
 
-# Copy in base files
-COPY --chown=runwhen:0 . .
+# Set up dev scaffolding
+COPY --chown=runwhen:0 dev_facade .
+COPY --chown=runwhen:0 auth .
+COPY --chown=runwhen:0 pylintrc.google LICENCE ro  .
+
+
+# Add runwhen user to sudoers with no password prompt
+RUN echo "runwhen ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 # Switch to `runwhen` user
 USER runwhen
