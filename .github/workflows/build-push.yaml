@@ -1,15 +1,20 @@
 name: Build And Push
 
 on:
+  workflow_dispatch:
   push:
-    branches:    
+    branches:
       - main
-  workflow_dispatch: 
+    paths:
+      - "src/VERSION"
+      - ".github/workflows/build-push.yaml"
 
 permissions:
   contents: "read"
   id-token: "write"
-  packages: "write"	
+  security-events: "write"
+  actions: "read"
+
 
 env:
   IMAGE: codecollection-devtools
@@ -17,7 +22,7 @@ env:
   SHARED_ARTIFACT_REPOSITORY_PATH: "us-docker.pkg.dev/runwhen-nonprod-shared/public-images"
 
 jobs:
-  build-and-push-gar:
+  build-and-push:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2 
@@ -27,37 +32,48 @@ jobs:
         with:
           workload_identity_provider: ${{ secrets.RUNWHEN_NONPROD_SHARED_WI_PROVIDER }}
           service_account: ${{ secrets.RUNWHEN_NONPROD_SHARED_WI_SA }}
-      - name: Set tag to branch name
+      - name: Set tag and version
         run: |-
           echo "TAG=$(echo $GITHUB_REF_NAME | sed 's/[^a-zA-Z0-9]/-/g')-${GITHUB_SHA::8}" >> $GITHUB_ENV
-      - name: Build
-        run: |-
-          docker build \
-            -t "${{env.SHARED_ARTIFACT_REPOSITORY_PATH }}/$IMAGE:$TAG" \
-            -t "${{env.SHARED_ARTIFACT_REPOSITORY_PATH }}/$IMAGE:latest" \
-            --build-arg GITHUB_SHA="$GITHUB_SHA" \
-            --build-arg GITHUB_REF="$GITHUB_REF" \
-            -f Dockerfile . 
+          echo "VERSION=$(cat src/VERSION | jq -r .version)" >> $GITHUB_ENV
 
       - name: Configure docker for GCP
         run: gcloud --quiet auth configure-docker us-docker.pkg.dev
 
-      - name: Publish NonProd Shared Artifact Repo
-        id: publish-nonprod-shared-artifact-repo
+      - name: Login to GHCR
         run: |-
-          docker push "${{env.SHARED_ARTIFACT_REPOSITORY_PATH }}/$IMAGE" --all-tags
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login --username ${{ github.actor }} --password-stdin ghcr.io
 
-  build-and-push-ghcr:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
       - name: Build
         run: |-
-          docker build \
-            -t "ghcr.io/${{ github.repository }}:latest" \
+          docker buildx create --use --name=mybuilder
+          docker buildx inspect --bootstrap
+          docker buildx build \
+            --push \
+            --platform linux/amd64 \
+            --tag "${{ env.SHARED_ARTIFACT_REPOSITORY_PATH }}/$IMAGE:$VERSION" \
+            --tag "${{env.SHARED_ARTIFACT_REPOSITORY_PATH }}/$IMAGE:latest" \
+            --tag ghcr.io/$GHCR_ORG/$IMAGE:$VERSION \
+            --tag ghcr.io/$GHCR_ORG/$IMAGE:latest \
+            --build-arg GITHUB_SHA="$GITHUB_SHA" \
+            --build-arg GITHUB_REF="$GITHUB_REF" \
             -f Dockerfile . 
-      - name: Push
-        run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login --username ${{ github.actor }} --password-stdin ghcr.io
-          docker push ghcr.io/${{ github.repository }}:latest
+
+      - name: Notify Slack of Container Build
+        id: slack-publish-nonprod-shared-artifact-repo
+        uses: slackapi/slack-github-action@v1.19.0
+        with:
+          channel-id: "#notifications" # Slack channel id or name to post message. https://api.slack.com/methods/chat.postMessage#channels
+          slack-message: "Just Pushed to ${{env.SHARED_ARTIFACT_REPOSITORY_PATH }}/${{ env.IMAGE }}:${{ env.VERSION }}"
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+
+
+      - name: Notify Slack of RunWhen Local Deployment tp GHCR
+        id: slack-deploy-to-ghcr
+        uses: slackapi/slack-github-action@v1.19.0
+        with:
+          channel-id: "#codecollections" # Slack channel id or name to post message. https://api.slack.com/methods/chat.postMessage#channels
+          slack-message: "Just deployed latest version of codecollection-devtools to https://github.com/orgs/runwhen-contrib/packages/container/package/codecollection-devtools"
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
