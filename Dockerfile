@@ -1,13 +1,17 @@
 ARG BASE_IMAGE=us-docker.pkg.dev/runwhen-nonprod-shared/public-images/robot-runtime-base-image:latest
 FROM ${BASE_IMAGE}
 
-ENV ROBOT_LOG_DIR /robot_logs
 ENV RUNWHEN_HOME=/home/runwhen
+ENV ROBOT_LOG_DIR=/robot_logs
 
 
 USER root
 # Set up specific RunWhen Home Dir and Permissions
 WORKDIR $RUNWHEN_HOME
+
+# Ensure `runwhen` user has a fixed UID and GID (1000)
+RUN usermod -u 1000 runwhen && \
+    groupmod -g 1000 runwhen
 
 # Install additional packages
 RUN apt-get update && \
@@ -24,9 +28,10 @@ RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform
 #Install go-task
 RUN sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
 
-# Set Log Output Dir
-RUN mkdir -p $ROBOT_LOG_DIR
-RUN chown -R runwhen:0 $ROBOT_LOG_DIR
+# Create the Log Output Directory as root, then change ownership to `runwhen`
+RUN mkdir -p $ROBOT_LOG_DIR && \
+    chown runwhen:0 $ROBOT_LOG_DIR && \
+    chmod 775 $ROBOT_LOG_DIR
 
 # Set up dev scaffolding
 # COPY --chown=runwhen:0 dev_facade dev_facade
@@ -42,6 +47,7 @@ USER runwhen
 
 # Set the PATH to include binaries the `runwhen` user will need
 ENV PATH "$PATH:/usr/local/bin:/home/runwhen/.local/bin:$RUNWHEN_HOME"
+
 
 #Requirements for runrobot.py and the core and User RW libs:
 RUN pip install --user --no-cache-dir -r requirements.txt
