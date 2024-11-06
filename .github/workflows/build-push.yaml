@@ -37,7 +37,7 @@ jobs:
       - name: Set tag and version
         run: |-
           if [[ -s VERSION ]]; then
-            VERSION=$(cat VERSION | jq -r .version)
+            VERSION=$(cat VERSION)
             echo "VERSION=$VERSION" >> $GITHUB_ENV
             echo "VERSION extracted: $VERSION"
           else
