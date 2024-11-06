@@ -35,7 +35,7 @@ jobs:
       - name: Set tag and version
         run: |-
           echo "TAG=$(echo $GITHUB_REF_NAME | sed 's/[^a-zA-Z0-9]/-/g')-${GITHUB_SHA::8}" >> $GITHUB_ENV
-          echo "VERSION=$(cat src/VERSION | jq -r .version)" >> $GITHUB_ENV
+          echo "VERSION=$(cat VERSION | jq -r .version)" >> $GITHUB_ENV
 
       - name: Configure docker for GCP
         run: gcloud --quiet auth configure-docker us-docker.pkg.dev
@@ -69,7 +69,7 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
 
-      - name: Notify Slack of RunWhen Local Deployment tp GHCR
+      - name: Notify Slack of GHCR Push
         id: slack-deploy-to-ghcr
         uses: slackapi/slack-github-action@v1.19.0
         with:
