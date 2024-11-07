@@ -27,7 +27,7 @@ Authoring and testing CodeBundles requires:&#x20;
 
 ## CodeCollection Development Image
 
-The CodeColleciton development image is specified in the devcontainer.json spec and is built from the local Dockerfile inside of the CodeCollection template repository. Developers can customize this Dockerfile as needed, though it can't guarantee that tools installed in this image will function properly within the SaaS platform and a conversation with our team on Slack may be required.&#x20;
+The CodeCollection development image is specified in the devcontainer.json spec and is built from the local Dockerfile inside of the CodeCollection template repository. Developers can customize this Dockerfile as needed, though it can't guarantee that tools installed in this image will function properly within the SaaS platform and a conversation with our team on Slack may be required.&#x20;
 
 <figure><img src="../.gitbook/assets/codecollection-development-image-layersdrawio.svg" alt=""><figcaption><p>CodeCollection Development Image Layers</p></figcaption></figure>
 

@@ -16,19 +16,19 @@ To get started, first create a CodeCollection using the repository [template ](h
 
 <figure><img src="../.gitbook/assets/image (13).png" alt=""><figcaption><p>Example CodeCollection Repository</p></figcaption></figure>
 
-### Start Your Development Container In CodeSpaces
+### Starting Your Development Container In GitHub Codespaces
 
-With your template created you'll be able to run it in codespaces. (or locally using the devcontainer VSCode plugin) On the readme of your new repository you'll see a badge titled `Open in GitHub Codespaces` - clicking that will start up a codespace for you.
+With your template created you'll be able to run it in codespaces (or locally using the [devcontainer VSCode plugin](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)).
 
 <figure><img src="../.gitbook/assets/image (14).png" alt=""><figcaption></figcaption></figure>
 
-You'll be greeted with a VS Code editor in your browser like this:
+Once the devcontainer has started, your enviornment should look as follows:&#x20;
 
 <figure><img src="../.gitbook/assets/image (16).png" alt=""><figcaption></figcaption></figure>
 
-#### Open Your Development Environment in VS Code
+#### Starting Your Development Environment in VS Code
 
-If running in Visual Studio Code, clone the repository and upon opening the repo, access the Command Pallet (Ctrl + Shift +P) and select "Dev Containers: Reopen folder to develop in a Container"
+If running in Visual Studio Code, clone the repository and upon opening the repo, access the Command Pallet (Ctrl + Shift + P) and select "Dev Containers: Reopen in Container"
 
 <figure><img src="../.gitbook/assets/image (17).png" alt=""><figcaption><p>Opening the the devcontainer locally in vscode</p></figcaption></figure>
 
