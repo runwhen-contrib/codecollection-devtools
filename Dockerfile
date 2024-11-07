@@ -44,7 +44,7 @@ RUN echo "runwhen ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 # Switch to `runwhen` user
 USER runwhen
-
+ENV USER "runwhen"
 # Set the PATH to include binaries the `runwhen` user will need
 ENV PATH "$PATH:/usr/local/bin:/home/runwhen/.local/bin:$RUNWHEN_HOME"
 
