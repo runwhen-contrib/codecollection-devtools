@@ -4,11 +4,7 @@
 
 The common testing flow is to test locally (from your own developer environment, interacting with your test infrastructure). Once complete, if your CodeBundle contains [generation-rules.md](generation-rules.md "mention"), those should be tested against your test infrastructure. If that successfully generates the necsesary RunWhen Platform configurations, they can be uploaded to a RunWhen Platform Workspace for testing from the SaaS service.&#x20;
 
-
-
-\[hold for image]
-
-
+<figure><img src="../.gitbook/assets/codecollection-development-Development Flow.drawio.png" alt=""><figcaption><p>High Level CodeBundle Development Testing Flow</p></figcaption></figure>
 
 {% hint style="info" %}
 Note: The screenshots and code used in this example has been provided from an Azure specific CodeBundle that uses the `az` cli for client authentication. References to secrets and specific configuration data will vary depending on the CodeBundle purpose.
