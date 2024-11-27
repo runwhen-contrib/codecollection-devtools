@@ -49,9 +49,12 @@ When running sli.robot and runbook.robot files, the detailed trace log output is
 
 ### Task (taskfile.dev)
 
-The RunWhen Team has started to leverage Taskfiles for managing testing tasks. CodeBundles should be self-contained in their own folders, and ideally with a `.test` subfolder that contains helpful Taskfiles. These should help speed up testing within your own infrastructure, while also assisting others in reproducing the test scenario (if trying to validate or improve the codebundles). Each Taskfile may change from one another depending on the infrastructure components that the CodeBundle supports and is tested against.&#x20;
+Most RunWhen Authors have started to leverage Taskfiles for managing testing tasks. CodeBundles should be self-contained in their own folders, and ideally with a `.test` subfolder that contains helpful Taskfiles. These are intended to:&#x20;
 
-For example, one such Taskfile might have the following tasks related to setting up and tearing down Terraform infrastructure that builds an AKS cluster:&#x20;
+* speed up testing within your own infrastructure
+* assist others in reproducing the test scenario (if trying to validate or improve the CodeBundles)
+
+&#x20;Each Taskfile may differ from one another depending on the infrastructure components that the CodeBundle supports and is tested against. For example, one such Taskfile might have the following tasks related to setting up and tearing down Terraform infrastructure to build an AKS cluster:&#x20;
 
 ```
 ~/rw-cli-codecollection/codebundles/azure-aks-triage/.test$ task -l 
@@ -78,9 +81,13 @@ For this reason, existing Taskfiles should be reviewed and a README.MD should be
 
 ## Local Testing
 
-###
+### CodeBundle Testing
 
-## Generation Rule Testing
+Once the appropriate test infrastructure has been deployed, most local testing is performed by setting the necessary environment variables and authentication steps, followed by using the `ro` utility to run the `sli.robot` or `runbook.robot` files. All required environment variables and authentication prerequisites should be documentd in the CodeBundle `README.md`.&#x20;
+
+Once the code is functioning as expected, [generation-rules.md](generation-rules.md "mention")can be created (if appropriate).&#x20;
+
+### Generation Rule Testing
 
 RunWhen Local can be easily used to test your CodeBundle Generation Rules if it contains the following:
 
@@ -137,6 +144,10 @@ Review generated config files under output/workspaces/
 
 
 ```
+
+### Uploading SLXs to the RunWhen Platform
+
+Most Taskfiles also include the option to `upload-slxs` and `delete-slxs`once the SLX configuration files have been reviewed for accuracy, they can be uploaded to the RunWhen Platform for further testing. &#x20;
 
 ## RunWhen Platform Workspace Testing
 
