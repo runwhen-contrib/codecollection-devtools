@@ -15,6 +15,7 @@
   * [JenkinsX](codecollection-development/sandbox-resources/jenkinsx.md)
   * [Postgres (Operator and test database)](codecollection-development/sandbox-resources/postgres-operator-and-test-database.md)
 * [CodeBundle Testing](codecollection-development/codebundle-testing.md)
+* [CodeBundle Debugging](codecollection-development/codebundle-debugging.md)
 
 ## Authors Program Details
 

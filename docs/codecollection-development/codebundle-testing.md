@@ -187,8 +187,8 @@ The above screenshot outlines the secretsProvided configuration to point at a Ru
 
 When the secrets are updated, the Health and Tasks should be tested:&#x20;
 
-<figure><img src="../.gitbook/assets/image.png" alt=""><figcaption><p>Viewing SLI / Health</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (1).png" alt=""><figcaption><p>Viewing SLI / Health</p></figcaption></figure>
 
-<figure><img src="../.gitbook/assets/image (1).png" alt=""><figcaption><p>Creating a RunSession with all Tasks</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (1) (1).png" alt=""><figcaption><p>Creating a RunSession with all Tasks</p></figcaption></figure>
 
 <figure><img src="../.gitbook/assets/image (2).png" alt=""><figcaption><p>Reviewing RunSession Report</p></figcaption></figure>
