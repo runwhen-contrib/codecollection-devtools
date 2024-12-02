@@ -10,7 +10,7 @@ In this example we'll look at taking a more "ops" approach and implement a pod h
 
 * First We'll write the bash that fetches the pods from a given namespace, and tells us if any are crashlooping:
 
-<figure><img src="../../.gitbook/assets/image (2) (1).png" alt=""><figcaption><p>Pod debug script</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/image (2) (1) (1).png" alt=""><figcaption><p>Pod debug script</p></figcaption></figure>
 
 Then we simply call this bash script from Robot using ther `Run Process` Keyword:
 
