@@ -22,3 +22,11 @@
 * [Author Rewards](authors-program-details/author-rewards.md)
 * [Code of Conduct](authors-program-details/code-of-conduct.md)
 * [Contributing](authors-program-details/contributing.md)
+
+## Additional Resources
+
+* [CodeBundle Status Project Board](https://github.com/orgs/runwhen-contrib/projects/1)
+
+***
+
+* [CodeBundle Request Form](https://github.com/runwhen-contrib/codecollection-registry/issues)
