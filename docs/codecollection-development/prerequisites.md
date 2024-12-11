@@ -17,7 +17,7 @@ Familiarity with:&#x20;
 Authoring and testing CodeBundles requires:&#x20;
 
 * A Public [GitHub](https://www.github.com) Repository
-* The ability to run a devcontainer image (e.g. via [GitHub Codepaces](https://github.com/features/codespaces), [VSCode](https://code.visualstudio.com/docs/devcontainers/containers), [GitPod](https://www.gitpod.io/) etc.)
+* The ability to run a devcontainer image (e.g. via [GitHub Codepaces](https://github.com/features/codespaces), [VSCode](https://code.visualstudio.com/docs/devcontainers/containers))
 * Lab / test infrastructure; CodeBundles should be adequately tested against test infrastructure from the local environment prior to uploading to the RunWhen Platform Workspace for testing.
 * A [RunWhen Platform Workspace](https://docs.runwhen.com/public/getting-started/creating-a-runwhen-workspace); for thorough testing, the RunWhen Platform (SaaS) service should be able to access the test infrastructure.&#x20;
 
