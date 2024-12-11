@@ -28,8 +28,8 @@ Much of this data helps display details about the CodeBundle within the platform
 {% embed url="https://registry.runwhen.com/CodeCollection/rw-cli-codecollection/k8s-deployment-healthcheck/tasks/" %}
 
 * **Suite Setup**
-  * Import User Variables - Import all non-senseitive configuration values
-  * Import User Secrets  - Import sensitive data / configuration values
+  * Import User Variable - Import all non-senseitive configuration values
+  * Import Secret  - Import sensitive data / configuration values
   * Set Suite Variable - Set all imported or required user variables for all Tasks
 
 ```
@@ -104,7 +104,7 @@ Check Deployment Log For Issues with `${DEPLOYMENT_NAME}`
 The power of RunWhen CodeBundles comes in with **Issues** and **Next Steps.** A Task can raise an Issue that provides specific detail to either a RunWhen Engineering Assistant, or for a service owner to review for further action. &#x20;
 
 * Issues
-  * Severity - 1 - Critical, 2 = Error / Major, 3 = Warning/Minor, 4 = Informational
+  * Severity - 1 = Critical, 2 = Error / Major, 3 = Warning/Minor, 4 = Informational
   * Expected - The expected state from the Task
   * Actual -  The actual state from the Task&#x20;
   * Title - The title of the issue, with emphasis on details about _What_ and _Where_&#x20;
