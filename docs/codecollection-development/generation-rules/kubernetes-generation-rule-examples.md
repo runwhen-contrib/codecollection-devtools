@@ -145,6 +145,8 @@ spec:
 
 ## Complex Example - Match HTTPs Ingress
 
+### Generation Rule
+
 In this example, the generation rule is configured match and render the appropriate templates for _**every Kubernetes Ingress object with TLS enabled**_. &#x20;
 
 ```
@@ -317,6 +319,8 @@ spec:
 
 
 ## Complex Example - Match Specific Deployments & Use Secrets
+
+### Generation Rule
 
 In this final example, the generation rule is configured match and render the appropriate templates for _**every Kubernetes Deployment with a specific label AND a default-container configured**_.&#x20;
 
