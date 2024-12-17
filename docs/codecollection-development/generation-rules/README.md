@@ -15,7 +15,23 @@ The workspace builder operates in several phases:
 
 The generation rules are contained within the directory of its associated code bundle. A generation rule has a YAML file containing the matching logic as well as information about which SLXs to generate if a match is found. The generation of the SLX files is done with template files, so there are also one or more template files associated with the generation rule.
 
-Within the code bundle directory there's a directory named ".runwhen" that's the parent directory for all the generation rules for the code bundle. Under the ".runwhen" directory there's a directory named "generation-rules" that contains all the generation rule YAML files. Also under the ".runwhen" directory is a directory named "templates" that contains the SLX template files associated with the generation rules.
+Within the code bundle directory there's a directory named `.runwhen` that's the parent directory for all the generation rules for the code bundle. Under the ".runwhen" directory there's a directory named `generation-rules` that contains all the generation rule YAML files. Also under the `.runwhen` directory is a directory named `templates` that contains the SLX template files associated with the generation rules.
+
+```
+k8s-namespace-healthcheck# tree .runwhen 
+.runwhen
+├── generation-rules
+│   └── k8s-namespace-healthcheck.yaml
+└── templates
+    ├── k8s-namespace-healthcheck-sli.yaml
+    ├── k8s-namespace-healthcheck-slo.yaml
+    ├── k8s-namespace-healthcheck-slx.yaml
+    ├── k8s-namespace-healthcheck-taskset.yaml
+    └── k8s-namespace-healthcheck-workflow.yaml
+
+```
+
+See [kubernetes-generation-rule-examples.md](kubernetes-generation-rule-examples.md "mention") for more details on the specific content shown above.&#x20;
 
 ## Generation Rules
 

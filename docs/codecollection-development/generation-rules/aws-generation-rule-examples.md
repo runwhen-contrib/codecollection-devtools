@@ -1,0 +1,2 @@
+# AWS Generation Rule Examples
+

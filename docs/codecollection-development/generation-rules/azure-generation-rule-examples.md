@@ -1,0 +1,2 @@
+# Azure Generation Rule Examples
+

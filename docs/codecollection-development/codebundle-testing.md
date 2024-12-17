@@ -2,7 +2,7 @@
 
 ## Environment Testing Flow
 
-The common testing flow is to test locally (from your own developer environment, interacting with your test infrastructure). Once complete, if your CodeBundle contains [generation-rules.md](generation-rules.md "mention"), those should be tested against your test infrastructure. If that successfully generates the necsesary RunWhen Platform configurations, they can be uploaded to a RunWhen Platform Workspace for testing from the SaaS service.&#x20;
+The common testing flow is to test locally (from your own developer environment, interacting with your test infrastructure). Once complete, if your CodeBundle contains [generation-rules](generation-rules/ "mention"), those should be tested against your test infrastructure. If that successfully generates the necsesary RunWhen Platform configurations, they can be uploaded to a RunWhen Platform Workspace for testing from the SaaS service.&#x20;
 
 <figure><img src="../.gitbook/assets/codecollection-development-Development Flow.drawio.png" alt=""><figcaption><p>High Level CodeBundle Development Testing Flow</p></figcaption></figure>
 
@@ -85,7 +85,7 @@ For this reason, existing Taskfiles should be reviewed and a README.MD should be
 
 Once the appropriate test infrastructure has been deployed, most local testing is performed by setting the necessary environment variables and authentication steps, followed by using the `ro` utility to run the `sli.robot` or `runbook.robot` files. All required environment variables and authentication prerequisites should be documentd in the CodeBundle `README.md`.&#x20;
 
-Once the code is functioning as expected, [generation-rules.md](generation-rules.md "mention")can be created (if appropriate).&#x20;
+Once the code is functioning as expected, [generation-rules](generation-rules/ "mention")can be created (if appropriate).&#x20;
 
 ### Generation Rule Testing
 
