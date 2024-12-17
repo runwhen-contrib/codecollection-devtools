@@ -15,6 +15,7 @@
   * [Kubernetes Generation Rule Examples](codecollection-development/generation-rules/kubernetes-generation-rule-examples.md)
   * [Azure Generation Rule Examples](codecollection-development/generation-rules/azure-generation-rule-examples.md)
   * [AWS Generation Rule Examples](codecollection-development/generation-rules/aws-generation-rule-examples.md)
+  * [GCP Generation Rule Examples](codecollection-development/generation-rules/gcp-generation-rule-examples.md)
 * [Sandbox / Lab Resources](codecollection-development/sandbox-resources/README.md)
   * [JenkinsX](codecollection-development/sandbox-resources/jenkinsx.md)
   * [Postgres (Operator and test database)](codecollection-development/sandbox-resources/postgres-operator-and-test-database.md)
