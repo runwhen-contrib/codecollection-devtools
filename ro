@@ -2,31 +2,55 @@
 # ======================================================================================
 # Synopsis: Shorthand for robot run command that outputs logs to a standard location for viewing at localhost:3000
 # ======================================================================================
-function ro (){
+
+function ro () {
     ROBOT_FILE_EXECUTING=${!#}
+
     if [ "$ROBOT_FILE_EXECUTING" = ".." ]; then
         echo "Parent directory execution not supported"
         exit 1
     fi
-    # if user runs on pwd, could be either sli, runbook, or multiple, so we default to "codebundle"
+
+    TASKS=()
+    POSITIONAL=()
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --test)
+                if [ -n "$2" ]; then
+                    TASKS+=("--test" "$2")
+                    shift 2
+                else
+                    echo "Error: --test requires an argument."
+                    exit 1
+                fi
+                ;;
+            *)
+                POSITIONAL+=("$1")
+                shift
+                ;;
+        esac
+    done
+    set -- "${POSITIONAL[@]}" # Restore positional parameters
+
+    # Default handling for execution targets
     if [ "$ROBOT_FILE_EXECUTING" = "." ]; then
         ROBOTFILE_DIR_NAME=$PWD
-        CODEBUNDLE_NAME=$(basename $ROBOTFILE_DIR_NAME)
-        OUTPUT_DIR=$ROBOT_LOG_DIR/$CODEBUNDLE_NAME
+        CODEBUNDLE_NAME=$(basename "$ROBOTFILE_DIR_NAME")
+        OUTPUT_DIR="$ROBOT_LOG_DIR/$CODEBUNDLE_NAME"
         TYPE="codebundle"
-    # if the user runs ro against a directory and not a specific robot file
     elif [ -d "$ROBOT_FILE_EXECUTING" ] && ! echo "$ROBOT_FILE_EXECUTING" | grep -q ".robot"; then
-        ROBOTFILE_DIR_NAME=$ROBOT_FILE_EXECUTING
-        CODEBUNDLE_NAME=$(basename $ROBOTFILE_DIR_NAME)
-        OUTPUT_DIR=$ROBOT_LOG_DIR/$CODEBUNDLE_NAME
+        ROBOTFILE_DIR_NAME="$ROBOT_FILE_EXECUTING"
+        CODEBUNDLE_NAME=$(basename "$ROBOTFILE_DIR_NAME")
+        OUTPUT_DIR="$ROBOT_LOG_DIR/$CODEBUNDLE_NAME"
         TYPE="codebundle"
-    # assume absolute path
     else
-        ROBOTFILE_DIR_NAME=$(dirname $ROBOT_FILE_EXECUTING)
-        CODEBUNDLE_NAME=$(basename $ROBOTFILE_DIR_NAME)
-        OUTPUT_DIR=$ROBOT_LOG_DIR/$CODEBUNDLE_NAME
-        TYPE=$(basename $ROBOT_FILE_EXECUTING .robot)
+        ROBOTFILE_DIR_NAME=$(dirname "$ROBOT_FILE_EXECUTING")
+        CODEBUNDLE_NAME=$(basename "$ROBOTFILE_DIR_NAME")
+        OUTPUT_DIR="$ROBOT_LOG_DIR/$CODEBUNDLE_NAME"
+        TYPE=$(basename "$ROBOT_FILE_EXECUTING" .robot)
     fi
-    robot --loglevel trace --outputdir $OUTPUT_DIR --log $TYPE-log.html --output $TYPE-output.xml --report $TYPE-report.html "${@:1}"
+
+    robot --loglevel trace --outputdir "$OUTPUT_DIR" --log "$TYPE-log.html" --output "$TYPE-output.xml" --report "$TYPE-report.html" "${TASKS[@]}" "${POSITIONAL[@]}"
 }
+
 ro "$@"
