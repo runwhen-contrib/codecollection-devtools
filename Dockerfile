@@ -20,7 +20,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt
 
 # Install Terraform
-ENV TERRAFORM_VERSION=1.9.8
+ENV TERRAFORM_VERSION=1.11.2
 RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
     unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip terraform -d /usr/local/bin/ && \
     rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip
@@ -32,6 +32,12 @@ RUN sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/loc
 RUN mkdir -p $ROBOT_LOG_DIR && \
     chown runwhen:0 $ROBOT_LOG_DIR && \
     chmod 775 $ROBOT_LOG_DIR
+
+# Set custom TMPDIR
+ENV TMPDIR=/tmp/runwhen
+RUN mkdir -p $TMPDIR && \
+    chown runwhen:0 $TMPDIR && \
+    chmod 775 $TMPDIR
 
 # Set up dev scaffolding
 # COPY --chown=runwhen:0 dev_facade dev_facade
