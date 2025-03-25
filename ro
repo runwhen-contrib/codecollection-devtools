@@ -1,16 +1,18 @@
 #!/bin/bash
 # ======================================================================================
-# Synopsis: Shorthand for robot run command that outputs logs to a standard location for viewing at localhost:3000
+# Synopsis: Shorthand for robot run command that outputs logs to a standard location 
+#           for viewing at localhost:3000
 # ======================================================================================
 
-function ro () {
-    ROBOT_FILE_EXECUTING=${!#}
+TMPDIR="${TMPDIR:-/tmp/runwhen}"
 
-    if [ "$ROBOT_FILE_EXECUTING" = ".." ]; then
-        echo "Parent directory execution not supported"
-        exit 1
+function ro () {
+    # If no arguments given, pretend the user typed '.'
+    if [ $# -eq 0 ]; then
+        set -- "."
     fi
 
+    # We'll parse --test arguments first, but we really only need the final target later
     TASKS=()
     POSITIONAL=()
     while [[ $# -gt 0 ]]; do
@@ -30,27 +32,90 @@ function ro () {
                 ;;
         esac
     done
-    set -- "${POSITIONAL[@]}" # Restore positional parameters
+    set -- "${POSITIONAL[@]}" # restore positional parameters
 
-    # Default handling for execution targets
-    if [ "$ROBOT_FILE_EXECUTING" = "." ]; then
-        ROBOTFILE_DIR_NAME=$PWD
-        CODEBUNDLE_NAME=$(basename "$ROBOTFILE_DIR_NAME")
-        OUTPUT_DIR="$ROBOT_LOG_DIR/$CODEBUNDLE_NAME"
-        TYPE="codebundle"
-    elif [ -d "$ROBOT_FILE_EXECUTING" ] && ! echo "$ROBOT_FILE_EXECUTING" | grep -q ".robot"; then
-        ROBOTFILE_DIR_NAME="$ROBOT_FILE_EXECUTING"
-        CODEBUNDLE_NAME=$(basename "$ROBOTFILE_DIR_NAME")
-        OUTPUT_DIR="$ROBOT_LOG_DIR/$CODEBUNDLE_NAME"
-        TYPE="codebundle"
+    # The last positional argument is our "execution target"
+    ROBOT_FILE_EXECUTING=${!#}
+
+    # --------------------------------------------------------------------
+    # 1) Expand that target to a full path, then see if it's a file/dir
+    # --------------------------------------------------------------------
+    real_target="$(realpath "$ROBOT_FILE_EXECUTING")"
+
+    if [ -d "$real_target" ]; then
+        # It's a directory
+        RW_SLX="$(basename "$real_target")"
+        RW_RFNS="all"
     else
-        ROBOTFILE_DIR_NAME=$(dirname "$ROBOT_FILE_EXECUTING")
-        CODEBUNDLE_NAME=$(basename "$ROBOTFILE_DIR_NAME")
-        OUTPUT_DIR="$ROBOT_LOG_DIR/$CODEBUNDLE_NAME"
-        TYPE=$(basename "$ROBOT_FILE_EXECUTING" .robot)
+        # It's presumably a file (like 'runbook.robot')
+        dir_of_target="$(dirname "$real_target")"
+        RW_SLX="$(basename "$dir_of_target")"
+        RW_RFNS="$(basename "$real_target")"
     fi
 
-    robot --loglevel trace --outputdir "$OUTPUT_DIR" --log "$TYPE-log.html" --output "$TYPE-output.xml" --report "$TYPE-report.html" "${TASKS[@]}" "${POSITIONAL[@]}"
+    export RW_SLX RW_RFNS
+    echo "[DEBUG] RW_SLX='${RW_SLX}', RW_RFNS='${RW_RFNS}'"
+
+    # --------------------------------------------------------------------
+    # 2) Construct a working directory based on RW_SLX / RW_RFNS
+    # --------------------------------------------------------------------
+    runwhen_workdir="${TMPDIR}/${RW_SLX}/${RW_RFNS}"
+    mkdir -p "${runwhen_workdir}"
+    echo "RUNWHEN_WORKDIR set to: ${runwhen_workdir}"
+
+    # Create subdirectories for each CLI/tool
+    azure_config_dir="${runwhen_workdir}/.azure"
+    mkdir -p "${azure_config_dir}"
+
+    gcloud_config_dir="${runwhen_workdir}/.gcloud"
+    mkdir -p "${gcloud_config_dir}"
+
+    codebundle_temp_dir="${runwhen_workdir}/cb-temp"
+    mkdir -p "${codebundle_temp_dir}"
+
+    kube_config_dir="${runwhen_workdir}/.kube"
+    mkdir -p "${kube_config_dir}"
+    kubeconfig_path="${kube_config_dir}/config"
+
+    # Export environment variables
+    export AZURE_CONFIG_DIR="${azure_config_dir}"
+    echo "AZURE_CONFIG_DIR set to: ${AZURE_CONFIG_DIR}"
+
+    export CLOUDSDK_CONFIG="${gcloud_config_dir}"
+    echo "CLOUDSDK_CONFIG set to: ${CLOUDSDK_CONFIG}"
+
+    export CODEBUNDLE_TEMP_DIR="${codebundle_temp_dir}"
+    echo "CODEBUNDLE_TEMP_DIR set to: ${CODEBUNDLE_TEMP_DIR}"
+
+    export KUBECONFIG="${kubeconfig_path}"
+    echo "KUBECONFIG set to: ${KUBECONFIG}"
+
+    # --------------------------------------------------------------------
+    # 3) Figure out Robot output directory (depends on $ROBOT_LOG_DIR, etc.)
+    # --------------------------------------------------------------------
+    # Use your existing logic. For example:
+    if [ -d "$real_target" ]; then
+        # All .robot in directory
+        OUTPUT_DIR="$ROBOT_LOG_DIR/$RW_SLX"
+        TYPE="codebundle"
+    else
+        # Single .robot file
+        OUTPUT_DIR="$ROBOT_LOG_DIR/$RW_SLX"
+        TYPE="$(basename "$real_target" .robot)"
+    fi
+
+    echo "[DEBUG] Robot logs => $OUTPUT_DIR (TYPE='${TYPE}')"
+
+    # --------------------------------------------------------------------
+    # 4) Finally run Robot
+    # --------------------------------------------------------------------
+    robot --loglevel trace \
+          --outputdir "$OUTPUT_DIR" \
+          --log "${TYPE}-log.html" \
+          --output "${TYPE}-output.xml" \
+          --report "${TYPE}-report.html" \
+          "${TASKS[@]}" \
+          "${POSITIONAL[@]}"
 }
 
 ro "$@"
