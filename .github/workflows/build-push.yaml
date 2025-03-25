@@ -43,8 +43,7 @@ jobs:
       - name: Build Test
         run: |
           echo "Running a quick Docker build test..."
-          docker build -f Dockerfile --target=build-stage . 
-          # ^ or `docker build .` if you have only one stage
+          docker build -f Dockerfile . 
           echo "Build test completed."
 
   # ------------------------------------------------------------------------------
