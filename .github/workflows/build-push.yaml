@@ -12,6 +12,7 @@ on:
       - main
     paths:
       - "VERSION"
+      - "Dockerfile"
       - ".github/workflows/build-push.yaml"
   workflow_dispatch:
 
