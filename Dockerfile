@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=us-docker.pkg.dev/runwhen-nonprod-shared/public-images/robot-runtime-base-image:latest
+ARG BASE_IMAGE= us-docker.pkg.dev/runwhen-nonprod-shared/public-images/robot-runtime-devtools-base-image:latest
 FROM ${BASE_IMAGE}
 
 ENV RUNWHEN_HOME=/home/runwhen
