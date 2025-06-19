@@ -1,29 +1,74 @@
 #!/bin/bash
 # ======================================================================================
-#  ro – wrapper for Robot Framework runs
-#  ↳ places all artefacts in a per-run temp dir under $TMPDIR
-#  ↳ symlinks Azure CLI, gcloud SDK and kubeconfig paths to the user's
-#     real credential stores so you log in **once** and reuse everywhere
+# Synopsis: Shorthand for robot run command that outputs logs to a standard location 
+#           for viewing at localhost:3000
 # ======================================================================================
+
+function show_help() {
+    cat << EOF
+ro - RunWhen Robot Framework Execution Utility
+
+SYNOPSIS:
+    ro [OPTIONS] [TARGET]
+
+DESCRIPTION:
+    A wrapper around the robot command that sets up isolated execution environments
+    with proper configuration copying for cloud CLIs (Azure, GCP, Kubernetes).
+
+ARGUMENTS:
+    TARGET          Robot file or directory to execute (default: current directory)
+                   Examples: runbook.robot, sli.robot, .
+
+OPTIONS:
+    --test NAME     Execute specific test case by name
+    --help, -h      Show this help message
+
+ENVIRONMENT SETUP:
+    The utility automatically creates an isolated working directory and copies:
+    - Azure CLI configuration (~/.azure → AZURE_CONFIG_DIR)
+    - Azure DevOps CLI configuration (~/.azure-devops → AZURE_DEVOPS_CONFIG_DIR)  
+    - Google Cloud SDK configuration (~/.gcloud → CLOUDSDK_CONFIG)
+    - Kubernetes configuration (~/.kube → KUBECONFIG)
+
+EXAMPLES:
+    ro                          # Run all .robot files in current directory
+    ro runbook.robot           # Run specific robot file
+    ro --test "Check Health"   # Run specific test case
+    ro ../other-codebundle/    # Run tests in different directory
+
+OUTPUT:
+    Logs are written to \$ROBOT_LOG_DIR with HTML reports for viewing at localhost:3000
+
+EOF
+}
+
+# Check for help flags
+if [[ "$1" == "--help" || "$1" == "-h" ]]; then
+    show_help
+    exit 0
+fi
 
 TMPDIR="${TMPDIR:-/tmp/runwhen}"
 
 function ro () {
-    # ----------------------------------------------------------------
-    # 0) argument parsing  (--test …)  +  default "." target
-    # ----------------------------------------------------------------
+    # If no arguments given, pretend the user typed '.'
     if [ $# -eq 0 ]; then
         set -- "."
     fi
 
+    # We'll parse --test arguments first, but we really only need the final target later
     TASKS=()
     POSITIONAL=()
     while [[ $# -gt 0 ]]; do
         case "$1" in
             --test)
-                [[ -n "$2" ]] || { echo "Error: --test requires an argument."; exit 1; }
-                TASKS+=("--test" "$2")
-                shift 2
+                if [ -n "$2" ]; then
+                    TASKS+=("--test" "$2")
+                    shift 2
+                else
+                    echo "Error: --test requires an argument."
+                    exit 1
+                fi
                 ;;
             *)
                 POSITIONAL+=("$1")
@@ -31,88 +76,105 @@ function ro () {
                 ;;
         esac
     done
-    set -- "${POSITIONAL[@]}"          # restore positional args
+    set -- "${POSITIONAL[@]}" # restore positional parameters
 
-    ROBOT_FILE_EXECUTING=${!#}         # last positional arg
+    # The last positional argument is our "execution target"
+    ROBOT_FILE_EXECUTING=${!#}
+
+    # --------------------------------------------------------------------
+    # 1) Expand that target to a full path, then see if it's a file/dir
+    # --------------------------------------------------------------------
     real_target="$(realpath "$ROBOT_FILE_EXECUTING")"
 
     if [ -d "$real_target" ]; then
+        # It's a directory
         RW_SLX="$(basename "$real_target")"
         RW_RFNS="all"
     else
+        # It's presumably a file (like 'runbook.robot')
         dir_of_target="$(dirname "$real_target")"
         RW_SLX="$(basename "$dir_of_target")"
         RW_RFNS="$(basename "$real_target")"
     fi
+
     export RW_SLX RW_RFNS
     echo "[DEBUG] RW_SLX='${RW_SLX}', RW_RFNS='${RW_RFNS}'"
 
-    # ----------------------------------------------------------------
-    # 1) set up per-run working directory
-    # ----------------------------------------------------------------
+    # --------------------------------------------------------------------
+    # 2) Construct a working directory based on RW_SLX / RW_RFNS
+    # --------------------------------------------------------------------
     runwhen_workdir="${TMPDIR}/${RW_SLX}/${RW_RFNS}"
     mkdir -p "${runwhen_workdir}"
     echo "RUNWHEN_WORKDIR set to: ${runwhen_workdir}"
 
-    # ----------------------------------------------------------------
-    # 2) link credential stores from $HOME → temp dir
-    # ----------------------------------------------------------------
-    link_dir () {          # $1 = real dir/file, $2 = link to create
-        mkdir -p "$(dirname "$1")"
-        rm -rf "$2"
-        ln -s "$1" "$2"
-    }
-
-    # Azure CLI  (directory)
-    link_dir "${HOME}/.azure"               "${runwhen_workdir}/.azure"
+    # Create subdirectories for each CLI/tool
     azure_config_dir="${runwhen_workdir}/.azure"
+    mkdir -p "${azure_config_dir}"
 
-    # gcloud SDK (directory)
-    link_dir "${HOME}/.config/gcloud"       "${runwhen_workdir}/.gcloud"
+    azure_devops_config_dir="${runwhen_workdir}/.azure-devops"
+    mkdir -p "${azure_devops_config_dir}"
+
     gcloud_config_dir="${runwhen_workdir}/.gcloud"
+    mkdir -p "${gcloud_config_dir}"
 
-    # kubeconfig (single file)
-    mkdir -p "${HOME}/.kube"               # ensure real path exists
-    mkdir -p "${runwhen_workdir}/.kube"
-    rm  -f  "${runwhen_workdir}/.kube/config"
-    ln  -s  "${HOME}/.kube/config"         "${runwhen_workdir}/.kube/config"
-    kubeconfig_path="${runwhen_workdir}/.kube/config"
-
-    # temp area for generated artefacts
     codebundle_temp_dir="${runwhen_workdir}/cb-temp"
     mkdir -p "${codebundle_temp_dir}"
 
-    # export variables for children
+    kube_config_dir="${runwhen_workdir}/.kube"
+    mkdir -p "${kube_config_dir}"
+    kubeconfig_path="${kube_config_dir}/config"
+
+    # Copy existing configurations if they exist
+    if [ -d "$HOME/.azure" ]; then
+        cp -r "$HOME/.azure"/* "${azure_config_dir}/" 2>/dev/null || true
+        echo "Copied Azure CLI config to: ${azure_config_dir}"
+    fi
+
+    if [ -d "$HOME/.azure-devops" ]; then
+        cp -r "$HOME/.azure-devops"/* "${azure_devops_config_dir}/" 2>/dev/null || true
+        echo "Copied Azure DevOps CLI config to: ${azure_devops_config_dir}"
+    fi
+
+    # Export environment variables
     export AZURE_CONFIG_DIR="${azure_config_dir}"
+    echo "AZURE_CONFIG_DIR set to: ${AZURE_CONFIG_DIR}"
+
+    export AZURE_DEVOPS_CONFIG_DIR="${azure_devops_config_dir}"
+    echo "AZURE_DEVOPS_CONFIG_DIR set to: ${AZURE_DEVOPS_CONFIG_DIR}"
+
     export CLOUDSDK_CONFIG="${gcloud_config_dir}"
-    export KUBECONFIG="${kubeconfig_path}"
+    echo "CLOUDSDK_CONFIG set to: ${CLOUDSDK_CONFIG}"
+
     export CODEBUNDLE_TEMP_DIR="${codebundle_temp_dir}"
+    echo "CODEBUNDLE_TEMP_DIR set to: ${CODEBUNDLE_TEMP_DIR}"
 
-    echo "AZURE_CONFIG_DIR      = ${AZURE_CONFIG_DIR}"
-    echo "CLOUDSDK_CONFIG       = ${CLOUDSDK_CONFIG}"
-    echo "KUBECONFIG            = ${KUBECONFIG}"
-    echo "CODEBUNDLE_TEMP_DIR   = ${CODEBUNDLE_TEMP_DIR}"
+    export KUBECONFIG="${kubeconfig_path}"
+    echo "KUBECONFIG set to: ${KUBECONFIG}"
 
-    # ----------------------------------------------------------------
-    # 3) decide Robot output directory / file naming
-    # ----------------------------------------------------------------
+    # --------------------------------------------------------------------
+    # 3) Figure out Robot output directory (depends on $ROBOT_LOG_DIR, etc.)
+    # --------------------------------------------------------------------
+    # Use your existing logic. For example:
     if [ -d "$real_target" ]; then
+        # All .robot in directory
         OUTPUT_DIR="$ROBOT_LOG_DIR/$RW_SLX"
         TYPE="codebundle"
     else
+        # Single .robot file
         OUTPUT_DIR="$ROBOT_LOG_DIR/$RW_SLX"
         TYPE="$(basename "$real_target" .robot)"
     fi
+
     echo "[DEBUG] Robot logs => $OUTPUT_DIR (TYPE='${TYPE}')"
 
-    # ----------------------------------------------------------------
-    # 4) invoke Robot Framework
-    # ----------------------------------------------------------------
+    # --------------------------------------------------------------------
+    # 4) Finally run Robot
+    # --------------------------------------------------------------------
     robot --loglevel trace \
           --outputdir "$OUTPUT_DIR" \
-          --log     "${TYPE}-log.html" \
-          --output  "${TYPE}-output.xml" \
-          --report  "${TYPE}-report.html" \
+          --log "${TYPE}-log.html" \
+          --output "${TYPE}-output.xml" \
+          --report "${TYPE}-report.html" \
           "${TASKS[@]}" \
           "${POSITIONAL[@]}"
 }
