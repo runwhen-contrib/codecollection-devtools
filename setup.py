@@ -1,3 +1,6 @@
+# DEPRECATED: rw-devtools is replaced by rw-core-keywords (PyPI).
+# rw-core-keywords handles both dev and production modes via RW_MODE env var.
+# This file is kept only for backward compatibility with existing installs.
 from setuptools import setup
 
 setup(
