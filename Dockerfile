@@ -25,17 +25,22 @@ RUN usermod -u 1000 runwhen && \
 
 ###############################################################################
 # Dev tools: sudo, gpg/apt deps (bookworm+ has HTTPS in apt; skip apt-transport-https)
+# Base image (robot-runtime-base) already ships: curl, ca-certificates, wget, unzip.
+# Apt under QEMU (arm64 on amd64 CI) often exits 100 without Pipeline-Depth=0 + retries.
 ###############################################################################
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-        ca-certificates \
-        curl \
+RUN printf '%s\n' \
+      'Acquire::http::Pipeline-Depth "0";' \
+      'Acquire::https::Pipeline-Depth "0";' \
+      'Acquire::Retries "5";' \
+      'Acquire::http::Timeout "120";' \
+      'Acquire::https::Timeout "120";' \
+    > /etc/apt/apt.conf.d/99docker-ci \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
         gnupg \
         lsb-release \
         sudo \
-        unzip \
-        wget \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
