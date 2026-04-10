@@ -77,7 +77,7 @@ RUN . /tmp/arch_vars && \
 # AWS CLI
 RUN . /tmp/arch_vars && \
     curl "https://awscli.amazonaws.com/awscli-exe-linux-${AWS_ARCH}.zip" -o "awscliv2.zip" && \
-    unzip awscliv2.zip && ./aws/install && \
+    unzip awscliv2.zip && ./aws/install --update && \
     rm -rf awscliv2.zip ./aws
 
 # Azure CLI
@@ -119,6 +119,16 @@ RUN . /tmp/arch_vars && \
     mv /tmp/istioctl /usr/local/bin/ && chmod +x /usr/local/bin/istioctl && \
     rm /tmp/istioctl.tar.gz
 
+# GitHub CLI (PR checkout in devcontainer)
+RUN . /tmp/arch_vars && \
+    curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+        | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg && \
+    echo "deb [arch=${ARCH_BIN} signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+        | tee /etc/apt/sources.list.d/github-cli.list > /dev/null && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends gh && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
 # Cleanup
 RUN rm -f /tmp/arch_vars
 
@@ -133,15 +143,17 @@ RUN mkdir -p $ROBOT_LOG_DIR && \
     chmod 775 $ROBOT_LOG_DIR
 
 COPY --chown=runwhen:0 .pylintrc.google LICENSE ro requirements.txt .
-RUN mkdir -p auth
+COPY --chown=runwhen:0 .devcontainer/ .devcontainer/
+RUN mkdir -p auth && \
+    chown -R runwhen:0 ${RUNWHEN_HOME}/.devcontainer ${RUNWHEN_HOME}/auth && \
+    chmod -R 0775 ${RUNWHEN_HOME}/ro ${RUNWHEN_HOME}/auth ${RUNWHEN_HOME}/.devcontainer
 
 USER runwhen
 ENV USER="runwhen"
 
-RUN pip install --user --no-cache-dir -r requirements.txt && \
-    chmod -R g+w ${RUNWHEN_HOME} && \
-    chmod -R 0775 $RUNWHEN_HOME
+RUN pip install --user --no-cache-dir -r requirements.txt
 
+ENV PATH="${PATH}:/usr/local/bin:${RUNWHEN_HOME}/.local/bin:${RUNWHEN_HOME}"
 ENV PYTHONPATH="$PYTHONPATH:.:${RUNWHEN_HOME}/codecollection/libraries:${RUNWHEN_HOME}/codecollection/codebundles"
 
 EXPOSE 3000
