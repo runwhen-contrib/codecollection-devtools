@@ -24,13 +24,20 @@ RUN usermod -u 1000 runwhen && \
     groupmod -g 1000 runwhen
 
 ###############################################################################
-# Dev tools: sudo, lnav, go-task, terraform
+# Dev tools: sudo, gpg/apt deps (bookworm+ has HTTPS in apt; skip apt-transport-https)
 ###############################################################################
+ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        sudo apt-transport-https gnupg2 lsb-release && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+        ca-certificates \
+        curl \
+        gnupg \
+        lsb-release \
+        sudo \
+        unzip \
+        wget \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN echo "runwhen ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
