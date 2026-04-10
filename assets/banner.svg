@@ -14,11 +14,9 @@
     </clipPath>
   </defs>
 
-  <!-- Background matching login panel gradient -->
   <rect width="720" height="200" fill="url(#bg)"/>
   <rect width="720" height="200" fill="url(#glow)"/>
 
-  <!-- Actual RunWhen icon from runwhen-square-new.svg, scaled to 56x56 at position (36,52) -->
   <g clip-path="url(#iconClip)">
     <g transform="translate(36,52) scale(0.3733)">
       <path d="M0 0 C49.5 0 99 0 150 0 C150 49.5 150 99 150 150 C100.5 150 51 150 0 150 C0 100.5 0 51 0 0 Z" fill="#1F8BF0"/>
@@ -27,9 +25,8 @@
     </g>
   </g>
 
-  <!-- Text -->
-  <text x="108" y="78" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="600" fill="#ffffff" letter-spacing="-0.02em">CodeCollection DevTools</text>
-  <text x="108" y="108" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="400" fill="rgba(255,255,255,0.6)">One image. Any codecollection. Instant dev environment.</text>
-  <text x="108" y="138" font-family="system-ui, -apple-system, sans-serif" font-size="13" fill="rgba(255,255,255,0.45)">Author and test RunWhen codebundles in a pre-built,</text>
-  <text x="108" y="155" font-family="system-ui, -apple-system, sans-serif" font-size="13" fill="rgba(255,255,255,0.45)">multi-arch container  locally or in GitHub Codespaces.</text>
+  <text x="108" y="78" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="600" fill="#ffffff">CodeCollection DevTools</text>
+  <text x="108" y="108" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="400" fill="#ffffff" opacity="0.6">One image. Any codecollection. Instant dev environment.</text>
+  <text x="108" y="138" font-family="system-ui, -apple-system, sans-serif" font-size="13" fill="#ffffff" opacity="0.45">Author and test RunWhen codebundles in a pre-built,</text>
+  <text x="108" y="155" font-family="system-ui, -apple-system, sans-serif" font-size="13" fill="#ffffff" opacity="0.45">multi-arch container — locally or in GitHub Codespaces.</text>
 </svg>
