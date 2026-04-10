@@ -64,6 +64,10 @@ Then open in VS Code → **Reopen in Container** (or `Cmd+Shift+P` → "Dev Cont
 
 The devcontainer pulls the pre-built image from GHCR — no local Docker build required.
 
+#### Cursor with GitHub Codespaces
+
+Use **Cursor** with a **Codespace** via **`gh codespace ssh`** and **Remote - SSH**. See **[Cursor + Codespaces + devcontainer](docs/cursor-remote-devcontainer.md)**.
+
 ### Option 3: Docker run (headless)
 
 ```bash
