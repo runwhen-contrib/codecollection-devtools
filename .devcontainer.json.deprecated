@@ -2,7 +2,6 @@
     "name": "devtools",
     "shutdownAction": "none",
     "image": "us-docker.pkg.dev/runwhen-nonprod-shared/public-images/codecollection-devtools:latest",
-    // "image": "codecollectiondevtools:latest",
     "overrideCommand": false,
     "extensions": [
         "robocorp.robotframework-lsp",
@@ -20,10 +19,13 @@
         "${localWorkspaceFolder}/auth/:/home/runwhen/auth/:z",
         "--name",
         "devtools",
-        "--dns", 
+        "--dns",
         "8.8.8.8"
     ],
-    "postStartCommand":"pip install --user --no-cache-dir -r /home/runwhen/codecollection/requirements.txt",
+    "containerEnv": {
+        "RW_MODE": "dev"
+    },
+    "postStartCommand": "pip install --user --no-cache-dir -r /home/runwhen/codecollection/requirements.txt",
     "forwardPorts": [
         3000
     ],
@@ -34,10 +36,7 @@
             "version": "latest"
         }
     },
-    // Configure tool-specific properties.
     "customizations": {
-        // Configure properties specific to VS Code.
-        // configuration following google standard
         "vscode": {
             "settings": {
                 "python.languageServer": "Jedi",
@@ -45,7 +44,7 @@
                 "python.linting.pylintEnabled": true,
                 "python.linting.pylintArgs": [
                     "--max-line-length=120",
-                    "--enable=W0614" // track unused imports
+                    "--enable=W0614"
                 ],
                 "[python]": {
                     "editor.insertSpaces": true,
@@ -61,11 +60,8 @@
                 "robot.language-server.python": "/usr/local/bin/python",
                 "robot.pythonpath": [
                     "/home/runwhen",
-                    "/home/runwhen/rw-public-codecollection/libraries",
-                    "/home/runwhen/rw-public-codecollection/libraries/RW",
                     "/home/runwhen/codecollection/libraries",
-                    "/home/runwhen/codecollection/libraries/RW",
-                    "/home/runwhen/dev_facade"
+                    "/home/runwhen/codecollection/libraries/RW"
                 ]
             }
         }

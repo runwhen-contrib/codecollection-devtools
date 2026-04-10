@@ -49,6 +49,7 @@ if [[ "$1" == "--help" || "$1" == "-h" ]]; then
 fi
 
 TMPDIR="${TMPDIR:-/tmp/runwhen}"
+export RW_MODE="${RW_MODE:-dev}"
 
 function ro () {
     # If no arguments given, pretend the user typed '.'

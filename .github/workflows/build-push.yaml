@@ -13,6 +13,8 @@ on:
     paths:
       - "VERSION"
       - "Dockerfile"
+      - "requirements.txt"
+      - ".devcontainer/**"
       - ".github/workflows/build-push.yaml"
   workflow_dispatch:
 
@@ -92,7 +94,7 @@ jobs:
           docker buildx inspect --bootstrap
           docker buildx build \
             --push \
-            --platform linux/amd64 \
+            --platform linux/amd64,linux/arm64 \
             --tag "${{ env.SHARED_ARTIFACT_REPOSITORY_PATH }}/${{ env.IMAGE }}:${{ env.VERSION }}" \
             --tag "${{ env.SHARED_ARTIFACT_REPOSITORY_PATH }}/${{ env.IMAGE }}:latest" \
             --tag "ghcr.io/${{ env.GHCR_ORG }}/${{ env.IMAGE }}:${{ env.VERSION }}" \

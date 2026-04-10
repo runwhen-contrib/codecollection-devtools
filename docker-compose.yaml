@@ -1,5 +1,4 @@
 version: '3.9'
-# LOCAL DEV
 services:
   devtools:
     container_name: devtools
@@ -7,8 +6,9 @@ services:
     build:
       context: ./
       dockerfile: ./Dockerfile
+    environment:
+      - RW_MODE=dev
     volumes:
-      # Mount local codebase to reflect changes for local dev
       - .:/home/runwhen
     ports:
       - 3000:3000
