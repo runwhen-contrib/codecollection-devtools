@@ -1,12 +1,9 @@
 name: Build and Push
 
 on:
-  # 1) Trigger on pull request (e.g., to main branch) for a simple build test
   pull_request:
     branches:
       - main
-  # 2) Trigger on push to main (and optionally only when certain files change),
-  #    plus allow manual runs
   push:
     branches:
       - main
@@ -17,6 +14,15 @@ on:
       - ".devcontainer/**"
       - ".github/workflows/build-push.yaml"
   workflow_dispatch:
+    inputs:
+      build_amd64:
+        description: "Release: push linux/amd64 (uncheck to skip). PRs always test both arches in parallel."
+        type: boolean
+        default: true
+      build_arm64:
+        description: "Release: push linux/arm64 (uncheck to skip). PRs always test both arches in parallel."
+        type: boolean
+        default: true
 
 permissions:
   contents: "read"
@@ -33,103 +39,194 @@ env:
 
 jobs:
   # ------------------------------------------------------------------------------
-  # JOB 1: Build Test for Pull Requests
+  # PR: parallel build tests (native amd64; arm64 via QEMU)
   # ------------------------------------------------------------------------------
-  build-test:
-    # Only run this job if the event is a Pull Request
+  build-test-amd64:
     if: ${{ github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build test (linux/amd64, linux/arm64)
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build test (linux/amd64)
         uses: docker/build-push-action@v6
         with:
           context: .
           file: Dockerfile
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           push: false
-          tags: codecollection-devtools:pr-test
+          tags: codecollection-devtools:pr-test-amd64
 
-  # ------------------------------------------------------------------------------
-  # JOB 2: Build and Push on Push to Main (or manual trigger)
-  # ------------------------------------------------------------------------------
-  build-and-push:
-    # Only run this job if the event is a 'push' (incl. workflow_dispatch).
-    # That way PRs won't push images.
-    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+  build-test-arm64:
+    if: ${{ github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - id: 'auth-runwhen'
-        name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@v0.4.0'
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - name: Build test (linux/arm64)
+        uses: docker/build-push-action@v6
         with:
-          workload_identity_provider: ${{ secrets.RUNWHEN_NONPROD_SHARED_WI_PROVIDER }}
-          service_account: ${{ secrets.RUNWHEN_NONPROD_SHARED_WI_SA }}
+          context: .
+          file: Dockerfile
+          platforms: linux/arm64
+          push: false
+          tags: codecollection-devtools:pr-test-arm64
 
-      - name: Set tag and version
-        run: |-
+  # ------------------------------------------------------------------------------
+  # Release: shared VERSION for per-arch pushes + manifest merge
+  # ------------------------------------------------------------------------------
+  prepare-release:
+    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: version
+        run: |
           if [[ -s VERSION ]]; then
-            VERSION=$(cat VERSION)
-            echo "VERSION=$VERSION" >> $GITHUB_ENV
+            VERSION=$(cat VERSION | tr -d '[:space:]')
+            echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+            echo "VERSION=$VERSION" >> "$GITHUB_ENV"
             echo "VERSION extracted: $VERSION"
           else
             echo "VERSION file is missing or empty" >&2
             exit 1
           fi
-          # Create a 'TAG' environment variable from the branch name + short SHA
-          echo "TAG=$(echo $GITHUB_REF_NAME | sed 's/[^a-zA-Z0-9]/-/g')-${GITHUB_SHA::8}" >> $GITHUB_ENV
 
+  build-push-amd64:
+    needs: [prepare-release]
+    if: |
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      (github.event_name == 'push' || github.event.inputs.build_amd64 == 'true')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - id: auth-runwhen
+        name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v0.4.0
+        with:
+          workload_identity_provider: ${{ secrets.RUNWHEN_NONPROD_SHARED_WI_PROVIDER }}
+          service_account: ${{ secrets.RUNWHEN_NONPROD_SHARED_WI_SA }}
       - name: Configure docker for GCP
         run: gcloud --quiet auth configure-docker us-docker.pkg.dev
-
       - name: Login to GHCR
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | \
             docker login --username ${{ github.actor }} --password-stdin ghcr.io
-
-      - name: Build & Push
+      - name: Build & push (linux/amd64)
         uses: docker/build-push-action@v6
         with:
           context: .
           file: Dockerfile
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           push: true
           tags: |
-            ${{ env.SHARED_ARTIFACT_REPOSITORY_PATH }}/${{ env.IMAGE }}:${{ env.VERSION }}
-            ${{ env.SHARED_ARTIFACT_REPOSITORY_PATH }}/${{ env.IMAGE }}:latest
-            ghcr.io/${{ env.GHCR_ORG }}/${{ env.IMAGE }}:${{ env.VERSION }}
-            ghcr.io/${{ env.GHCR_ORG }}/${{ env.IMAGE }}:latest
+            ${{ env.SHARED_ARTIFACT_REPOSITORY_PATH }}/${{ env.IMAGE }}:${{ needs.prepare-release.outputs.version }}-amd64
+            ghcr.io/${{ env.GHCR_ORG }}/${{ env.IMAGE }}:${{ needs.prepare-release.outputs.version }}-amd64
           build-args: |
             GITHUB_SHA=${{ github.sha }}
             GITHUB_REF=${{ github.ref }}
 
+  build-push-arm64:
+    needs: [prepare-release]
+    if: |
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      (github.event_name == 'push' || github.event.inputs.build_arm64 == 'true')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - id: auth-runwhen
+        name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v0.4.0
+        with:
+          workload_identity_provider: ${{ secrets.RUNWHEN_NONPROD_SHARED_WI_PROVIDER }}
+          service_account: ${{ secrets.RUNWHEN_NONPROD_SHARED_WI_SA }}
+      - name: Configure docker for GCP
+        run: gcloud --quiet auth configure-docker us-docker.pkg.dev
+      - name: Login to GHCR
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | \
+            docker login --username ${{ github.actor }} --password-stdin ghcr.io
+      - name: Build & push (linux/arm64)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          platforms: linux/arm64
+          push: true
+          tags: |
+            ${{ env.SHARED_ARTIFACT_REPOSITORY_PATH }}/${{ env.IMAGE }}:${{ needs.prepare-release.outputs.version }}-arm64
+            ghcr.io/${{ env.GHCR_ORG }}/${{ env.IMAGE }}:${{ needs.prepare-release.outputs.version }}-arm64
+          build-args: |
+            GITHUB_SHA=${{ github.sha }}
+            GITHUB_REF=${{ github.ref }}
+
+  merge-manifests:
+    needs: [prepare-release, build-push-amd64, build-push-arm64]
+    if: |
+      always() && !cancelled() &&
+      needs.prepare-release.result == 'success' &&
+      (
+        (github.event_name == 'push' &&
+          needs.build-push-amd64.result == 'success' &&
+          needs.build-push-arm64.result == 'success') ||
+        (github.event_name == 'workflow_dispatch' &&
+          (needs.build-push-amd64.result == 'success' || needs.build-push-arm64.result == 'success'))
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - id: auth-runwhen
+        name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v0.4.0
+        with:
+          workload_identity_provider: ${{ secrets.RUNWHEN_NONPROD_SHARED_WI_PROVIDER }}
+          service_account: ${{ secrets.RUNWHEN_NONPROD_SHARED_WI_SA }}
+      - name: Configure docker for GCP
+        run: gcloud --quiet auth configure-docker us-docker.pkg.dev
+      - name: Login to GHCR
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | \
+            docker login --username ${{ github.actor }} --password-stdin ghcr.io
+      - uses: docker/setup-buildx-action@v3
+      - name: Merge multi-arch manifests (GCP + GHCR)
+        env:
+          V: ${{ needs.prepare-release.outputs.version }}
+          GCP_BASE: ${{ env.SHARED_ARTIFACT_REPOSITORY_PATH }}/${{ env.IMAGE }}
+          GHCR_BASE: ghcr.io/${{ env.GHCR_ORG }}/${{ env.IMAGE }}
+          AMD64_OK: ${{ needs.build-push-amd64.result }}
+          ARM64_OK: ${{ needs.build-push-arm64.result }}
+        run: |
+          set -euo pipefail
+          GCP_REF=()
+          GHCR_REF=()
+          if [[ "$AMD64_OK" == "success" ]]; then
+            GCP_REF+=("${GCP_BASE}:${V}-amd64")
+            GHCR_REF+=("${GHCR_BASE}:${V}-amd64")
+          fi
+          if [[ "$ARM64_OK" == "success" ]]; then
+            GCP_REF+=("${GCP_BASE}:${V}-arm64")
+            GHCR_REF+=("${GHCR_BASE}:${V}-arm64")
+          fi
+          docker buildx imagetools create \
+            -t "${GCP_BASE}:${V}" -t "${GCP_BASE}:latest" \
+            "${GCP_REF[@]}"
+          docker buildx imagetools create \
+            -t "${GHCR_BASE}:${V}" -t "${GHCR_BASE}:latest" \
+            "${GHCR_REF[@]}"
+
       - name: Notify Slack of Container Build
-        id: slack-publish-nonprod-shared-artifact-repo
         uses: slackapi/slack-github-action@v1.19.0
         with:
           channel-id: "#notifications"
-          slack-message: "Just Pushed to ${{ env.SHARED_ARTIFACT_REPOSITORY_PATH }}/${{ env.IMAGE }}:${{ env.VERSION }}"
+          slack-message: "Just Pushed to ${{ env.SHARED_ARTIFACT_REPOSITORY_PATH }}/${{ env.IMAGE }}:${{ needs.prepare-release.outputs.version }}"
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
       - name: Notify Slack of GHCR Push
-        id: slack-deploy-to-ghcr
         uses: slackapi/slack-github-action@v1.19.0
         with:
           channel-id: "#codecollections"
