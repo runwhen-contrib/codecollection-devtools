@@ -2,14 +2,20 @@ name: Build and Push
 
 on:
   pull_request:
-    branches:
-      - main
-  push:
-    branches:
-      - main
+    branches: [main]
     paths:
       - "VERSION"
       - "Dockerfile"
+      - "docker/**"
+      - "requirements.txt"
+      - ".devcontainer/**"
+      - ".github/workflows/build-push.yaml"
+  push:
+    branches: [main]
+    paths:
+      - "VERSION"
+      - "Dockerfile"
+      - "docker/**"
       - "requirements.txt"
       - ".devcontainer/**"
       - ".github/workflows/build-push.yaml"
