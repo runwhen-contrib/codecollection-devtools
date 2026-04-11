@@ -14,19 +14,12 @@
         }
     },
 
-    // In Codespaces: set these as Codespace secrets (GitHub Settings → Codespaces → Secrets).
-    // Locally: export them in your shell before opening the devcontainer.
-    // ${localEnv:VAR} reads from either source.
     "containerEnv": {
         "RW_MODE": "dev",
         "ROBOT_LOG_DIR": "/robot_logs",
-        "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}",
-        "CODECOLLECTION_REPO": "${localEnv:CODECOLLECTION_REPO}",
-        "CODECOLLECTION_BRANCH": "${localEnv:CODECOLLECTION_BRANCH}",
-        "PR_NUMBER": "${localEnv:PR_NUMBER}"
+        "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}"
     },
 
-    "onCreateCommand": "bash /home/runwhen/.devcontainer/on-create.sh",
     "postStartCommand": "python -m http.server --bind 0.0.0.0 --directory /robot_logs 3000 &",
 
     "features": {
