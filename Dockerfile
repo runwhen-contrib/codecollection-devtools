@@ -26,22 +26,27 @@ RUN usermod -u 1000 runwhen && \
 ###############################################################################
 # Dev tools: sudo, gpg/apt deps (bookworm+ has HTTPS in apt; skip apt-transport-https)
 # Base image (robot-runtime-base) already ships: curl, ca-certificates, wget, unzip.
-# Apt config via COPY avoids BuildKit/shell quoting issues; retries help QEMU CI.
+#
+# Official python:3.14-slim-bookworm can ship sid (or other suites) alongside bookworm.
+# Mixing sid + bookworm breaks dpkg (openssl 3.6 vs libssl3 3.0, libgcrypt, etc.).
+# Drop all list.d entries and pin /etc/apt/sources.list to bookworm only.
 ###############################################################################
 COPY docker/apt-ci.conf /etc/apt/apt.conf.d/99docker-ci
 ENV DEBIAN_FRONTEND=noninteractive
-# Clear lists + retry apt under flaky QEMU/network (exit 100).
-RUN rm -rf /var/lib/apt/lists/* \
-    && ( \
-         apt-get update \
-         && apt-get install -y --no-install-recommends gnupg lsb-release sudo \
-         || (echo "apt retry 1" && sleep 15 && apt-get update \
-             && apt-get install -y --no-install-recommends gnupg lsb-release sudo) \
-         || (echo "apt retry 2" && sleep 25 && apt-get update \
-             && apt-get install -y --no-install-recommends gnupg lsb-release sudo) \
-       ) \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+RUN set -eux; \
+    rm -rf /var/lib/apt/lists/*; \
+    for f in /etc/apt/sources.list.d/*.sources /etc/apt/sources.list.d/*.list; do \
+      if [ -f "$f" ]; then rm -f "$f"; fi; \
+    done; \
+    printf '%s\n' \
+      'deb http://deb.debian.org/debian bookworm main' \
+      'deb http://deb.debian.org/debian bookworm-updates main' \
+      'deb http://deb.debian.org/debian-security bookworm-security main' \
+      > /etc/apt/sources.list; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends gnupg lsb-release sudo; \
+    apt-get clean; \
+    rm -rf /var/lib/apt/lists/*
 
 RUN echo "runwhen ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
