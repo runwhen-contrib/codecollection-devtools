@@ -81,8 +81,9 @@ fi
 # ------------------------------------------------------------------
 # 4. Install CodeBundle authoring skills as Cursor rules
 # ------------------------------------------------------------------
-DEVTOOLS_DIR="${RUNWHEN_HOME}/devtools"
-SKILLS_SRC="${DEVTOOLS_DIR}/skills"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+DEVTOOLS_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+SKILLS_SRC="${DEVTOOLS_ROOT}/skills"
 RULES_DIR="${CODECOLLECTION_DIR}/.cursor/rules"
 
 if [ -d "${SKILLS_SRC}" ]; then

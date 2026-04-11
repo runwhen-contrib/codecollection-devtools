@@ -3,8 +3,7 @@ version: "3"
 vars:
   RUNWHEN_HOME: /home/runwhen
   CODECOLLECTION_DIR: "{{.RUNWHEN_HOME}}/codecollection"
-  DEVTOOLS_DIR: "{{.RUNWHEN_HOME}}/devtools"
-  SKILLS_SRC: "{{.DEVTOOLS_DIR}}/skills"
+  SKILLS_SRC: "{{.TASKFILE_DIR}}/skills"
   DEFAULT_REPO: runwhen-contrib/rw-cli-codecollection
   DEFAULT_BRANCH: main
 
