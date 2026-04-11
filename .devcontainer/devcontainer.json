@@ -14,6 +14,9 @@
         }
     },
 
+    // In Codespaces: set these as Codespace secrets (GitHub Settings → Codespaces → Secrets).
+    // Locally: export them in your shell before opening the devcontainer.
+    // ${localEnv:VAR} reads from either source.
     "containerEnv": {
         "RW_MODE": "dev",
         "ROBOT_LOG_DIR": "/robot_logs",

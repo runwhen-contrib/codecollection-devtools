@@ -33,15 +33,32 @@
 
 ### Option 1: GitHub Codespaces (recommended for PR review)
 
-Open a Codespace from the `codecollection-devtools` repo, passing the codecollection and PR number as environment variables:
+Configure environment variables as **Codespace secrets**, then create the Codespace.
+
+**Step 1 — Set Codespace secrets** (once per user, or per-repo):
+
+Go to **github.com → Settings → Codespaces → Secrets** (or repo **Settings → Secrets and variables → Codespaces**) and add:
+
+| Secret | Example | Required |
+|--------|---------|----------|
+| `CODECOLLECTION_REPO` | `runwhen-contrib/rw-cli-codecollection` | yes |
+| `CODECOLLECTION_BRANCH` | `main` | no (defaults to `main`) |
+| `PR_NUMBER` | `123` | no (checks out the PR branch) |
+
+Or set them via the **`gh` CLI**:
+
+```bash
+gh secret set CODECOLLECTION_REPO --user --body "runwhen-contrib/rw-cli-codecollection"
+gh secret set PR_NUMBER --user --body "123"
+```
+
+**Step 2 — Create the Codespace:**
 
 1. Go to **github.com/runwhen-contrib/codecollection-devtools** → **Code** → **Codespaces** → **New with options**
-2. Set environment variables:
-   - `CODECOLLECTION_REPO` = `runwhen-contrib/rw-cli-codecollection` (or any org/repo)
-   - `PR_NUMBER` = `123` (optional — checks out the PR branch)
+2. Pick your branch, region, and machine type
 3. Click **Create codespace**
 
-The `on-create.sh` bootstrap script clones the repo, installs dependencies, and checks out the PR automatically.
+The `on-create.sh` bootstrap script reads those secrets as environment variables, clones the repo, installs dependencies, and checks out the PR automatically.
 
 ### Option 2: VS Code devcontainer (local)
 
