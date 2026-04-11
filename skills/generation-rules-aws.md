@@ -1,3 +1,9 @@
+---
+description: How to author generation rules and templates for AWS CodeBundles
+globs: "**/.runwhen/**,**/codebundles/**"
+alwaysApply: false
+---
+
 # Generation Rules -- AWS Platform
 
 This guide covers how to author `.runwhen/generation-rules/` and

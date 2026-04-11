@@ -1,3 +1,9 @@
+---
+description: How to author .test/ directories for Azure CodeBundles
+globs: "**/.test/**,**/codebundles/**"
+alwaysApply: false
+---
+
 # Test Infrastructure -- Azure Platform
 
 This guide covers how to author `.test/` directories for Azure cloud

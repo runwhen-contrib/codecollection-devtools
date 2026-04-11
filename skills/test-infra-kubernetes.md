@@ -1,3 +1,9 @@
+---
+description: How to author .test/ directories for Kubernetes CodeBundles
+globs: "**/.test/**,**/codebundles/**"
+alwaysApply: false
+---
+
 # Test Infrastructure -- Kubernetes Platform
 
 This guide covers how to author `.test/` directories for Kubernetes

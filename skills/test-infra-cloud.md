@@ -1,3 +1,9 @@
+---
+description: Shared test infrastructure conventions across all cloud platforms
+globs: "**/.test/**,**/codebundles/**"
+alwaysApply: false
+---
+
 # Test Infrastructure -- Cloud Platforms (Shared Patterns)
 
 This is a routing document. For detailed, platform-specific test

@@ -1,3 +1,9 @@
+---
+description: How to author generation rules and templates for Azure and Azure DevOps CodeBundles
+globs: "**/.runwhen/**,**/codebundles/**"
+alwaysApply: false
+---
+
 # Generation Rules -- Azure and Azure DevOps Platforms
 
 This guide covers generation rules for two separate platforms:

@@ -1,3 +1,9 @@
+---
+description: How to build Service Level Indicators (SLIs) for CodeBundles
+globs: "**/sli.robot,**/codebundles/**"
+alwaysApply: false
+---
+
 # SLI Authoring Guide
 
 This guide covers how to build Service Level Indicators (SLIs) for

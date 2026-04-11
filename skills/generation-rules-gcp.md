@@ -1,3 +1,9 @@
+---
+description: How to author generation rules and templates for GCP CodeBundles
+globs: "**/.runwhen/**,**/codebundles/**"
+alwaysApply: false
+---
+
 # Generation Rules -- GCP Platform
 
 This guide covers how to author `.runwhen/generation-rules/` and
