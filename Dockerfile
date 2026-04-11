@@ -24,12 +24,28 @@ RUN usermod -u 1000 runwhen && \
     groupmod -g 1000 runwhen
 
 ###############################################################################
-# Dev tools: sudo, lnav, go-task, terraform
+# Dev tools: sudo, gpg/apt deps (bookworm+ has HTTPS in apt; skip apt-transport-https)
+# Base image (robot-runtime-base) already ships: curl, ca-certificates, wget, unzip.
+#
+# Official python:3.14-slim-bookworm can ship sid (or other suites) alongside bookworm.
+# Mixing sid + bookworm breaks dpkg (openssl 3.6 vs libssl3 3.0, libgcrypt, etc.).
+# Drop all list.d entries and pin /etc/apt/sources.list to bookworm only.
 ###############################################################################
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-        sudo apt-transport-https gnupg2 lsb-release && \
-    apt-get clean && \
+COPY docker/apt-ci.conf /etc/apt/apt.conf.d/99docker-ci
+ENV DEBIAN_FRONTEND=noninteractive
+RUN set -eux; \
+    rm -rf /var/lib/apt/lists/*; \
+    for f in /etc/apt/sources.list.d/*.sources /etc/apt/sources.list.d/*.list; do \
+      if [ -f "$f" ]; then rm -f "$f"; fi; \
+    done; \
+    printf '%s\n' \
+      'deb http://deb.debian.org/debian bookworm main' \
+      'deb http://deb.debian.org/debian bookworm-updates main' \
+      'deb http://deb.debian.org/debian-security bookworm-security main' \
+      > /etc/apt/sources.list; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends gnupg lsb-release sudo; \
+    apt-get clean; \
     rm -rf /var/lib/apt/lists/*
 
 RUN echo "runwhen ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
@@ -154,7 +170,9 @@ ENV USER="runwhen"
 RUN pip install --user --no-cache-dir -r requirements.txt
 
 ENV PATH="${PATH}:/usr/local/bin:${RUNWHEN_HOME}/.local/bin:${RUNWHEN_HOME}"
-ENV PYTHONPATH="$PYTHONPATH:.:${RUNWHEN_HOME}/codecollection/libraries:${RUNWHEN_HOME}/codecollection/codebundles"
+# Do not reference $PYTHONPATH here — it is often unset in the base image (BuildKit UndefinedVar).
+ENV PYTHONPATH=".:${RUNWHEN_HOME}/codecollection/libraries:${RUNWHEN_HOME}/codecollection/codebundles"
 
 EXPOSE 3000
-CMD python -m http.server --bind 0.0.0.0 --directory $ROBOT_LOG_DIR 3000
+# JSON form for clean signals; use literal log dir (same as ENV ROBOT_LOG_DIR).
+CMD ["python", "-m", "http.server", "--bind", "0.0.0.0", "--directory", "/robot_logs", "3000"]
