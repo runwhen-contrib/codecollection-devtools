@@ -23,7 +23,9 @@
     "postStartCommand": "python -m http.server --bind 0.0.0.0 --directory /robot_logs 3000 &",
 
     "features": {
-        "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+        "ghcr.io/devcontainers/features/docker-in-docker:2": {
+            "moby": false
+        },
         "ghcr.io/devcontainers/features/sshd:1": {
             "version": "latest"
         }
