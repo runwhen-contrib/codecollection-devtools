@@ -54,6 +54,7 @@ jobs:
           file: Dockerfile
           platforms: linux/amd64
           push: false
+          load: true
           tags: codecollection-devtools:pr-test-amd64
 
   build-test-arm64:

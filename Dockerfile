@@ -26,21 +26,20 @@ RUN usermod -u 1000 runwhen && \
 ###############################################################################
 # Dev tools: sudo, gpg/apt deps (bookworm+ has HTTPS in apt; skip apt-transport-https)
 # Base image (robot-runtime-base) already ships: curl, ca-certificates, wget, unzip.
-# Apt under QEMU (arm64 on amd64 CI) often exits 100 without Pipeline-Depth=0 + retries.
+# Apt config via COPY avoids BuildKit/shell quoting issues; retries help QEMU CI.
 ###############################################################################
+COPY docker/apt-ci.conf /etc/apt/apt.conf.d/99docker-ci
 ENV DEBIAN_FRONTEND=noninteractive
-RUN printf '%s\n' \
-      'Acquire::http::Pipeline-Depth "0";' \
-      'Acquire::https::Pipeline-Depth "0";' \
-      'Acquire::Retries "5";' \
-      'Acquire::http::Timeout "120";' \
-      'Acquire::https::Timeout "120";' \
-    > /etc/apt/apt.conf.d/99docker-ci \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends \
-        gnupg \
-        lsb-release \
-        sudo \
+# Clear lists + retry apt under flaky QEMU/network (exit 100).
+RUN rm -rf /var/lib/apt/lists/* \
+    && ( \
+         apt-get update \
+         && apt-get install -y --no-install-recommends gnupg lsb-release sudo \
+         || (echo "apt retry 1" && sleep 15 && apt-get update \
+             && apt-get install -y --no-install-recommends gnupg lsb-release sudo) \
+         || (echo "apt retry 2" && sleep 25 && apt-get update \
+             && apt-get install -y --no-install-recommends gnupg lsb-release sudo) \
+       ) \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -166,7 +165,9 @@ ENV USER="runwhen"
 RUN pip install --user --no-cache-dir -r requirements.txt
 
 ENV PATH="${PATH}:/usr/local/bin:${RUNWHEN_HOME}/.local/bin:${RUNWHEN_HOME}"
-ENV PYTHONPATH="$PYTHONPATH:.:${RUNWHEN_HOME}/codecollection/libraries:${RUNWHEN_HOME}/codecollection/codebundles"
+# Do not reference $PYTHONPATH here — it is often unset in the base image (BuildKit UndefinedVar).
+ENV PYTHONPATH=".:${RUNWHEN_HOME}/codecollection/libraries:${RUNWHEN_HOME}/codecollection/codebundles"
 
 EXPOSE 3000
-CMD python -m http.server --bind 0.0.0.0 --directory $ROBOT_LOG_DIR 3000
+# JSON form for clean signals; use literal log dir (same as ENV ROBOT_LOG_DIR).
+CMD ["python", "-m", "http.server", "--bind", "0.0.0.0", "--directory", "/robot_logs", "3000"]
