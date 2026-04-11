@@ -1,0 +1,100 @@
+version: "3"
+
+vars:
+  RUNWHEN_HOME: /home/runwhen
+  CODECOLLECTION_DIR: "{{.RUNWHEN_HOME}}/codecollection"
+  DEFAULT_REPO: runwhen-contrib/rw-cli-codecollection
+  DEFAULT_BRANCH: main
+
+tasks:
+  setup:
+    desc: Bootstrap a codecollection into this environment
+    summary: |
+      Clone a codecollection repo, install its deps, and optionally check out a PR.
+
+      Examples:
+        task setup                                                        # defaults (rw-cli-codecollection, main)
+        task setup REPO=runwhen-contrib/rw-cli-codecollection PR=42       # specific PR
+        task setup REPO=runwhen-contrib/azure-c7n-codecollection BRANCH=feat/foo
+    vars:
+      REPO: '{{.REPO | default .DEFAULT_REPO}}'
+      BRANCH: '{{.BRANCH | default .DEFAULT_BRANCH}}'
+      PR: '{{.PR | default ""}}'
+      REPO_URL: '{{if or (hasPrefix "http" .REPO) (hasPrefix "git@" .REPO)}}{{.REPO}}{{else}}https://github.com/{{.REPO}}.git{{end}}'
+    cmds:
+      - echo "=== CodeCollection DevTools Setup ==="
+      - echo "  Repo    {{.REPO_URL}}"
+      - echo "  Branch  {{.BRANCH}}"
+      - 'echo "  PR      {{if .PR}}#{{.PR}}{{else}}none{{end}}"'
+      - echo "==================================="
+      - task: clone
+        vars: { REPO_URL: "{{.REPO_URL}}", BRANCH: "{{.BRANCH}}" }
+      - task: checkout-pr
+        vars: { PR: "{{.PR}}" }
+      - task: install-deps
+      - task: verify
+
+  clone:
+    desc: Clone or update the codecollection repo
+    internal: true
+    vars:
+      REPO_URL: '{{.REPO_URL}}'
+      BRANCH: '{{.BRANCH}}'
+    cmds:
+      - |
+        if [ -d "{{.CODECOLLECTION_DIR}}/.git" ]; then
+          echo "Codecollection already cloned, fetching latest..."
+          git -C "{{.CODECOLLECTION_DIR}}" fetch --all --prune
+          git -C "{{.CODECOLLECTION_DIR}}" checkout "{{.BRANCH}}"
+          git -C "{{.CODECOLLECTION_DIR}}" pull --ff-only || true
+        else
+          rm -rf "{{.CODECOLLECTION_DIR}}"
+          echo "Cloning {{.REPO_URL}} → {{.CODECOLLECTION_DIR}} ..."
+          git clone --branch "{{.BRANCH}}" "{{.REPO_URL}}" "{{.CODECOLLECTION_DIR}}"
+        fi
+
+  checkout-pr:
+    desc: Check out a PR branch
+    internal: true
+    vars:
+      PR: '{{.PR}}'
+    status:
+      - test -z "{{.PR}}"
+    cmds:
+      - echo "Checking out PR #{{.PR}}..."
+      - cd "{{.CODECOLLECTION_DIR}}" && gh pr checkout "{{.PR}}"
+      - echo "On branch $(git -C {{.CODECOLLECTION_DIR}} branch --show-current)"
+
+  install-deps:
+    desc: Install codecollection Python dependencies
+    internal: true
+    sources:
+      - "{{.CODECOLLECTION_DIR}}/requirements.txt"
+    cmds:
+      - |
+        if [ -f "{{.CODECOLLECTION_DIR}}/requirements.txt" ]; then
+          echo "Installing codecollection requirements..."
+          pip install --user --no-cache-dir -r "{{.CODECOLLECTION_DIR}}/requirements.txt"
+        fi
+      - mkdir -p "{{.RUNWHEN_HOME}}/auth"
+
+  verify:
+    desc: Check that key tools are available
+    cmds:
+      - echo ""
+      - echo "--- Environment ready ---"
+      - 'printf "  %-12s %s\n" "ro:" "$(command -v ro 2>/dev/null && echo ok || echo MISSING)"'
+      - 'printf "  %-12s %s\n" "robot:" "$(command -v robot 2>/dev/null && echo ok || echo MISSING)"'
+      - 'printf "  %-12s %s\n" "kubectl:" "$(command -v kubectl 2>/dev/null && echo ok || echo MISSING)"'
+      - 'printf "  %-12s %s\n" "gh:" "$(command -v gh 2>/dev/null && echo ok || echo MISSING)"'
+      - 'printf "  %-12s %s\n" "python:" "$(python --version 2>&1)"'
+      - echo ""
+      - echo "Codecollection at {{.CODECOLLECTION_DIR}}"
+      - echo "Run 'cd codecollection/codebundles/<name> && ro' to test a codebundle."
+
+  clean:
+    desc: Remove the cloned codecollection (start fresh)
+    prompt: This will delete {{.CODECOLLECTION_DIR}}. Continue?
+    cmds:
+      - rm -rf "{{.CODECOLLECTION_DIR}}"
+      - echo "Cleaned. Run 'task setup REPO=... ' to start again."

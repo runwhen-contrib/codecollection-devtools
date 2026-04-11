@@ -4,7 +4,7 @@ Use a **GitHub Codespace** for this repo, then attach **Cursor** with **Remote -
 
 The devcontainer includes the [`sshd` feature](https://github.com/devcontainers/features/tree/main/src/sshd) so Codespaces SSH works as documented by GitHub.
 
-> **Note:** The Codespaces "New with options" dialog does **not** have fields for environment variables. Set `CODECOLLECTION_REPO`, `PR_NUMBER`, etc. as **Codespace secrets** in **GitHub Settings → Codespaces → Secrets** (or via `gh secret set … --user`) *before* creating the Codespace. See the [README getting-started section](../README.md#getting-started) for details.
+After the Codespace starts, run `task setup REPO=org/repo PR=123` to bootstrap a codecollection. See the [README](../README.md#getting-started) for full details.
 
 **Further reading**
 

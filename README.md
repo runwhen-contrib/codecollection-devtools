@@ -33,32 +33,22 @@
 
 ### Option 1: GitHub Codespaces (recommended for PR review)
 
-Configure environment variables as **Codespace secrets**, then create the Codespace.
-
-**Step 1 — Set Codespace secrets** (once per user, or per-repo):
-
-Go to **github.com → Settings → Codespaces → Secrets** (or repo **Settings → Secrets and variables → Codespaces**) and add:
-
-| Secret | Example | Required |
-|--------|---------|----------|
-| `CODECOLLECTION_REPO` | `runwhen-contrib/rw-cli-codecollection` | yes |
-| `CODECOLLECTION_BRANCH` | `main` | no (defaults to `main`) |
-| `PR_NUMBER` | `123` | no (checks out the PR branch) |
-
-Or set them via the **`gh` CLI**:
+1. Go to **github.com/runwhen-contrib/codecollection-devtools** → **Code** → **Codespaces** → **New with options**
+2. Pick your branch, region, and machine type → **Create codespace**
+3. Once the terminal is ready, bootstrap your codecollection:
 
 ```bash
-gh secret set CODECOLLECTION_REPO --user --body "runwhen-contrib/rw-cli-codecollection"
-gh secret set PR_NUMBER --user --body "123"
+# defaults to rw-cli-codecollection on main
+task setup
+
+# specific repo + PR
+task setup REPO=runwhen-contrib/rw-cli-codecollection PR=42
+
+# different codecollection and branch
+task setup REPO=runwhen-contrib/azure-c7n-codecollection BRANCH=feat/foo
 ```
 
-**Step 2 — Create the Codespace:**
-
-1. Go to **github.com/runwhen-contrib/codecollection-devtools** → **Code** → **Codespaces** → **New with options**
-2. Pick your branch, region, and machine type
-3. Click **Create codespace**
-
-The `on-create.sh` bootstrap script reads those secrets as environment variables, clones the repo, installs dependencies, and checks out the PR automatically.
+That clones the repo, installs Python deps, and checks out the PR branch if specified.
 
 ### Option 2: VS Code devcontainer (local)
 
@@ -69,17 +59,15 @@ git clone https://github.com/runwhen-contrib/codecollection-devtools.git
 cd codecollection-devtools
 ```
 
-Set environment variables before opening the devcontainer:
-
-```bash
-export CODECOLLECTION_REPO="runwhen-contrib/rw-cli-codecollection"
-export CODECOLLECTION_BRANCH="main"
-# export PR_NUMBER="123"    # optional
-```
-
 Then open in VS Code → **Reopen in Container** (or `Cmd+Shift+P` → "Dev Containers: Reopen in Container").
 
 The devcontainer pulls the pre-built image from GHCR — no local Docker build required.
+
+Once inside the container, bootstrap your codecollection:
+
+```bash
+task setup REPO=runwhen-contrib/rw-cli-codecollection
+```
 
 #### Cursor with GitHub Codespaces
 
@@ -89,21 +77,31 @@ Use **Cursor** with a **Codespace** via **`gh codespace ssh`** and **Remote - SS
 
 ```bash
 docker run --rm -it \
-  -e CODECOLLECTION_REPO="runwhen-contrib/rw-cli-codecollection" \
   -v "$HOME/.kube:/home/runwhen/auth/.kube:ro" \
   ghcr.io/runwhen-contrib/codecollection-devtools:latest \
-  bash -c 'bash /home/runwhen/.devcontainer/on-create.sh && exec bash'
+  bash -c 'task setup REPO=runwhen-contrib/rw-cli-codecollection && exec bash'
 ```
 
 ---
 
-## Environment variables
+## Task parameters
+
+`task setup` accepts these variables:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `CODECOLLECTION_REPO` | `runwhen-contrib/rw-cli-codecollection` | GitHub `org/repo` shorthand or full git URL of the codecollection to work on. |
-| `CODECOLLECTION_BRANCH` | `main` | Branch to check out after cloning. |
-| `PR_NUMBER` | *(none)* | If set, checks out the PR branch via `gh pr checkout`. Requires `GITHUB_TOKEN`. |
+| `REPO` | `runwhen-contrib/rw-cli-codecollection` | GitHub `org/repo` shorthand or full git URL of the codecollection. |
+| `BRANCH` | `main` | Branch to check out after cloning. |
+| `PR` | *(none)* | If set, checks out the PR branch via `gh pr checkout`. |
+
+Other tasks: `task verify` (check tools), `task clean` (remove cloned codecollection).
+
+## Environment variables
+
+These are set in the container automatically:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
 | `GITHUB_TOKEN` | *(injected by Codespaces)* | GitHub token for `gh` CLI auth. Codespaces provides this automatically. |
 | `RW_MODE` | `dev` | Set to `dev` for local development behavior (handled by `rw-core-keywords`). |
 
@@ -177,15 +175,15 @@ Each codecollection's `requirements.txt` is installed at bootstrap time by `on-c
 codecollection-devtools/
 ├── .devcontainer/
 │   ├── devcontainer.json       # devcontainer config (pulls pre-built image)
-│   └── on-create.sh            # bootstrap: clone repo, install deps, checkout PR
+│   └── on-create.sh            # bootstrap script (called by Taskfile)
 ├── .github/
 │   └── workflows/
 │       ├── build-push.yaml     # CI: multi-arch build → GHCR + GCP Artifact Registry
 │       └── pypi.yaml           # publish rw-devtools to PyPI (deprecated)
+├── Taskfile.yml                # task setup, task verify, task clean
 ├── Dockerfile                  # image definition (built by CI, not locally)
 ├── ro                          # Robot Framework test runner wrapper
 ├── requirements.txt            # base Python dependencies
-├── dev_facade/                 # DEPRECATED — use rw-core-keywords instead
 └── README.md
 ```
 
@@ -212,12 +210,12 @@ All image builds happen in **GitHub Actions** — never locally:
 ```
 devcontainer opens
   → pulls pre-built image from GHCR
-  → runs on-create.sh:
-      1. clones CODECOLLECTION_REPO into /home/runwhen/codecollection/
-      2. checks out PR_NUMBER branch (if set)
+  → starts log HTTP server on port 3000
+  → user runs: task setup REPO=org/repo PR=123
+      1. clones repo into /home/runwhen/codecollection/
+      2. checks out PR branch (if PR set)
       3. pip installs codecollection's requirements.txt
       4. verifies tools (ro, robot, kubectl, gh, python)
-  → starts log HTTP server on port 3000
   → ready to develop
 ```
 
