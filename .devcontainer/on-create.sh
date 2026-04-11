@@ -79,12 +79,35 @@ if [ -f "${CODECOLLECTION_DIR}/requirements.txt" ]; then
 fi
 
 # ------------------------------------------------------------------
-# 4. Ensure auth directory exists for credential mounts
+# 4. Install CodeBundle authoring skills as Cursor rules
+# ------------------------------------------------------------------
+DEVTOOLS_DIR="${RUNWHEN_HOME}/devtools"
+SKILLS_SRC="${DEVTOOLS_DIR}/skills"
+RULES_DIR="${CODECOLLECTION_DIR}/.cursor/rules"
+
+if [ -d "${SKILLS_SRC}" ]; then
+    mkdir -p "${RULES_DIR}"
+    for skill in "${SKILLS_SRC}"/*.md; do
+        [ -f "$skill" ] || continue
+        base=$(basename "$skill" .md)
+        cp "$skill" "${RULES_DIR}/${base}.mdc"
+        echo "  Installed skill: ${base}"
+    done
+    if [ ! -f "${RULES_DIR}/.gitignore" ]; then
+        printf '# Injected by codecollection-devtools -- do not commit\n*.mdc\n' > "${RULES_DIR}/.gitignore"
+    fi
+    echo "Skills installed to ${RULES_DIR}"
+else
+    echo "Skills directory not found at ${SKILLS_SRC}, skipping."
+fi
+
+# ------------------------------------------------------------------
+# 5. Ensure auth directory exists for credential mounts
 # ------------------------------------------------------------------
 mkdir -p "${RUNWHEN_HOME}/auth"
 
 # ------------------------------------------------------------------
-# 5. Verify key tools are available
+# 6. Verify key tools are available
 # ------------------------------------------------------------------
 echo ""
 echo "--- Environment ready ---"

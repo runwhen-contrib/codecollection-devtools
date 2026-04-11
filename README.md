@@ -48,7 +48,7 @@ task setup REPO=runwhen-contrib/rw-cli-codecollection PR=42
 task setup REPO=runwhen-contrib/azure-c7n-codecollection BRANCH=feat/foo
 ```
 
-That clones the repo, installs Python deps, and checks out the PR branch if specified.
+That clones the repo, installs Python deps, installs authoring skills as Cursor rules, and checks out the PR branch if specified.
 
 ### Option 2: VS Code devcontainer (local)
 
@@ -94,7 +94,7 @@ docker run --rm -it \
 | `BRANCH` | `main` | Branch to check out after cloning. |
 | `PR` | *(none)* | If set, checks out the PR branch via `gh pr checkout`. |
 
-Other tasks: `task verify` (check tools), `task clean` (remove cloned codecollection).
+Other tasks: `task verify` (check tools), `task install-skills` (re-install skills), `task clean` (remove cloned codecollection).
 
 ## Environment variables
 
@@ -148,6 +148,38 @@ Mount or copy credentials into the `auth/` directory:
 
 ---
 
+## CodeBundle authoring skills
+
+The `skills/` directory contains platform-specific authoring guidance that is
+automatically installed as [Cursor rules](https://docs.cursor.com/context/rules)
+during `task setup`. These give AI assistants (and human authors) context about
+generation rules, SLI patterns, and test infrastructure conventions.
+
+| Skill | Covers |
+|-------|--------|
+| `generation-rules-kubernetes.md` | K8s resource types, match rules, qualifiers, templates |
+| `generation-rules-aws.md` | AWS resource types, CloudQuery tables, account qualifiers |
+| `generation-rules-azure.md` | Azure + Azure DevOps platforms, resource groups, subscriptions |
+| `generation-rules-gcp.md` | GCP resource types, project qualifiers |
+| `sli-authoring.md` | In-repo SLIs, cron-scheduler SLIs, scoring patterns |
+| `test-infra-kubernetes.md` | Static manifests, Terraform patterns, Taskfile contract |
+| `test-infra-azure.md` | Azure Terraform test infra, tf.secret, workspaceInfo |
+| `test-infra-azure-devops.md` | DevOps projects, pipelines, agent pools via Terraform |
+| `test-infra-cloud.md` | Shared conventions across all cloud platforms |
+
+Skills are copied to `{codecollection}/.cursor/rules/*.mdc` at setup time. A
+`.gitignore` is placed in that directory to prevent accidental commits. To
+re-install after an update, run:
+
+```bash
+task install-skills
+```
+
+These same skills are used by the [CodeBundle Farm](https://github.com/runwhen/codebundle-farm)
+Creator agent. Changes should be synced between both repos.
+
+---
+
 ## What's in the image
 
 | Category | Tools |
@@ -180,7 +212,11 @@ codecollection-devtools/
 │   └── workflows/
 │       ├── build-push.yaml     # CI: multi-arch build → GHCR + GCP Artifact Registry
 │       └── pypi.yaml           # publish rw-devtools to PyPI (deprecated)
-├── Taskfile.yml                # task setup, task verify, task clean
+├── skills/                     # CodeBundle authoring skills (installed as Cursor rules)
+│   ├── generation-rules-*.md   # Platform-specific generation rule guides
+│   ├── sli-authoring.md        # SLI design and implementation guide
+│   └── test-infra-*.md         # Test infrastructure patterns per platform
+├── Taskfile.yml                # task setup, task verify, task install-skills, task clean
 ├── Dockerfile                  # image definition (built by CI, not locally)
 ├── ro                          # Robot Framework test runner wrapper
 ├── requirements.txt            # base Python dependencies
@@ -215,7 +251,8 @@ devcontainer opens
       1. clones repo into /home/runwhen/codecollection/
       2. checks out PR branch (if PR set)
       3. pip installs codecollection's requirements.txt
-      4. verifies tools (ro, robot, kubectl, gh, python)
+      4. installs skills/ as .cursor/rules/*.mdc
+      5. verifies tools (ro, robot, kubectl, gh, python)
   → ready to develop
 ```
 

@@ -3,6 +3,8 @@ version: "3"
 vars:
   RUNWHEN_HOME: /home/runwhen
   CODECOLLECTION_DIR: "{{.RUNWHEN_HOME}}/codecollection"
+  DEVTOOLS_DIR: "{{.RUNWHEN_HOME}}/devtools"
+  SKILLS_SRC: "{{.DEVTOOLS_DIR}}/skills"
   DEFAULT_REPO: runwhen-contrib/rw-cli-codecollection
   DEFAULT_BRANCH: main
 
@@ -32,6 +34,7 @@ tasks:
       - task: checkout-pr
         vars: { PR: "{{.PR}}" }
       - task: install-deps
+      - task: install-skills
       - task: verify
 
   clone:
@@ -77,6 +80,29 @@ tasks:
           pip install --user --no-cache-dir -r "{{.CODECOLLECTION_DIR}}/requirements.txt"
         fi
       - mkdir -p "{{.RUNWHEN_HOME}}/auth"
+
+  install-skills:
+    desc: Install CodeBundle authoring skills as Cursor rules
+    cmds:
+      - |
+        RULES_DIR="{{.CODECOLLECTION_DIR}}/.cursor/rules"
+        if [ ! -d "{{.SKILLS_SRC}}" ]; then
+          echo "Skills directory not found at {{.SKILLS_SRC}}, skipping."
+          exit 0
+        fi
+        mkdir -p "$RULES_DIR"
+        for skill in "{{.SKILLS_SRC}}"/*.md; do
+          [ -f "$skill" ] || continue
+          base=$(basename "$skill" .md)
+          target="$RULES_DIR/${base}.mdc"
+          cp "$skill" "$target"
+          echo "  Installed skill: ${base}"
+        done
+        if [ ! -f "$RULES_DIR/.gitignore" ]; then
+          echo "# Injected by codecollection-devtools -- do not commit" > "$RULES_DIR/.gitignore"
+          echo "*.mdc" >> "$RULES_DIR/.gitignore"
+        fi
+        echo "Skills installed to $RULES_DIR"
 
   verify:
     desc: Check that key tools are available
