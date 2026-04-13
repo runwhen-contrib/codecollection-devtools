@@ -75,7 +75,7 @@ sed -i.bak \
   ~/.ssh/codespaces
 ```
 
-In Cursor: **Remote-SSH: Connect to Host…** → select that host → **Open Folder** → **`/home/runwhen`**.
+In Cursor: **Remote-SSH: Connect to Host…** → select that host → **Open Folder** → **`/workspaces/codecollection-devtools`** (the devcontainer workspace root). After `task setup`, the `codecollection/` symlink gives you direct access to codebundles.
 
 ---
 

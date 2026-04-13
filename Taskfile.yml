@@ -54,6 +54,15 @@ tasks:
           echo "Cloning {{.REPO_URL}} → {{.CODECOLLECTION_DIR}} ..."
           git clone --branch "{{.BRANCH}}" "{{.REPO_URL}}" "{{.CODECOLLECTION_DIR}}"
         fi
+      - |
+        LINK="{{.TASKFILE_DIR}}/codecollection"
+        if [ "$(readlink -f "$LINK" 2>/dev/null)" = "$(readlink -f "{{.CODECOLLECTION_DIR}}")" ]; then
+          :
+        else
+          rm -f "$LINK"
+          ln -s "{{.CODECOLLECTION_DIR}}" "$LINK"
+          echo "Symlinked $LINK → {{.CODECOLLECTION_DIR}}"
+        fi
 
   checkout-pr:
     desc: Check out a PR branch
@@ -84,22 +93,20 @@ tasks:
     desc: Install CodeBundle authoring skills as Cursor rules
     cmds:
       - |
-        RULES_DIR="{{.CODECOLLECTION_DIR}}/.cursor/rules"
         if [ ! -d "{{.SKILLS_SRC}}" ]; then
           echo "Skills directory not found at {{.SKILLS_SRC}}, skipping."
           exit 0
         fi
+        RULES_DIR="{{.TASKFILE_DIR}}/.cursor/rules"
         mkdir -p "$RULES_DIR"
         for skill in "{{.SKILLS_SRC}}"/*.md; do
           [ -f "$skill" ] || continue
           base=$(basename "$skill" .md)
-          target="$RULES_DIR/${base}.mdc"
-          cp "$skill" "$target"
-          echo "  Installed skill: ${base}"
+          cp "$skill" "$RULES_DIR/${base}.mdc"
+          echo "  Installed: ${base}"
         done
         if [ ! -f "$RULES_DIR/.gitignore" ]; then
-          echo "# Injected by codecollection-devtools -- do not commit" > "$RULES_DIR/.gitignore"
-          echo "*.mdc" >> "$RULES_DIR/.gitignore"
+          printf '# Injected by codecollection-devtools -- do not commit\n*.mdc\n' > "$RULES_DIR/.gitignore"
         fi
         echo "Skills installed to $RULES_DIR"
 
@@ -114,12 +121,17 @@ tasks:
       - 'printf "  %-12s %s\n" "gh:" "$(command -v gh 2>/dev/null && echo ok || echo MISSING)"'
       - 'printf "  %-12s %s\n" "python:" "$(python --version 2>&1)"'
       - echo ""
-      - echo "Codecollection at {{.CODECOLLECTION_DIR}}"
-      - echo "Run 'cd codecollection/codebundles/<name> && ro' to test a codebundle."
+      - echo "Codecollection at {{.CODECOLLECTION_DIR}} (symlinked from ./codecollection)"
+      - echo ""
+      - echo "Your work happens in the codecollection (its own git repo):"
+      - echo "  cd codecollection/codebundles/<name> && ro"
+      - echo ""
+      - echo "Commits in ./codecollection go to the codecollection repo, not devtools."
 
   clean:
     desc: Remove the cloned codecollection (start fresh)
     prompt: This will delete {{.CODECOLLECTION_DIR}}. Continue?
     cmds:
+      - rm -f "{{.TASKFILE_DIR}}/codecollection"
       - rm -rf "{{.CODECOLLECTION_DIR}}"
       - echo "Cleaned. Run 'task setup REPO=... ' to start again."

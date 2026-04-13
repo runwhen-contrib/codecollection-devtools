@@ -4,7 +4,6 @@
     "remoteUser": "runwhen",
     "updateRemoteUserUID": false,
     "overrideCommand": false,
-    "workspaceFolder": "/home/runwhen",
 
     "forwardPorts": [3000],
     "portsAttributes": {
@@ -63,7 +62,7 @@
             }
         },
         "codespaces": {
-            "openFiles": ["codecollection/README.md"]
+            "openFiles": ["README.md"]
         }
     }
 }
