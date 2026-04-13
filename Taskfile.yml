@@ -1,5 +1,7 @@
 version: "3"
 
+silent: true
+
 vars:
   RUNWHEN_HOME: /home/runwhen
   CODECOLLECTION_DIR: "{{.RUNWHEN_HOME}}/codecollection"
@@ -23,11 +25,16 @@ tasks:
       PR: '{{.PR | default ""}}'
       REPO_URL: '{{if or (hasPrefix "http" .REPO) (hasPrefix "git@" .REPO)}}{{.REPO}}{{else}}https://github.com/{{.REPO}}.git{{end}}'
     cmds:
-      - echo "=== CodeCollection DevTools Setup ==="
-      - echo "  Repo    {{.REPO_URL}}"
-      - echo "  Branch  {{.BRANCH}}"
-      - 'echo "  PR      {{if .PR}}#{{.PR}}{{else}}none{{end}}"'
-      - echo "==================================="
+      - |
+        echo ""
+        echo "╔══════════════════════════════════════╗"
+        echo "║   CodeCollection DevTools Setup      ║"
+        echo "╚══════════════════════════════════════╝"
+        echo ""
+        echo "  Repo     {{.REPO_URL}}"
+        echo "  Branch   {{.BRANCH}}"
+        echo "  PR       {{if .PR}}#{{.PR}}{{else}}none{{end}}"
+        echo ""
       - task: clone
         vars: { REPO_URL: "{{.REPO_URL}}", BRANCH: "{{.BRANCH}}" }
       - task: checkout-pr
@@ -45,14 +52,15 @@ tasks:
     cmds:
       - |
         if [ -d "{{.CODECOLLECTION_DIR}}/.git" ]; then
-          echo "Codecollection already cloned, fetching latest..."
-          git -C "{{.CODECOLLECTION_DIR}}" fetch --all --prune
-          git -C "{{.CODECOLLECTION_DIR}}" checkout "{{.BRANCH}}"
-          git -C "{{.CODECOLLECTION_DIR}}" pull --ff-only || true
+          echo "→ Updating existing clone..."
+          git -C "{{.CODECOLLECTION_DIR}}" fetch --all --prune -q 2>&1 | tail -5 || true
+          git -C "{{.CODECOLLECTION_DIR}}" checkout "{{.BRANCH}}" -q
+          git -C "{{.CODECOLLECTION_DIR}}" pull --ff-only -q || true
         else
           rm -rf "{{.CODECOLLECTION_DIR}}"
-          echo "Cloning {{.REPO_URL}} → {{.CODECOLLECTION_DIR}} ..."
-          git clone --branch "{{.BRANCH}}" "{{.REPO_URL}}" "{{.CODECOLLECTION_DIR}}"
+          echo "→ Cloning {{.REPO_URL}}..."
+          git clone --branch "{{.BRANCH}}" --progress "{{.REPO_URL}}" "{{.CODECOLLECTION_DIR}}" 2>&1 \
+            | tail -3
         fi
       - |
         LINK="{{.TASKFILE_DIR}}/codecollection"
@@ -61,7 +69,7 @@ tasks:
         else
           rm -f "$LINK"
           ln -s "{{.CODECOLLECTION_DIR}}" "$LINK"
-          echo "Symlinked $LINK → {{.CODECOLLECTION_DIR}}"
+          echo "→ Symlinked ./codecollection → {{.CODECOLLECTION_DIR}}"
         fi
 
   checkout-pr:
@@ -72,9 +80,10 @@ tasks:
     status:
       - test -z "{{.PR}}"
     cmds:
-      - echo "Checking out PR #{{.PR}}..."
-      - cd "{{.CODECOLLECTION_DIR}}" && gh pr checkout "{{.PR}}"
-      - echo "On branch $(git -C {{.CODECOLLECTION_DIR}} branch --show-current)"
+      - |
+        echo "→ Checking out PR #{{.PR}}..."
+        cd "{{.CODECOLLECTION_DIR}}" && gh pr checkout "{{.PR}}" 2>&1 | grep -v '^Already on' || true
+        echo "  Branch: $(git -C {{.CODECOLLECTION_DIR}} branch --show-current)"
 
   install-deps:
     desc: Install codecollection Python dependencies
@@ -84,8 +93,13 @@ tasks:
     cmds:
       - |
         if [ -f "{{.CODECOLLECTION_DIR}}/requirements.txt" ]; then
-          echo "Installing codecollection requirements..."
-          pip install --user --no-cache-dir -r "{{.CODECOLLECTION_DIR}}/requirements.txt"
+          echo "→ Installing Python dependencies..."
+          _out=$(pip install --user --no-cache-dir -r "{{.CODECOLLECTION_DIR}}/requirements.txt" 2>&1) || {
+            echo "$_out"
+            exit 1
+          }
+          echo "$_out" | grep -c '^Successfully installed' >/dev/null 2>&1 \
+            && echo "  $(echo "$_out" | grep '^Successfully installed')" || true
         fi
       - mkdir -p "{{.RUNWHEN_HOME}}/auth"
 
@@ -94,39 +108,54 @@ tasks:
     cmds:
       - |
         if [ ! -d "{{.SKILLS_SRC}}" ]; then
-          echo "Skills directory not found at {{.SKILLS_SRC}}, skipping."
+          echo "→ Skills directory not found, skipping."
           exit 0
         fi
         RULES_DIR="{{.TASKFILE_DIR}}/.cursor/rules"
         mkdir -p "$RULES_DIR"
+        count=0
         for skill in "{{.SKILLS_SRC}}"/*.md; do
           [ -f "$skill" ] || continue
           base=$(basename "$skill" .md)
           cp "$skill" "$RULES_DIR/${base}.mdc"
-          echo "  Installed: ${base}"
+          count=$((count + 1))
         done
         if [ ! -f "$RULES_DIR/.gitignore" ]; then
           printf '# Injected by codecollection-devtools -- do not commit\n*.mdc\n' > "$RULES_DIR/.gitignore"
         fi
-        echo "Skills installed to $RULES_DIR"
+        echo "→ Installed ${count} Cursor rules to .cursor/rules/"
 
   verify:
     desc: Check that key tools are available
     cmds:
-      - echo ""
-      - echo "--- Environment ready ---"
-      - 'printf "  %-12s %s\n" "ro:" "$(command -v ro 2>/dev/null && echo ok || echo MISSING)"'
-      - 'printf "  %-12s %s\n" "robot:" "$(command -v robot 2>/dev/null && echo ok || echo MISSING)"'
-      - 'printf "  %-12s %s\n" "kubectl:" "$(command -v kubectl 2>/dev/null && echo ok || echo MISSING)"'
-      - 'printf "  %-12s %s\n" "gh:" "$(command -v gh 2>/dev/null && echo ok || echo MISSING)"'
-      - 'printf "  %-12s %s\n" "python:" "$(python --version 2>&1)"'
-      - echo ""
-      - echo "Codecollection at {{.CODECOLLECTION_DIR}} (symlinked from ./codecollection)"
-      - echo ""
-      - echo "Your work happens in the codecollection (its own git repo):"
-      - echo "  cd codecollection/codebundles/<name> && ro"
-      - echo ""
-      - echo "Commits in ./codecollection go to the codecollection repo, not devtools."
+      - |
+        echo ""
+        echo "╔══════════════════════════════════════╗"
+        echo "║   Environment Ready                  ║"
+        echo "╚══════════════════════════════════════╝"
+        echo ""
+        check() {
+          local name="$1"
+          if command -v "$name" >/dev/null 2>&1; then
+            printf "  ✓ %-10s %s\n" "$name" "$(command -v "$name")"
+          else
+            printf "  ✗ %-10s %s\n" "$name" "MISSING"
+          fi
+        }
+        check ro
+        check robot
+        check kubectl
+        check gh
+        printf "  ✓ %-10s %s\n" "python" "$(python --version 2>&1)"
+        echo ""
+        echo "  Codecollection: ./codecollection → {{.CODECOLLECTION_DIR}}"
+        echo ""
+        echo "  Get started:"
+        echo "    cd codecollection/codebundles/<name> && ro"
+        echo ""
+        echo "  Note: git commits inside ./codecollection go to the"
+        echo "  codecollection repo, not this devtools repo."
+        echo ""
 
   clean:
     desc: Remove the cloned codecollection (start fresh)
