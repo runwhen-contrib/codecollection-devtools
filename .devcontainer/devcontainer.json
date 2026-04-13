@@ -1,6 +1,12 @@
 {
     "name": "CodeCollection DevTools",
-    "image": "ghcr.io/runwhen-contrib/codecollection-devtools:latest",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": ".",
+        "args": {
+            "DEVTOOLS_IMAGE": "ghcr.io/runwhen-contrib/codecollection-devtools:latest"
+        }
+    },
     "remoteUser": "runwhen",
     "updateRemoteUserUID": false,
     "overrideCommand": false,
