@@ -48,6 +48,22 @@ RUN set -eux; \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*
 
+# docker-in-docker (devcontainer feature) sources /etc/os-release; "forky" is rejected.
+# Align with bookworm apt pin above so Codespaces can use the CI-built image + dind.
+RUN set -eux; \
+    for f in /usr/lib/os-release /etc/os-release; do \
+      [ -e "$f" ] || continue; \
+      target="$f"; \
+      [ -L "$f" ] && target=$(readlink -f "$f"); \
+      grep -q '^ID=debian' "$target" || continue; \
+      sed -i \
+        -e 's/^VERSION_CODENAME=.*/VERSION_CODENAME=bookworm/' \
+        -e 's/^VERSION_ID=.*/VERSION_ID="12"/' \
+        -e 's/^VERSION=.*/VERSION="12 (bookworm)"/' \
+        -e 's|^PRETTY_NAME=.*|PRETTY_NAME="Debian GNU/Linux 12 (bookworm)"|' \
+        "$target"; \
+    done
+
 RUN echo "runwhen ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 # Architecture detection for multi-arch tool installs
