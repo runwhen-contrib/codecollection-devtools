@@ -167,7 +167,7 @@ generation rules, SLI patterns, and test infrastructure conventions.
 | `test-infra-azure-devops.md` | DevOps projects, pipelines, agent pools via Terraform |
 | `test-infra-cloud.md` | Shared conventions across all cloud platforms |
 
-Skills are copied to `{codecollection}/.cursor/rules/*.mdc` at setup time. A
+Skills are copied to `.cursor/rules/*.mdc` (the workspace root) at setup time. A
 `.gitignore` is placed in that directory to prevent accidental commits. To
 re-install after an update, run:
 
@@ -197,7 +197,7 @@ Base packages installed in the image (from `requirements.txt`):
 - `rw-cli-keywords` (includes `rw-core-keywords` — handles `RW_MODE=dev` for local development)
 - `jmespath`, `python-dateutil`, `thefuzz`, `jinja2`
 
-Each codecollection's `requirements.txt` is installed at bootstrap time by `on-create.sh`.
+Each codecollection's `requirements.txt` is installed at bootstrap time by `task setup`.
 
 ---
 
@@ -206,8 +206,7 @@ Each codecollection's `requirements.txt` is installed at bootstrap time by `on-c
 ```
 codecollection-devtools/
 ├── .devcontainer/
-│   ├── devcontainer.json       # devcontainer config (pulls pre-built image)
-│   └── on-create.sh            # bootstrap script (called by Taskfile)
+│   └── devcontainer.json       # devcontainer config (pulls pre-built image)
 ├── .github/
 │   └── workflows/
 │       ├── build-push.yaml     # CI: multi-arch build → GHCR + GCP Artifact Registry
@@ -246,15 +245,22 @@ All image builds happen in **GitHub Actions** — never locally:
 ```
 devcontainer opens
   → pulls pre-built image from GHCR
+  → workspace root is /workspaces/codecollection-devtools/ (the repo mount)
   → starts log HTTP server on port 3000
   → user runs: task setup REPO=org/repo PR=123
       1. clones repo into /home/runwhen/codecollection/
-      2. checks out PR branch (if PR set)
-      3. pip installs codecollection's requirements.txt
-      4. installs skills/ as .cursor/rules/*.mdc
-      5. verifies tools (ro, robot, kubectl, gh, python)
-  → ready to develop
+      2. symlinks ./codecollection → /home/runwhen/codecollection
+      3. checks out PR branch (if PR set)
+      4. pip installs codecollection's requirements.txt
+      5. installs skills/ as .cursor/rules/*.mdc (workspace root)
+      6. verifies tools (ro, robot, kubectl, gh, python)
+  → ready: cd codecollection/codebundles/<name> && ro
 ```
+
+> **Two repos, one tree.** The workspace root is the devtools repo. The `codecollection/`
+> directory is a symlink to a separate git clone. `git` commands inside `codecollection/`
+> operate on the codecollection repo — not devtools. The `.gitignore` prevents the
+> symlink from being tracked.
 
 ---
 

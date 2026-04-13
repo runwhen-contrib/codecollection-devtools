@@ -75,20 +75,14 @@ sed -i.bak \
   ~/.ssh/codespaces
 ```
 
-In Cursor: **Remote-SSH: Connect to Host…** → select that host → **Open Folder** → **`/home/runwhen`**.
+In Cursor: **Remote-SSH: Connect to Host…** → select that host → **Open Folder** → **`/workspaces/codecollection-devtools`** (the devcontainer workspace root). After `task setup`, the `codecollection/` symlink gives you direct access to codebundles.
 
 ---
 
 ## 5. Troubleshooting
 
 - Run **`gh codespace ssh -c YOUR_CODESPACE_NAME --`** again if the connection or auth state seems off.
-- For **`authorized_keys`** permission errors inside the codespace:
-
-  ```bash
-  sudo chmod 755 /home/runwhen
-  sudo chmod 700 /home/runwhen/.ssh
-  sudo chmod 600 /home/runwhen/.ssh/authorized_keys
-  ```
+- SSH permission errors should not occur — the image and `postCreateCommand` set `/home/runwhen` (755), `.ssh` (700), and `authorized_keys` (600) automatically.
 
 ---
 
