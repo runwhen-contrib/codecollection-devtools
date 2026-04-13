@@ -49,7 +49,7 @@ RUN set -eux; \
     rm -rf /var/lib/apt/lists/*
 
 # docker-in-docker (devcontainer feature) sources /etc/os-release; "forky" is rejected.
-# Align with bookworm apt pin above (also patched in .devcontainer/Dockerfile pre-features).
+# Align with bookworm apt pin above so Codespaces can use the CI-built image + dind.
 RUN set -eux; \
     for f in /usr/lib/os-release /etc/os-release; do \
       [ -e "$f" ] || continue; \
