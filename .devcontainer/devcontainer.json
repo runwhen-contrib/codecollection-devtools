@@ -59,7 +59,10 @@
                     "/home/runwhen",
                     "/home/runwhen/codecollection/libraries",
                     "/home/runwhen/codecollection/libraries/RW"
-                ]
+                ],
+                "git.autoRepositoryDetection": "subFolders",
+                "git.followSymlinks": true,
+                "scm.repositories.visible": 2
             }
         },
         "codespaces": {
