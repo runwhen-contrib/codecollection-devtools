@@ -1,1 +1,5 @@
-{}
+{
+    "git.autoRepositoryDetection": "subFolders",
+    "git.scanRepositories": ["./codecollection"],
+    "scm.repositories.visible": 2
+}
