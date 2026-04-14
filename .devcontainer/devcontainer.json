@@ -19,7 +19,7 @@
         "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}"
     },
 
-    "postCreateCommand": "chmod 755 /home/runwhen && mkdir -p /home/runwhen/.ssh && chmod 700 /home/runwhen/.ssh && touch /home/runwhen/.ssh/authorized_keys && chmod 600 /home/runwhen/.ssh/authorized_keys",
+    "postCreateCommand": "chmod 755 /home/runwhen && mkdir -p /home/runwhen/.ssh && chmod 700 /home/runwhen/.ssh && touch /home/runwhen/.ssh/authorized_keys && chmod 600 /home/runwhen/.ssh/authorized_keys && gh auth setup-git 2>/dev/null || true",
     "postStartCommand": "python -m http.server --bind 0.0.0.0 --directory /robot_logs 3000 &",
 
     "features": {
