@@ -2,6 +2,7 @@
 auth
 # generic codecollection repo/development path
 *codecollection*
+.task/*
 scratch
 .env
 __pycache__
