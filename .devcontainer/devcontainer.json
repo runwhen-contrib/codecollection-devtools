@@ -61,7 +61,7 @@
                     "/home/runwhen/codecollection/libraries/RW"
                 ],
                 "git.autoRepositoryDetection": "subFolders",
-                "git.scanRepositories": ["/home/runwhen/codecollection"],
+                "git.scanRepositories": ["./codecollection"],
                 "scm.repositories.visible": 2
             }
         },
