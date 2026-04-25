@@ -2,4 +2,5 @@ jmespath>=1.0.1
 python-dateutil>=2.9.0
 thefuzz>=0.20.0
 jinja2>=3.1.4
+rw-core-keywords
 rw-cli-keywords>=0.0.18

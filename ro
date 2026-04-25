@@ -169,6 +169,29 @@ function ro () {
     echo "[DEBUG] Robot logs => $OUTPUT_DIR (TYPE='${TYPE}')"
 
     # --------------------------------------------------------------------
+    # 3b) Simulate platform-injected runbook/SLI context for RW.Core.
+    #
+    #     RW.Core.Import User Variable checks os.getenv("RW_RUNREQUEST_ID")
+    #     to decide context: set => runbook (allows RW_LOOKBACK_WINDOW as a
+    #     user variable), unset => SLI (fatal-errors). Without this, running
+    #     `ro runbook.robot` locally is treated as SLI context and any
+    #     runbook that imports RW_LOOKBACK_WINDOW -- the repo-wide idiom --
+    #     fails in Suite Setup with:
+    #       "Variable 'RW_LOOKBACK_WINDOW' is a RunWhen platform variable
+    #        and cannot be imported as a user variable in SLI context."
+    # --------------------------------------------------------------------
+    case "${TYPE}" in
+        runbook|codebundle)
+            export RW_RUNREQUEST_ID="${RW_RUNREQUEST_ID:-local-${RW_SLX}-$$}"
+            echo "RW_RUNREQUEST_ID set to: ${RW_RUNREQUEST_ID} (runbook context)"
+            ;;
+        sli)
+            unset RW_RUNREQUEST_ID
+            echo "RW_RUNREQUEST_ID unset (sli context)"
+            ;;
+    esac
+
+    # --------------------------------------------------------------------
     # 4) Finally run Robot
     # --------------------------------------------------------------------
     robot --loglevel trace \

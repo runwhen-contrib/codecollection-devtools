@@ -90,11 +90,14 @@ tasks:
     internal: true
     sources:
       - "{{.CODECOLLECTION_DIR}}/requirements.txt"
+      - "{{.TASKFILE_DIR}}/requirements.txt"
     cmds:
       - |
         if [ -f "{{.CODECOLLECTION_DIR}}/requirements.txt" ]; then
           echo "→ Installing Python dependencies..."
-          _out=$(pip install --user --no-cache-dir -r "{{.CODECOLLECTION_DIR}}/requirements.txt" 2>&1) || {
+          _out=$(pip install --user --no-cache-dir \
+            -r "{{.TASKFILE_DIR}}/requirements.txt" \
+            -r "{{.CODECOLLECTION_DIR}}/requirements.txt" 2>&1) || {
             echo "$_out"
             exit 1
           }
