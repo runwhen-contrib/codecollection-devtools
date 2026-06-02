@@ -48,6 +48,126 @@ run it periodically.
 
 ---
 
+## `RW_LOOKBACK_WINDOW` on SLIs (platform variable)
+
+`RW_LOOKBACK_WINDOW` controls how far back time-windowed SLI signals look
+(failed-build ratio, recent activity, etc.). It is **not** the same setting
+as the deep investigation runbook. Getting this wrong makes the SLI stay
+red for hours after a one-off failure.
+
+### SLI vs runbook: different windows
+
+| Context | Who sets it | Typical value | Purpose |
+|---------|-------------|---------------|---------|
+| **SLI** (`sli.robot`) | Platform (from `intervalSeconds`) | ≈ scrape interval × 1.5 (e.g. 45m for 30m scrape) | Current-state gauge; a cleared failure should age out within ~one interval |
+| **Runbook** (`runbook.robot`) | `configProvided` on taskset + `Import User Variable` | `24h`, `7d`, `30d` | Deep investigation after SLO breach; long window is fine |
+
+**Do not put `RW_LOOKBACK_WINDOW` in the SLI template `configProvided`.**
+If you hard-code `24h` (or even `45m`) there, the SLI will treat failures
+as in-window for that entire period and stay unhealthy long after recovery.
+
+Put `RW_LOOKBACK_WINDOW` on the **runbook** taskset only, for example:
+
+```yaml
+# azure-devops-project-health-taskset.yaml (runbook — OK)
+configProvided:
+  - name: RW_LOOKBACK_WINDOW
+    value: "24h"
+```
+
+### `sli.robot`: import as platform variable
+
+In SLI context, `RW_LOOKBACK_WINDOW` is injected by the platform from
+`intervalSeconds`. Use **`RW.Core.Import Platform Variable`**, not
+`RW.Core.Import User Variable`.
+
+Importing it as a user variable in SLI context fails at runtime:
+
+```text
+Variable 'RW_LOOKBACK_WINDOW' is a RunWhen platform variable and cannot
+be imported as a user variable in SLI context.
+```
+
+Runbooks may use `Import User Variable` because `RW_RUNREQUEST_ID` is set
+(runbook context). The `ro` wrapper sets that for `runbook.robot` and
+unsets it for `sli.robot`.
+
+**Suite setup pattern** (from `k8s-deployment-healthcheck`, `azure-devops-project-health`):
+
+```robot
+# Platform injects seconds derived from intervalSeconds. Not in SLI configProvided.
+TRY
+    ${RW_LOOKBACK_WINDOW}=    RW.Core.Import Platform Variable    RW_LOOKBACK_WINDOW
+EXCEPT
+    # Local `ro sli.robot` without platform injection
+    ${RW_LOOKBACK_WINDOW}=    Set Variable    2700
+END
+${RW_LOOKBACK_WINDOW}=    RW.Core.Normalize Lookback Window    ${RW_LOOKBACK_WINDOW}    2
+Set Suite Variable    ${RW_LOOKBACK_WINDOW}    ${RW_LOOKBACK_WINDOW}
+```
+
+Pass `${RW_LOOKBACK_WINDOW}` into bash `env=` for any script that
+window-build counts or API `minTime` filters.
+
+### `Normalize Lookback Window` — second argument is format, not a multiplier
+
+```robot
+${RW_LOOKBACK_WINDOW}=    RW.Core.Normalize Lookback Window    ${RW_LOOKBACK_WINDOW}    2
+```
+
+- **Input:** platform value in **seconds** (e.g. `1800` for a 30m scrape).
+- **Second argument `2`:** output format (short units: `45m`, `1h`) — **not** “×2 interval”.
+- Do not document this as “Normalize ×2”; that misleads reviewers.
+
+Example: `2700` seconds → `45m` after normalize with format `2`.
+
+### SLI template checklist (`*-sli.yaml`)
+
+- `pathToRobot: codebundles/<bundle>/sli.robot` (in-repo scorer, not `cron-scheduler-sli` when you have real sub-metrics).
+- `intervalStrategy: intermezzo`
+- `intervalSeconds:` aligned to desired scrape (e.g. `1800` for ~30m).
+- **`configProvided`:** user variables only (org, namespace, thresholds). **No `RW_LOOKBACK_WINDOW`.**
+- `alertConfig` with `persona: eager-edgar` and `sessionTTL` (e.g. `10m`) so SLO breach triggers the runbook.
+
+### Local dev with `ro sli.robot`
+
+The platform does not inject `RW_LOOKBACK_WINDOW` when running `ro` locally.
+The devtools `ro` script simulates SLI context:
+
+- Unsets `RW_RUNREQUEST_ID` (SLI context).
+- Exports `RW_LOOKBACK_WINDOW` defaulting to `intervalSeconds × 1.5` in seconds
+  (override with `RW_SLI_INTERVAL_SECONDS`, default `1800` → `2700`).
+
+If `Import Platform Variable` still fails, the `TRY/EXCEPT` fallback in
+`sli.robot` should set seconds explicitly (e.g. `2700`).
+
+**Do not** import `RW_LOOKBACK_WINDOW` as a user variable in `sli.robot` for
+local testing — use platform import + `ro` simulation.
+
+### Robot / bash pitfalls (learned from azure-devops-project-health)
+
+1. **Wrong:** `Set Variable    ${data}.get('details', {})    json` — `json` becomes a
+   **second argument** to `Set Variable`, producing a **list** and breaking
+   `${details.get(...)}`.
+   **Right:** `${d}=    Evaluate    ${data}.get('details', {})    json`
+
+2. **Scorer stdout:** bash scripts may log to stderr but still mix output.
+   Prefer reading the JSON artifact after `RW.CLI.Run Bash File`:
+   `cat sli_*_score.json`, then `json.loads`, with stdout as fallback.
+
+3. **Aggregate across projects (local only):** when `AZURE_DEVOPS_PROJECTS` is
+   empty or `All`, discover all projects and min() sub-scores across them.
+   Generated SLIs still set a single project from `match_resource.name`.
+
+### Reference implementation
+
+- `codecollection/codebundles/azure-devops-project-health/sli.robot`
+- `codecollection/codebundles/azure-devops-project-health/.runwhen/templates/azure-devops-project-health-sli.yaml` (no lookback in config)
+- `codecollection/codebundles/azure-devops-project-health/.runwhen/templates/azure-devops-project-health-taskset.yaml` (`RW_LOOKBACK_WINDOW: 24h` for runbook)
+- `codecollection/codebundles/azure-devops-project-health/sli-project-health-score.sh` (default `45m` when env unset; overridden by robot env)
+
+---
+
 ## Model 1: In-Repo `sli.robot`
 
 This is the standard pattern for health-check bundles. The `sli.robot`
@@ -287,7 +407,7 @@ spec:
 | `pathToRobot` | Points to this bundle's `sli.robot` (in-repo) or `cron-scheduler-sli/sli.robot` (scheduler) |
 | `intervalSeconds` | How often to run (30-600; 180 is common) |
 | `intervalStrategy` | Always `intermezzo` |
-| `configProvided` | Must match every `RW.Core.Import User Variable` in `sli.robot` |
+| `configProvided` | Must match every `RW.Core.Import User Variable` in `sli.robot` — **never** include `RW_LOOKBACK_WINDOW` (platform-injected) |
 | `secretsProvided` | Must match every `RW.Core.Import Secret` in `sli.robot` |
 | `alertConfig.tasks.persona` | Usually `eager-edgar` (triggers runbook on failure) |
 
@@ -306,8 +426,12 @@ Use this checklist when building or reviewing a CodeBundle:
 - [ ] Thresholds come from `RW.Core.Import User Variable` with defaults
 - [ ] Generation rules include `- type: sli` in `outputItems`
 - [ ] `.runwhen/templates/<bundle-name>-sli.yaml` template exists
-- [ ] Template `configProvided` matches all `sli.robot` variables
+- [ ] Template `configProvided` matches all `sli.robot` **user** variables (not platform vars)
+- [ ] Template `configProvided` does **not** include `RW_LOOKBACK_WINDOW`
+- [ ] `sli.robot` uses `Import Platform Variable` + `Normalize Lookback Window` for lookback
+- [ ] Runbook taskset sets `RW_LOOKBACK_WINDOW` (e.g. `24h`) if scripts share a build dataset with the runbook
 - [ ] Template `secretsProvided` matches all `sli.robot` secrets
+- [ ] Template includes `alertConfig` (`eager-edgar`, `sessionTTL`)
 - [ ] SLI completes in under 30 seconds
 
 ---
@@ -326,3 +450,11 @@ Use this checklist when building or reviewing a CodeBundle:
    so deployments can tune sensitivity
 6. **Missing error handling** -- a parse failure crashes the SLI instead
    of producing a degraded score; always wrap JSON parsing in `TRY/EXCEPT`
+7. **`RW_LOOKBACK_WINDOW` in SLI `configProvided`** -- pins the SLI to a long
+   window (e.g. `24h`); one failure keeps the score red for the whole window
+8. **`Import User Variable` for `RW_LOOKBACK_WINDOW` in `sli.robot`** -- fails in
+   SLI context; use `Import Platform Variable`
+9. **`Set Variable ... json`** -- trailing `json` is not a module; it is a second
+   `Set Variable` argument and can turn dicts into lists; use `Evaluate ... json`
+10. **Confusing Normalize `2` with “×2 interval”** -- second arg is output format;
+    platform already supplies seconds sized to the scrape interval

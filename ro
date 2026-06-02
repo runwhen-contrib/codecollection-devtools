@@ -187,7 +187,14 @@ function ro () {
             ;;
         sli)
             unset RW_RUNREQUEST_ID
+            # Platform injects RW_LOOKBACK_WINDOW (seconds) from intervalSeconds; simulate for local SLI runs.
+            _sli_interval="${RW_SLI_INTERVAL_SECONDS:-1800}"
+            export RW_LOOKBACK_WINDOW="${RW_LOOKBACK_WINDOW:-$(( _sli_interval * 3 / 2 ))}"
             echo "RW_RUNREQUEST_ID unset (sli context)"
+            echo "RW_LOOKBACK_WINDOW set to: ${RW_LOOKBACK_WINDOW}s (platform simulation, interval=${_sli_interval}s × 1.5)"
+            if [ -z "${AZURE_DEVOPS_ORG:-}" ]; then
+                echo "WARNING: AZURE_DEVOPS_ORG is not set (required for azure-devops-* bundles)."
+            fi
             ;;
     esac
 
