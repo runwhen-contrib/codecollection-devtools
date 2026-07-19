@@ -161,6 +161,24 @@ RUN . /tmp/arch_vars && \
     apt-get install -y --no-install-recommends gh && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# OpenCode CLI
+ARG OPENCODE_VERSION=latest
+RUN set -eux; \
+    . /tmp/arch_vars; \
+    case "${ARCH_BIN}" in \
+      amd64) OPENCODE_ASSET_ARCH="x64" ;; \
+      arm64) OPENCODE_ASSET_ARCH="arm64" ;; \
+      *) echo "Unsupported architecture: ${ARCH_BIN}" >&2; exit 1 ;; \
+    esac; \
+    if [ "${OPENCODE_VERSION}" = "latest" ]; then \
+      OPENCODE_VERSION="$(curl -fsSL https://api.github.com/repos/anomalyco/opencode/releases/latest | jq -r '.tag_name')"; \
+    fi; \
+    ASSET_URL="https://github.com/anomalyco/opencode/releases/download/${OPENCODE_VERSION}/opencode-linux-${OPENCODE_ASSET_ARCH}.tar.gz"; \
+    curl -fsSL -o /tmp/opencode.tar.gz "${ASSET_URL}"; \
+    tar -xzf /tmp/opencode.tar.gz -C /tmp; \
+    install -m 0755 /tmp/opencode /usr/local/bin/opencode; \
+    rm -f /tmp/opencode.tar.gz /tmp/opencode
+
 # Cleanup
 RUN rm -f /tmp/arch_vars
 
