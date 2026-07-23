@@ -198,7 +198,8 @@ RUN mkdir -p auth .ssh && \
     chown -R runwhen:0 ${RUNWHEN_HOME}/.devcontainer ${RUNWHEN_HOME}/auth ${RUNWHEN_HOME}/.ssh && \
     chmod -R 0775 ${RUNWHEN_HOME}/ro ${RUNWHEN_HOME}/auth ${RUNWHEN_HOME}/.devcontainer && \
     chmod 755 ${RUNWHEN_HOME} && \
-    chmod 700 ${RUNWHEN_HOME}/.ssh
+    chmod 700 ${RUNWHEN_HOME}/.ssh && \
+    chmod 777 /tmp
 
 USER runwhen
 ENV USER="runwhen"
