@@ -123,9 +123,6 @@ tasks:
           cp "$skill" "$AGENTS_DIR/${base}.mdc"
           count=$((count + 1))
         done
-        if [ ! -f "$AGENTS_DIR/.gitignore" ]; then
-          printf '# Injected by codecollection-devtools -- do not commit\n*.mdc\n' > "$AGENTS_DIR/.gitignore"
-        fi
         # Ensure Cursor symlink exists for backward compatibility
         CURSOR_LINK="{{.TASKFILE_DIR}}/.cursor/rules"
         if [ ! -L "$CURSOR_LINK" ]; then
