@@ -194,12 +194,15 @@ RUN mkdir -p $ROBOT_LOG_DIR && \
 
 COPY --chown=runwhen:0 .pylintrc.google LICENSE ro requirements.txt .
 COPY --chown=runwhen:0 .devcontainer/ .devcontainer/
-RUN mkdir -p auth .ssh && \
-    chown -R runwhen:0 ${RUNWHEN_HOME}/.devcontainer ${RUNWHEN_HOME}/auth ${RUNWHEN_HOME}/.ssh && \
-    chmod -R 0775 ${RUNWHEN_HOME}/ro ${RUNWHEN_HOME}/auth ${RUNWHEN_HOME}/.devcontainer && \
+COPY scripts/init-ide-tools.sh /usr/local/bin/init-ide-tools
+RUN chmod +x /usr/local/bin/init-ide-tools && \
+    mkdir -p auth .ssh .ide-tools && \
+    chown -R runwhen:0 ${RUNWHEN_HOME}/.devcontainer ${RUNWHEN_HOME}/auth ${RUNWHEN_HOME}/.ssh ${RUNWHEN_HOME}/.ide-tools && \
+    chmod -R 0775 ${RUNWHEN_HOME}/ro ${RUNWHEN_HOME}/auth ${RUNWHEN_HOME}/.devcontainer ${RUNWHEN_HOME}/.ide-tools && \
     chmod 755 ${RUNWHEN_HOME} && \
     chmod 700 ${RUNWHEN_HOME}/.ssh && \
-    chmod 777 /tmp
+    chmod 777 /tmp && \
+    ln -sf ${RUNWHEN_HOME}/ro /usr/local/bin/ro
 
 USER runwhen
 ENV USER="runwhen"

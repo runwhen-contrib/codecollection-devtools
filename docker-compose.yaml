@@ -8,7 +8,8 @@ services:
       dockerfile: ./Dockerfile
     environment:
       - RW_MODE=dev
+      - RW_IDE_TOOLS=${RW_IDE_TOOLS:-claude,opencode,zen}
     volumes:
-      - .:/home/runwhen
+      - .:/workspaces
     ports:
       - 3000:3000
