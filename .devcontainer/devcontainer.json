@@ -1,9 +1,9 @@
 {
     "name": "CodeCollection DevTools",
-    // Pull from GHCR / uncomment if not using docker compose
-    // "image": "ghcr.io/runwhen-contrib/codecollection-devtools:latest",
+    // Pull from GHCR / default for codespaces support
+    "image": "ghcr.io/runwhen-contrib/codecollection-devtools:latest",
     // Local testing with Docker Compose (personal mounts via override file):
-    "dockerComposeFile": ["../docker-compose.yaml", "../docker-compose.override.yaml"],
+    // "dockerComposeFile": ["../docker-compose.yaml", "../docker-compose.override.yaml"],
     "service": "devtools",
     "workspaceFolder": "/workspaces",
     "remoteUser": "runwhen",
