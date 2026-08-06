@@ -23,7 +23,7 @@
     },
 
     "postCreateCommand": "init-ide-tools && mkdir -p /home/runwhen/.local/share/opencode && chmod 755 /home/runwhen && sudo chmod 777 /tmp && echo 'cd /workspaces/codecollection-devtools' >> ~/.bashrc && mkdir -p /home/runwhen/.ssh && chmod 700 /home/runwhen/.ssh && touch /home/runwhen/.ssh/authorized_keys && chmod 600 /home/runwhen/.ssh/authorized_keys && gh auth setup-git 2>/dev/null || true",
-    "postStartCommand": "python -m http.server --bind 0.0.0.0 --directory /robot_logs 3000 &",
+    "postStartCommand": "nohup python -m http.server --bind 0.0.0.0 --directory /robot_logs 3000 &",
 
     // To mount host IDE configs (e.g. ~/.opencode, ~/.claude) into the container:
     // Option A — docker-compose.override.yaml (simpler, ~ expands correctly):

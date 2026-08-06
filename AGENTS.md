@@ -9,7 +9,7 @@ at setup time.
 ```
 .agents/              # Canonical rule files (agent-agnostic)
 ├── *.mdc             # Generated from skills/ by `task install-skills`
-└── .gitignore        # Prevents committing generated .mdc files
+│                     # (gitignored by root .gitignore: .agents/*.mdc)
 
 .cursor/rules -> ../.agents   # Symlink for Cursor IDE
 ```
