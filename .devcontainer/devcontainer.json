@@ -1,9 +1,13 @@
 {
     "name": "CodeCollection DevTools",
-    "image": "ghcr.io/runwhen-contrib/codecollection-devtools:latest",
+    // Pull from GHCR / uncomment if not using docker compose
+    // "image": "ghcr.io/runwhen-contrib/codecollection-devtools:latest",
+    // Local testing with Docker Compose (personal mounts via override file):
+    "dockerComposeFile": ["../docker-compose.yaml", "../docker-compose.override.yaml"],
+    "service": "devtools",
+    "workspaceFolder": "/workspaces",
     "remoteUser": "runwhen",
     "updateRemoteUserUID": false,
-    "overrideCommand": false,
 
     "forwardPorts": [3000],
     "portsAttributes": {
@@ -15,12 +19,20 @@
 
     "containerEnv": {
         "RW_MODE": "dev",
-        "ROBOT_LOG_DIR": "/robot_logs",
-        "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}"
+        "ROBOT_LOG_DIR": "/robot_logs"
     },
 
-    "postCreateCommand": "chmod 755 /home/runwhen && mkdir -p /home/runwhen/.ssh && chmod 700 /home/runwhen/.ssh && touch /home/runwhen/.ssh/authorized_keys && chmod 600 /home/runwhen/.ssh/authorized_keys && gh auth setup-git 2>/dev/null || true",
-    "postStartCommand": "python -m http.server --bind 0.0.0.0 --directory /robot_logs 3000 &",
+    "postCreateCommand": "init-ide-tools && mkdir -p /home/runwhen/.local/share/opencode && chmod 755 /home/runwhen && sudo chmod 777 /tmp && echo 'cd /workspaces/codecollection-devtools' >> ~/.bashrc && mkdir -p /home/runwhen/.ssh && chmod 700 /home/runwhen/.ssh && touch /home/runwhen/.ssh/authorized_keys && chmod 600 /home/runwhen/.ssh/authorized_keys && gh auth setup-git 2>/dev/null || true",
+    "postStartCommand": "nohup python -m http.server --bind 0.0.0.0 --directory /robot_logs 3000 &",
+
+    // To mount host IDE configs (e.g. ~/.opencode, ~/.claude) into the container:
+    // Option A — docker-compose.override.yaml (simpler, ~ expands correctly):
+    //   services.devtools.volumes: ["~/.opencode:/home/runwhen/.opencode"]
+    // Option B — mounts in this file (requires env vars to be set in IDE process):
+    //   "initializeCommand": "mkdir -p ${localEnv:HOME}/.opencode ${localEnv:HOME}/.claude",
+    //   "mounts": [
+    //       "source=${localEnv:HOME}/.opencode,target=/home/runwhen/.opencode,type=bind,consistency=cached"
+    //   ]
 
     "features": {
         "ghcr.io/devcontainers/features/docker-in-docker:2": {},
@@ -67,6 +79,14 @@
         },
         "codespaces": {
             "openFiles": ["README.md"]
+        },
+        "zed": {
+            "extensions": [
+                "robocorp.robotframework-lsp",
+                "ms-python.python",
+                "ms-python.pylint",
+                "ms-python.black-formatter"
+            ]
         }
     }
 }

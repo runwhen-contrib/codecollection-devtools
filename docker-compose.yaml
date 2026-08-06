@@ -1,14 +1,19 @@
-version: '3.9'
 services:
   devtools:
-    container_name: devtools
-    user: runwhen
-    build:
-      context: ./
-      dockerfile: ./Dockerfile
+    # Use the upstream
+    image: ghcr.io/runwhen-contrib/codecollection-devtools:latest
+    # Build from the local Dockerfile
+    # build:
+    #   context: ./
+    #   dockerfile: ./Dockerfile
+    env_file:
+      - path: .env
+        required: false
     environment:
       - RW_MODE=dev
+      - RW_IDE_TOOLS=${RW_IDE_TOOLS:-claude,opencode,zed}
+      - ROBOT_LOG_DIR=/robot_logs
     volumes:
-      - .:/home/runwhen
+      - .:/workspaces/codecollection-devtools
     ports:
       - 3000:3000

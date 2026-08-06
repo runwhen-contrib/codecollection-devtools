@@ -11,10 +11,10 @@ infrastructure guidance, read the appropriate skill doc:
 
 | Platform | Skill Document |
 |---|---|
-| **Azure** (Key Vault, VMs, Storage, etc.) | `docs/skills/test-infra-azure.md` |
-| **Azure DevOps** (Projects, Pipelines, Repos) | `docs/skills/test-infra-azure-devops.md` |
-| **AWS** | `docs/skills/test-infra-aws.md` *(planned)* |
-| **GCP** | `docs/skills/test-infra-gcp.md` *(planned)* |
+| **Azure** (Key Vault, VMs, Storage, etc.) | `test-infra-azure.md` |
+| **Azure DevOps** (Projects, Pipelines, Repos) | `test-infra-azure-devops.md` |
+| **GCP** (BigQuery, GCS, Pub/Sub, etc.) | `test-infra-gcp.md` |
+| **AWS** | `test-infra-aws.md` *(planned)* |
 
 ---
 
@@ -59,13 +59,18 @@ Every cloud `.test/Taskfile.yaml` must implement:
 
 | Task | Purpose |
 |---|---|
-| `default` | `check-unpushed-commits` → `generate-rwl-config` → `run-rwl-discovery` |
+| `default` | `check-unpushed-commits` → `generate-rwl-config` → `run-rwl-discovery` → `validate-generation-rules` |
 | `clean` | Terraform destroy → `delete-slxs` → `clean-rwl-discovery` |
 | `build-infra` | `source tf.secret` + `terraform init` + `terraform apply` |
 | `check-unpushed-commits` | Verify code is committed and pushed |
 | `generate-rwl-config` | Write `workspaceInfo.yaml` with cloud-specific config |
 | `run-rwl-discovery` | Start RunWhen Local container and run discovery |
 | `validate-generation-rules` | Validate `.runwhen/generation-rules/*.yaml` |
+
+> **Note:** The Taskfile's purpose is to test **discovery and template
+> rendering**. Do not add scenario-test tasks (`test-*-scenario`) --
+> health-check behavior is validated by the codebundle's robot files,
+> not by Taskfile stubs.
 
 ### Test Resource Tagging
 

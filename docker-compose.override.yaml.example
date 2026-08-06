@@ -1,0 +1,22 @@
+# Copy this file to docker-compose.override.yaml and adjust paths for your machine.
+# Docker Compose auto-merges override files — no changes to devcontainer.json needed.
+#
+# docker-compose.override.yaml is gitignored, so your personal mounts stay local.
+
+services:
+  devtools:
+    volumes:
+      # OpenCode config (model preferences, MCP servers, agent rules):
+      - ~/.opencode:/home/runwhen/.opencode
+      - ~/.config/opencode:/home/runwhen/.config/opencode
+
+      # OpenCode auth (API key for OpenRouter / other providers):
+      # Mount the single auth.json file — no database conflicts.
+      - ~/.local/share/opencode/auth.json:/home/runwhen/.local/share/opencode/auth.json
+
+      # Claude Code:
+      - ~/.claude:/home/runwhen/.claude
+
+      # Other tools (uncomment as needed):
+      # - ~/.cursor:/home/runwhen/.cursor
+      # - ~/.zed:/home/runwhen/.zed

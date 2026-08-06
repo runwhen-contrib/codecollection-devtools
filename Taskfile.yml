@@ -107,26 +107,29 @@ tasks:
       - mkdir -p "{{.RUNWHEN_HOME}}/auth"
 
   install-skills:
-    desc: Install CodeBundle authoring skills as Cursor rules
+    desc: Install CodeBundle authoring skills as agent rules
     cmds:
       - |
         if [ ! -d "{{.SKILLS_SRC}}" ]; then
           echo "→ Skills directory not found, skipping."
           exit 0
         fi
-        RULES_DIR="{{.TASKFILE_DIR}}/.cursor/rules"
-        mkdir -p "$RULES_DIR"
+        AGENTS_DIR="{{.TASKFILE_DIR}}/.agents"
+        mkdir -p "$AGENTS_DIR"
         count=0
         for skill in "{{.SKILLS_SRC}}"/*.md; do
           [ -f "$skill" ] || continue
           base=$(basename "$skill" .md)
-          cp "$skill" "$RULES_DIR/${base}.mdc"
+          cp "$skill" "$AGENTS_DIR/${base}.mdc"
           count=$((count + 1))
         done
-        if [ ! -f "$RULES_DIR/.gitignore" ]; then
-          printf '# Injected by codecollection-devtools -- do not commit\n*.mdc\n' > "$RULES_DIR/.gitignore"
+        # Ensure Cursor symlink exists for backward compatibility
+        CURSOR_LINK="{{.TASKFILE_DIR}}/.cursor/rules"
+        if [ ! -L "$CURSOR_LINK" ]; then
+          rm -rf "$CURSOR_LINK"
+          ln -s ../.agents "$CURSOR_LINK"
         fi
-        echo "→ Installed ${count} Cursor rules to .cursor/rules/"
+        echo "→ Installed ${count} agent rules to .agents/"
 
   verify:
     desc: Check that key tools are available

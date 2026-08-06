@@ -21,7 +21,8 @@
 - **PR review ready** — set `PR_NUMBER` and the environment checks out the PR branch for you.
 - **Multi-arch** — pre-built for both `linux/amd64` (Codespaces, CI) and `linux/arm64` (Apple Silicon).
 - **Batteries included** — Robot Framework, `ro` test runner, kubectl, Helm, AWS CLI, Azure CLI, gcloud, Terraform, gh CLI, and more.
-- **Works everywhere** — GitHub Codespaces, VS Code devcontainers (local), or plain `docker run`.
+- **Agent-ready** — Skills ship as agent rules in `.agents/`, symlinked for Cursor and any AI coding tool.
+- **Works everywhere** — GitHub Codespaces, VS Code devcontainers (local), Zed, or plain `docker run`.
 
 ## Requirements
 
@@ -104,6 +105,7 @@ These are set in the container automatically:
 |----------|---------|-------------|
 | `GITHUB_TOKEN` | *(injected by Codespaces)* | GitHub token for `gh` CLI auth. Codespaces provides this automatically. |
 | `RW_MODE` | `dev` | Set to `dev` for local development behavior (handled by `rw-core-keywords`). |
+| `RW_IDE_TOOLS` | `claude,opencode,zed` | Comma-separated tool names. Creates `~/.{tool}/` config directories at container start. Add any IDE or AI agent — no rebuild needed. |
 
 ---
 
@@ -148,12 +150,79 @@ Mount or copy credentials into the `auth/` directory:
 
 ---
 
+## IDE & AI Agent Support
+
+The devcontainer auto-initializes config directories for your IDE or AI coding
+agent. Define the tools you use via `RW_IDE_TOOLS` — no image rebuild needed.
+
+```bash
+# Built-in defaults (always available)
+RW_IDE_TOOLS=claude,opencode,zed
+
+# Add Cursor, Windsurf, or any other tool
+RW_IDE_TOOLS=claude,opencode,zed,cursor,windsurf
+```
+
+At container start, `init-ide-tools` creates `~/.{tool}/` for each entry with
+correct permissions. Existing directories are left untouched.
+
+**Supported IDEs & agents (built-in):**
+
+| IDE / Agent | Config directory | API key env var |
+|-------------|-----------------|-----------------|
+| Claude Code | `~/.claude/` | `ANTHROPIC_API_KEY` |
+| OpenCode | `~/.opencode/` | `OPENAI_API_KEY` |
+| Zed | `~/.zed/` | — |
+
+**Adding your own:** Set `RW_IDE_TOOLS` to include any tool name. The
+container creates an empty `~/.{tool}/` directory for you.
+
+### Mounting your host IDE configs
+
+The container creates empty directories — to bring in your existing configs
+(API keys, settings, history), mount them from your host machine.
+
+**Option A: devcontainer.json** (works in Codespaces too)
+
+Add a `mounts` array to `.devcontainer/devcontainer.json`. You'll also need
+`initializeCommand` to make sure the source directories exist on the host
+before the container starts:
+
+```jsonc
+// .devcontainer/devcontainer.json
+"initializeCommand": "mkdir -p ${localEnv:HOME}/.opencode ${localEnv:HOME}/.claude",
+"mounts": [
+    "source=${localEnv:HOME}/.opencode,target=/home/runwhen/.opencode,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.claude,target=/home/runwhen/.claude,type=bind,consistency=cached"
+]
+```
+
+**Option B: docker-compose.override.yaml** (local devcontainer only)
+
+Create `docker-compose.override.yaml` alongside the existing
+`docker-compose.yaml`. Docker Compose merges it automatically:
+
+```yaml
+# docker-compose.override.yaml
+services:
+  devtools:
+    volumes:
+      - ~/.opencode:/home/runwhen/.opencode
+      - ~/.claude:/home/runwhen/.claude
+```
+
+> **Tip for Codespaces users:** Set `RW_IDE_TOOLS` as a Codespaces secret
+> to apply across all your codespaces automatically. Use Option A above
+> to mount your configs — Codespaces supports `mounts` in devcontainer.json.
+
+---
+
 ## CodeBundle authoring skills
 
-The `skills/` directory contains platform-specific authoring guidance that is
-automatically installed as [Cursor rules](https://docs.cursor.com/context/rules)
-during `task setup`. These give AI assistants (and human authors) context about
-generation rules, SLI patterns, and test infrastructure conventions.
+The `skills/` directory contains platform-specific authoring guidance, installed
+as agent rules into `.agents/` during `task setup`. A symlink at `.cursor/rules`
+points to `.agents/` for Cursor IDE compatibility. To add rules for other agents,
+symlink their rules directory to `.agents/` — see [AGENTS.md](AGENTS.md) for details.
 
 | Skill | Covers |
 |-------|--------|
@@ -167,9 +236,10 @@ generation rules, SLI patterns, and test infrastructure conventions.
 | `test-infra-azure-devops.md` | DevOps projects, pipelines, agent pools via Terraform |
 | `test-infra-cloud.md` | Shared conventions across all cloud platforms |
 
-Skills are copied to `.cursor/rules/*.mdc` (the workspace root) at setup time. A
-`.gitignore` is placed in that directory to prevent accidental commits. To
-re-install after an update, run:
+Skills are installed into `.agents/` (the workspace root) at setup time. A
+`.gitignore` in that directory prevents accidental commits. Cursor, Windsurf, and
+other agents can find rules by symlinking their rules directory to `.agents/`.
+To re-install after an update, run:
 
 ```bash
 task install-skills
@@ -211,10 +281,15 @@ codecollection-devtools/
 │   └── workflows/
 │       ├── build-push.yaml     # CI: multi-arch build → GHCR + GCP Artifact Registry
 │       └── pypi.yaml           # publish rw-devtools to PyPI (deprecated)
-├── skills/                     # CodeBundle authoring skills (installed as Cursor rules)
-│   ├── generation-rules-*.md   # Platform-specific generation rule guides
-│   ├── sli-authoring.md        # SLI design and implementation guide
-│   └── test-infra-*.md         # Test infrastructure patterns per platform
+├── .agents/                    # Agent rules (generated from skills/ by task install-skills)
+│   ├── *.mdc                   # Agent-agnostic rule files
+│   └── .gitignore
+├── skills/                     # Source skill docs (installed as agent rules in .agents/)
+│   ├── generation-rules-*.md
+│   ├── sli-authoring.md
+│   └── test-infra-*.md
+├── scripts/
+│   └── init-ide-tools.sh        # Runtime IDE config init (driven by RW_IDE_TOOLS)
 ├── Taskfile.yml                # task setup, task verify, task install-skills, task clean
 ├── Dockerfile                  # image definition (built by CI, not locally)
 ├── ro                          # Robot Framework test runner wrapper
@@ -245,7 +320,7 @@ All image builds happen in **GitHub Actions** — never locally:
 ```
 devcontainer opens
   → pulls pre-built image from GHCR
-  → workspace root is /workspaces/codecollection-devtools/ (the repo mount)
+  → workspace root is /workspaces/ (the repo mount)
   → starts log HTTP server on port 3000
   → user runs: task setup REPO=org/repo PR=123
       1. clones repo into /home/runwhen/codecollection/
