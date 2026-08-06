@@ -22,7 +22,7 @@
 - **Multi-arch** — pre-built for both `linux/amd64` (Codespaces, CI) and `linux/arm64` (Apple Silicon).
 - **Batteries included** — Robot Framework, `ro` test runner, kubectl, Helm, AWS CLI, Azure CLI, gcloud, Terraform, gh CLI, and more.
 - **Agent-ready** — Skills ship as agent rules in `.agents/`, symlinked for Cursor and any AI coding tool.
-- **Works everywhere** — GitHub Codespaces, VS Code devcontainers (local), Zen IDE, or plain `docker run`.
+- **Works everywhere** — GitHub Codespaces, VS Code devcontainers (local), Zed, or plain `docker run`.
 
 ## Requirements
 
@@ -105,7 +105,7 @@ These are set in the container automatically:
 |----------|---------|-------------|
 | `GITHUB_TOKEN` | *(injected by Codespaces)* | GitHub token for `gh` CLI auth. Codespaces provides this automatically. |
 | `RW_MODE` | `dev` | Set to `dev` for local development behavior (handled by `rw-core-keywords`). |
-| `RW_IDE_TOOLS` | `claude,opencode,zen` | Comma-separated tool names. Creates `~/.{tool}/` config directories at container start. Add any IDE or AI agent — no rebuild needed. |
+| `RW_IDE_TOOLS` | `claude,opencode,zed` | Comma-separated tool names. Creates `~/.{tool}/` config directories at container start. Add any IDE or AI agent — no rebuild needed. |
 
 ---
 
@@ -157,10 +157,10 @@ agent. Define the tools you use via `RW_IDE_TOOLS` — no image rebuild needed.
 
 ```bash
 # Built-in defaults (always available)
-RW_IDE_TOOLS=claude,opencode,zen
+RW_IDE_TOOLS=claude,opencode,zed
 
 # Add Cursor, Windsurf, or any other tool
-RW_IDE_TOOLS=claude,opencode,zen,cursor,windsurf
+RW_IDE_TOOLS=claude,opencode,zed,cursor,windsurf
 ```
 
 At container start, `init-ide-tools` creates `~/.{tool}/` for each entry with
@@ -172,14 +172,48 @@ correct permissions. Existing directories are left untouched.
 |-------------|-----------------|-----------------|
 | Claude Code | `~/.claude/` | `ANTHROPIC_API_KEY` |
 | OpenCode | `~/.opencode/` | `OPENAI_API_KEY` |
-| Zen IDE | `~/.zen/` | — |
+| Zed | `~/.zed/` | — |
 
 **Adding your own:** Set `RW_IDE_TOOLS` to include any tool name. The
-container creates the directory for you. Mount host configs if needed
-via `docker-compose.override.yaml` or devcontainer `mounts`.
+container creates an empty `~/.{tool}/` directory for you.
+
+### Mounting your host IDE configs
+
+The container creates empty directories — to bring in your existing configs
+(API keys, settings, history), mount them from your host machine.
+
+**Option A: devcontainer.json** (works in Codespaces too)
+
+Add a `mounts` array to `.devcontainer/devcontainer.json`. You'll also need
+`initializeCommand` to make sure the source directories exist on the host
+before the container starts:
+
+```jsonc
+// .devcontainer/devcontainer.json
+"initializeCommand": "mkdir -p ${localEnv:HOME}/.opencode ${localEnv:HOME}/.claude",
+"mounts": [
+    "source=${localEnv:HOME}/.opencode,target=/home/runwhen/.opencode,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.claude,target=/home/runwhen/.claude,type=bind,consistency=cached"
+]
+```
+
+**Option B: docker-compose.override.yaml** (local devcontainer only)
+
+Create `docker-compose.override.yaml` alongside the existing
+`docker-compose.yaml`. Docker Compose merges it automatically:
+
+```yaml
+# docker-compose.override.yaml
+services:
+  devtools:
+    volumes:
+      - ~/.opencode:/home/runwhen/.opencode
+      - ~/.claude:/home/runwhen/.claude
+```
 
 > **Tip for Codespaces users:** Set `RW_IDE_TOOLS` as a Codespaces secret
-> to apply across all your codespaces automatically.
+> to apply across all your codespaces automatically. Use Option A above
+> to mount your configs — Codespaces supports `mounts` in devcontainer.json.
 
 ---
 

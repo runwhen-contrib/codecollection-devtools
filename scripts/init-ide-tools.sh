@@ -8,18 +8,18 @@
 #
 # No rebuild needed — users add tools by setting ONE env var:
 #
-#   RW_IDE_TOOLS="claude,opencode,zen,cursor,windsurf"
+#   RW_IDE_TOOLS="claude,opencode,zed,cursor,windsurf"
 #
 # Each tool directory is created under $HOME (the runwhen user's home).
 # Existing directories are left untouched.
 #
-# Default tools (when RW_IDE_TOOLS is unset): claude, opencode, zen
+# Default tools (when RW_IDE_TOOLS is unset): claude, opencode, zed
 # ==============================================================================
 
 set -euo pipefail
 
 IDE_HOME="${HOME:-/home/runwhen}"
-TOOLS="${RW_IDE_TOOLS:-claude,opencode,zen}"
+TOOLS="${RW_IDE_TOOLS:-claude,opencode,zed}"
 
 echo "→ Initializing IDE tool config directories: ${TOOLS}"
 
