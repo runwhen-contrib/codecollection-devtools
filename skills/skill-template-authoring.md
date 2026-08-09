@@ -254,6 +254,12 @@ ro runbook.robot
 
 ## Regeneration
 
+**Running the generator is a required PR step, not optional.** Every
+CodeBundle PR must ship a `SKILL-TEMPLATE.md`, and it must be
+regenerated whenever `runbook.robot`, `sli.robot`, or the scripts change
+-- otherwise the manifest drifts from the source of truth (or is missing
+entirely, as `gcp-cloudspanner-instance-health` shipped without one).
+
 Use the bundled generator after editing robot files:
 
 ```bash
@@ -263,10 +269,25 @@ python3 scripts/generate_skill_md.py /path/to/codecollection --bundle azure-aks-
 
 Writes `SKILL-TEMPLATE.md` and removes legacy `SKILL.md` if present.
 
+**Review the generator output before committing.** It is known to need
+hand-fixes for:
+
+- **Description truncation** -- long `[Documentation]` / frontmatter
+  `description` values get cut off; restore the full sentence.
+- **Sourced helper scripts** -- a task that `source`s a shared helper
+  script may not have that helper attributed under `## Source files`;
+  add it by hand.
+
+Regenerate, then diff and fix these before the manifest goes in the PR.
+
 ---
 
 ## Validation Checklist
 
+- [ ] `SKILL-TEMPLATE.md` exists and was **regenerated** with
+      `generate_skill_md.py` after the latest robot/script edits
+- [ ] Generator output reviewed for description truncation and missing
+      sourced-helper attributions
 - [ ] File is at `codebundles/<name>/SKILL-TEMPLATE.md` (not `SKILL.md`)
 - [ ] Frontmatter includes `kind: skill-template`
 - [ ] `name` matches directory name
@@ -298,3 +319,7 @@ Writes `SKILL-TEMPLATE.md` and removes legacy `SKILL.md` if present.
 
 7. **Using `runner: ro` in frontmatter.** `ro` is devcontainer-only. Production
    uses the platform runner + worker + `runrobot.sh` inside `rw-base-runtime`.
+
+8. **Shipping a PR with no `SKILL-TEMPLATE.md` (or a stale one).** Running
+   `generate_skill_md.py` is a required PR step; regenerate after every
+   robot/script change and hand-fix truncation before committing.

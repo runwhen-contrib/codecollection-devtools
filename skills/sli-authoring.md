@@ -48,6 +48,50 @@ run it periodically.
 
 ---
 
+## Reading Metrics Safely (learned from live failures)
+
+A structurally-perfect SLI/runbook can still score healthy while reading
+**nothing** if the underlying data call silently fails. These pitfalls
+shipped past review and only surfaced on a live run -- guard against them
+in every check that reads a metric or API. (The
+`CLOUDSDK_BILLING_QUOTA_PROJECT` cross-project trap lives in `auth-gcp.md`;
+the principles here are cloud-agnostic.)
+
+1. **Don't swallow "command not found" / API errors into empty data.**
+   `some-cmd 2>/dev/null || echo "[]"` is only safe when the command
+   *exists* and the sole expected failure is a permission gap. Wrapped
+   around a nonexistent subcommand, a bad flag, or a failed API call it
+   turns a hard error into "no data available" -- which the SLI then
+   scores as **healthy**. Validate the response shape and **fail loud**:
+
+   ```bash
+   if ! echo "$resp" | jq -e '<expected shape>' >/dev/null 2>&1; then
+       echo "ERROR: read failed: $resp" >&2
+       exit 1
+   fi
+   ```
+
+2. **Prefer a first-class, tested call over a guessed one.** If a
+   read-only call has no obvious CLI form, use a shared, tested helper
+   (e.g. a REST call through the already-authenticated session) rather
+   than inventing a subcommand or flag. A command that doesn't exist
+   fails the same way a permission error does -- and pitfall #1 then
+   hides it.
+
+## Report Enrichment, Not Rollup Tasks
+
+Do **not** add a separate "health summary" / rollup task that re-queries
+the same data the individual checks already collected. The SLI already
+computes its aggregate natively (mean of sub-scores in Robot); a rollup
+task just duplicates state/CPU/storage calls, doubles API cost, and drifts
+out of sync with the real checks. Instead, have **each** check enrich the
+report with its own context via `RW.Core.Add to Report` -- full resource
+config JSON, the active thresholds it applied, the inventory it scanned.
+The reader gets richer, per-dimension detail and there's a single source
+of truth per signal.
+
+---
+
 ## `RW_LOOKBACK_WINDOW` on SLIs (platform variable)
 
 `RW_LOOKBACK_WINDOW` controls how far back time-windowed SLI signals look
@@ -458,3 +502,9 @@ Use this checklist when building or reviewing a CodeBundle:
    `Set Variable` argument and can turn dicts into lists; use `Evaluate ... json`
 10. **Confusing Normalize `2` with “×2 interval”** -- second arg is output format;
     platform already supplies seconds sized to the scrape interval
+11. **Silently swallowing a failed data read** -- `cmd 2>/dev/null || echo "[]"`
+    around a nonexistent command or failed API call scores the SLI healthy on
+    zero data; validate response shape and fail loud instead
+12. **Redundant rollup/summary task** -- re-queries data the individual checks
+    already produce and the SLI already averages; enrich each check's report
+    via `Add to Report` instead
