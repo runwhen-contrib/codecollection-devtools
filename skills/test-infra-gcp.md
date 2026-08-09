@@ -326,6 +326,55 @@ labels = {
 }
 ```
 
+### Loading test data after provisioning (metric/utilization checks)
+
+Some checks -- storage utilization, row/object counts, throughput -- only
+have something to read once the resource holds **data**. Provisioning an
+empty instance leaves those metrics at zero and the check untested. Load a
+small amount of data after `apply` with a `null_resource` +
+`local-exec`, and exercise the check via a **threshold override** (e.g.
+`STORAGE_UTILIZATION_THRESHOLD=0`) rather than provisioning realistically
+huge infra:
+
+```hcl
+resource "null_resource" "load_test_data" {
+  depends_on = [google_spanner_database.overloaded_database]
+
+  triggers = {
+    database = google_spanner_database.overloaded_database.name
+  }
+
+  provisioner "local-exec" {
+    command     = "${path.module}/load_test_data.sh"
+    interpreter = ["/bin/bash", "-c"]
+    environment = {
+      TF_VAR_project_id = var.project_id
+      INSTANCE          = google_spanner_instance.overloaded_instance.name
+      DATABASE          = google_spanner_database.overloaded_database.name
+    }
+  }
+}
+```
+
+Keep the loader script robust to CLI arg limits:
+
+- **Hex-encode payloads** and pass them as bytes/`BYTES` columns (or
+  decode inside the query). This avoids gcloud's `--data`/DML string
+  parser choking on quotes/newlines and keeps you under the **~128 KB**
+  total command-line argument limit -- batch inserts rather than one
+  giant statement.
+- Prefer many small `gcloud spanner databases execute-sql` batches (or
+  `bq load` from a temp file) over a single multi-megabyte argument.
+
+**⚠️ Metric lag / flooring caveat.** Provider metrics are not instant and
+often **floor small or young data to 0**. Cloud Spanner's
+`storage/used_bytes`, for instance, can take **hours** to report a nonzero
+value for a freshly-loaded few MB. So a data-loader makes the check
+*exercisable* (via threshold override) but does **not** guarantee a
+nonzero live reading in a short test window. Document the expected lag in
+the bundle's test notes and don't treat a still-zero metric immediately
+after load as a bug.
+
 ---
 
 ## Common Mistakes
@@ -355,6 +404,17 @@ labels = {
    For Workload Identity, leave `applicationCredentialsFile` empty;
    setting `GOOGLE_APPLICATION_CREDENTIALS` short-circuits the
    metadata-server path.
+
+7. **Provisioning an empty resource for a data-dependent check** --
+   storage/count/throughput checks read zero against an empty instance
+   and go untested. Load a little data via `null_resource` + `local-exec`
+   (hex-encoded, batched) and exercise the check with a threshold
+   override -- but account for provider metric lag/flooring (Spanner
+   `used_bytes` can take hours to report nonzero).
+
+8. **Passing large payloads as a single CLI arg** -- gcloud DML/`--data`
+   parsers choke on quotes/newlines and there's a ~128 KB arg limit.
+   Hex-encode and batch, or `bq load` from a temp file.
 
 ---
 

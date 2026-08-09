@@ -124,6 +124,48 @@ Apply this pattern to **both** `runbook.robot` and `sli.robot`.
 
 ---
 
+## Cross-Project Quota Project (the SERVICE_DISABLED trap)
+
+When the credential's own project differs from the target project --
+i.e. a Workload-Identity or service-account whose home project is *not*
+the `GCP_PROJECT_ID` you're monitoring -- gcloud derives the API
+consumer / quota project from the **credential's** project, not from
+`--project` / `CLOUDSDK_CORE_PROJECT`. Any API that checks its own
+enablement (Service Usage, Cloud Monitoring, Cloud Spanner, ...) then
+fails against the *caller's* project with:
+
+```text
+PERMISSION_DENIED: Cloud Spanner API has not been used in project
+<caller-project> before or it is disabled ... SERVICE_DISABLED
+```
+
+even though the API is perfectly enabled on the target. The check is
+reading the wrong project.
+
+**Fix: pin the quota/billing project to the target in the suite env.**
+
+```robot
+Set Suite Variable
+...    ${env}
+...    {"CLOUDSDK_CORE_PROJECT":"${GCP_PROJECT_ID}","CLOUDSDK_BILLING_QUOTA_PROJECT":"${GCP_PROJECT_ID}","GOOGLE_APPLICATION_CREDENTIALS":"./${gcp_credentials.key}","PATH":"$PATH:${OS_PATH}","GCP_PROJECT_ID":"${GCP_PROJECT_ID}"}
+```
+
+`CLOUDSDK_BILLING_QUOTA_PROJECT` (equivalently `gcloud config set
+billing/quota_project`) forces gcloud and REST calls made through the
+gcloud session to bill/consume against `${GCP_PROJECT_ID}`.
+
+- **Cross-project SAs / Workload Identity** need
+  `roles/serviceusage.serviceUsageConsumer` on the **target** project
+  for the pinned quota project to be usable.
+- **In-project SAs** (credential home == target) are unaffected --
+  setting it is a **no-op**, so it is always safe to include.
+
+Set it in **both** `runbook.robot` and `sli.robot` suite env. This bites
+every GCP bundle used with WI or a shared/cross-project SA; add it by
+default.
+
+---
+
 ## Runtime Environment (what the platform sets for you)
 
 `runrobot.py` prepares these before Robot starts. Do **not** override
@@ -223,8 +265,16 @@ Rules:
    (`bigquery.tables.list`, `bigquery.routines.list`) that read-only
    service accounts often lack; `bq ls`/`bq show` work with basic
    viewer roles.
-4. **Degrade gracefully**: `2>/dev/null || echo "[]"` on discovery
-   commands so a permission gap produces an empty result, not a crash.
+4. **Degrade gracefully -- but only for commands that exist.**
+   `2>/dev/null || echo "[]"` is fine on a `gcloud`/`bq` *discovery*
+   command where the only expected failure is a **permission gap** (turn
+   `Access Denied` into an empty result, not a crash). **Never** wrap it
+   around a command whose existence or success isn't guaranteed -- a
+   typo'd subcommand, a REST call, an unsupported flag. That pattern
+   converts "command not found" / "API error" into "no data", which a
+   health check then scores as passing. For calls that can fail that way,
+   **validate the response shape** and **fail loud** instead of
+   defaulting to `[]`.
 5. **Check all BigQuery access field variants** -- `bq show` returns
    public principals under `specialGroup`, `iamMember`, or
    `groupByEmail` depending on how they were granted:
@@ -321,6 +371,17 @@ rather than hardcoding secret references:
 9. **Hardcoding credentials or project IDs** -- always import via
    `RW.Core.Import Secret` / `RW.Core.Import User Variable` and use the
    `gcp-auth.yaml` include in templates.
+
+10. **Omitting `CLOUDSDK_BILLING_QUOTA_PROJECT`** -- with a cross-project
+    SA / Workload Identity, gcloud bills API calls to the credential's
+    project and enablement checks fail `SERVICE_DISABLED` against the
+    wrong project. Pin it to `${GCP_PROJECT_ID}` in the suite env (no-op
+    for in-project SAs). Found in `gcp-cloudspanner-instance-health`.
+
+11. **Swallowing a nonexistent command / API error into `[]`** --
+    `bad-cmd 2>/dev/null || echo "[]"` reports "no data" as healthy.
+    Only degrade real permission gaps; for calls whose existence or
+    success isn't guaranteed, validate the response shape and fail loud.
 
 ---
 
